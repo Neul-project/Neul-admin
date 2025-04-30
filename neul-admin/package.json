@@ -1,0 +1,31 @@
+{
+  "name": "admin-page",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 4000",
+    "build": "next build",
+    "start": "next start -p 4000",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^5.3.7",
+    "@types/styled-components": "^5.1.34",
+    "antd": "^5.17.4",
+    "axios": "^1.6.8",
+    "clsx": "^2.1.1",
+    "framer-motion": "^11.1.7",
+    "next": "^14.2.3",
+    "next-translate": "^2.6.2",
+    "next-transpile-modules": "^10.0.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "styled-components": "^6.1.17"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "typescript": "^5"
+  }
+}
