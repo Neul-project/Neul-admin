@@ -5,7 +5,7 @@ export const HeaderStyled = styled.div`
     display: none;
   }
   color: white;
-  background: #2196f3;
+  background: #5da487;
   padding: 20px;
   height: 64px;
   /* border-bottom: 1px solid #333; */

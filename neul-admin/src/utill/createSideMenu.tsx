@@ -38,8 +38,39 @@ export const sidebarMenus = createSidebarMenus([
     children: [
       {
         key: "/users/manage",
-        label: "회원 정보",
+        label: "전체 회원 정보",
+      },
+      {
+        key: "/users/helpermanage",
+        label: "담당 회원 정보",
       },
     ],
+  },
+
+  {
+    key: "/program",
+    label: "프로그램",
+    children: [
+      {
+        key: "/program/manage",
+        label: "프로그램 등록",
+      },
+      {
+        key: "/program/payment",
+        label: "결제 목록",
+      },
+      {
+        key: "/program/refund",
+        label: "환불 목록",
+      },
+    ],
+  },
+  {
+    key: "/feedback",
+    label: "피드백",
+  },
+  {
+    key: "/advertising",
+    label: "광고 등록",
   },
 ]);
