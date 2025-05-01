@@ -46,11 +46,11 @@ const StatusWrite = () => {
   // 로그인한 관리자의 담당 피보호자 불러오기
   const getPatient = async () => {
     try {
-      const res = await axiosInstance.get("/status/patient", {
-        params: { adminId },
-      });
-      setPatient(res.data);
-      // setPatient(dummydata);
+      // const res = await axiosInstance.get("/status/patient", {
+      //   params: { adminId },
+      // });
+      // setPatient(res.data);
+      setPatient(dummydata);
     } catch (e) {}
   };
 
@@ -85,7 +85,7 @@ const StatusWrite = () => {
   };
 
   // 피보호자 정보
-  const PatientOptions = dummydata.map((patient) => ({
+  const PatientOptions = patient.map((patient) => ({
     label: patient.name,
     value: patient.patient_id,
   }));

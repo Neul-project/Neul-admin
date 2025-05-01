@@ -1,7 +1,7 @@
-import StatusWrite from "@/features/StatusWrite";
+import RecordList from "@/components/StatusList";
 
 const StatusPage = () => {
-  return <StatusWrite />;
+  return <RecordList />;
 };
 
 export default StatusPage;
