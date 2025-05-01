@@ -1,38 +1,93 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  Modal,
   Button,
   Form,
   Radio,
   Select,
-  message,
   ConfigProvider,
+  notification,
 } from "antd";
-import { StatusWriteStyled } from "./styled";
+import { StatusTheme, StatusWriteStyled } from "./styled";
 import TextArea from "antd/es/input/TextArea";
 import axiosInstance from "@/lib/axios";
 import clsx from "clsx";
 import TitleCompo from "@/components/TitleCompo";
 
-/* 백엔드에 연결해야하는 거 -> 20번째줄(로그인한 관리자 id와 입력한 데이터를 보냄 post요청) */
+/* 백엔드에 연결해야하는 거 -> 48번째줄(get 피보호자 불러오기(로그인한 관리자adminId보냄)),
+ 71번째줄(로그인한 관리자 id와 입력한 데이터를 보냄 post요청) */
+
+interface PatientType {
+  patient_id: number;
+  name: string;
+}
 
 // 상태 등록하는 모달
 const StatusWrite = () => {
   const [form] = Form.useForm();
+  const [patient, setPatient] = useState<PatientType[]>([]);
   const adminId = 1; //임의 로그인한 관리자 id
+
+  const dummydata = [
+    {
+      patient_id: 1,
+      name: "홍길동",
+    },
+    {
+      patient_id: 2,
+      name: "랄라라",
+    },
+    {
+      patient_id: 5,
+      name: "헤이헤이",
+    },
+  ];
+
+  // 로그인한 관리자의 담당 피보호자 불러오기
+  const getPatient = async () => {
+    try {
+      const res = await axiosInstance.get("/status/patient", {
+        params: { adminId },
+      });
+      setPatient(res.data);
+      // setPatient(dummydata);
+    } catch (e) {}
+  };
+
+  useEffect(() => {
+    getPatient();
+  }, []);
 
   // 로그인한 관리자 id와 입력한 데이터들을 보내 post요청
   const postStatus = async (values: any) => {
     try {
-      console.log("등록된 상태:", values);
-      await axiosInstance.post("/status", { values, adminId });
-      message.success("등록되었습니다.");
+      const { meal1, meal2, meal3, ...rest } = values;
+
+      const formatValues = {
+        ...rest,
+        meal: [meal1, meal2, meal3],
+      };
+
+      console.log("등록된 상태:", formatValues);
+      await axiosInstance.post("/status", { formatValues, adminId });
+      notification.success({
+        message: "등록 완료",
+        description: "상태가 성공적으로 등록되었습니다.",
+      });
       form.resetFields(); // 폼 초기화
-    } catch (error) {
-      console.error("등록하기 요청 실패:", error);
-      message.error("등록에 실패했습니다.");
+    } catch (e) {
+      console.error("등록하기 요청 실패:", e);
+      notification.error({
+        message: "등록 실패",
+        description: "상태 등록에 실패했습니다. 다시 시도해주세요.",
+      });
     }
   };
+
+  // 피보호자 정보
+  const PatientOptions = dummydata.map((patient) => ({
+    label: patient.name,
+    value: patient.patient_id,
+  }));
 
   // 컨디션
   const conditionOptions = [
@@ -51,27 +106,29 @@ const StatusWrite = () => {
     { label: "조금 섭취", value: "조금 섭취" },
     { label: "식사 거부", value: "식사 거부" },
   ];
-  const name = "홍길동";
+
   return (
     <StatusWriteStyled className={clsx("statuswrite_page")}>
-      <TitleCompo title={`${name}님 상태 등록`} />
-      <br />
       <Form form={form} layout="vertical" onFinish={postStatus}>
-        <ConfigProvider theme={{ token: { colorPrimary: "#5da487" } }}>
-          <Form.Item
-            name=""
-            label="피보호자"
-            rules={[{ required: true, message: "피보호자를 선택해주세요" }]}
-          >
-            <Select
-              options={conditionOptions}
-              placeholder="피보호자를 선택해주세요"
-            />
-          </Form.Item>
-        </ConfigProvider>
+        <div className="statuswrite_title">
+          <TitleCompo title="상태 기록" />
+          <br />
+          <ConfigProvider theme={StatusTheme}>
+            <Form.Item
+              name="patient_id"
+              label="피보호자"
+              rules={[{ required: true, message: "피보호자를 선택해주세요" }]}
+            >
+              <Select
+                options={PatientOptions}
+                placeholder="피보호자를 선택해주세요"
+              />
+            </Form.Item>
+          </ConfigProvider>
+        </div>
 
         {/* 컨디션 */}
-        <ConfigProvider theme={{ token: { colorPrimary: "#5da487" } }}>
+        <ConfigProvider theme={StatusTheme}>
           <Form.Item
             name="condition"
             label="컨디션"
@@ -85,7 +142,7 @@ const StatusWrite = () => {
         </ConfigProvider>
 
         {/* 식사량 */}
-        <ConfigProvider theme={{ token: { colorPrimary: "#5da487" } }}>
+        <ConfigProvider theme={StatusTheme}>
           {["아침 식사량", "점심 식사량", "저녁 식사량"].map((meal, i) => (
             <Form.Item
               key={i}
@@ -107,22 +164,22 @@ const StatusWrite = () => {
         </ConfigProvider>
 
         {/* 약 복용 여부 */}
-        <ConfigProvider theme={{ token: { colorPrimary: "#5da487" } }}>
+        <ConfigProvider theme={StatusTheme}>
           <Form.Item
             name="medication"
             label="약 복용 여부"
             rules={[{ required: true, message: "복용 여부를 선택해주세요" }]}
           >
             <Radio.Group optionType="button" buttonStyle="solid">
-              <Radio.Button value="yes">예</Radio.Button>
-              <Radio.Button value="no">아니요</Radio.Button>
+              <Radio.Button value="예">예</Radio.Button>
+              <Radio.Button value="아니요">아니요</Radio.Button>
               <Radio.Button value="none">없음</Radio.Button>
             </Radio.Group>
           </Form.Item>
         </ConfigProvider>
 
         {/* 수면시간 */}
-        <ConfigProvider theme={{ token: { colorPrimary: "#5da487" } }}>
+        <ConfigProvider theme={StatusTheme}>
           <Form.Item
             name="sleep"
             label="수면 시간"
@@ -133,7 +190,7 @@ const StatusWrite = () => {
         </ConfigProvider>
 
         {/* 통증여부 */}
-        <ConfigProvider theme={{ token: { colorPrimary: "#5da487" } }}>
+        <ConfigProvider theme={StatusTheme}>
           <Form.Item
             name="pain"
             label="통증 여부"
@@ -144,14 +201,14 @@ const StatusWrite = () => {
         </ConfigProvider>
 
         {/* 특이사항 */}
-        <ConfigProvider theme={{ token: { colorPrimary: "#5da487" } }}>
+        <ConfigProvider theme={StatusTheme}>
           <Form.Item name="note" label="특이사항">
             <TextArea placeholder="특이사항을 입력해주세요" autoSize />
           </Form.Item>
         </ConfigProvider>
 
         {/* 등록 버튼 */}
-        <ConfigProvider theme={{ token: { colorPrimary: "#5da487" } }}>
+        <ConfigProvider theme={StatusTheme}>
           <Form.Item>
             <Button type="primary" htmlType="submit" block>
               등록
