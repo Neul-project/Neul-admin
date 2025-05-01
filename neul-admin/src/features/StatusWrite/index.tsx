@@ -6,12 +6,13 @@ import {
   Select,
   ConfigProvider,
   notification,
+  Input,
 } from "antd";
 import { StatusTheme, StatusWriteStyled } from "./styled";
-import TextArea from "antd/es/input/TextArea";
 import axiosInstance from "@/lib/axios";
 import clsx from "clsx";
 import TitleCompo from "@/components/TitleCompo";
+const { TextArea } = Input;
 
 /* 백엔드에 연결해야하는 거 -> 48번째줄(get 피보호자 불러오기(로그인한 관리자adminId보냄)),
  71번째줄(로그인한 관리자 id와 입력한 데이터를 보냄 post요청) */
