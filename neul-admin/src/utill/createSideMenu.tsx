@@ -71,7 +71,7 @@ export const sidebarMenus = createSidebarMenus([
     children: [
       {
         key: "/activity/write",
-        label: "활동기록 등록",
+        label: "활동기록 리스트",
       },
       {
         key: "/activity/report",
