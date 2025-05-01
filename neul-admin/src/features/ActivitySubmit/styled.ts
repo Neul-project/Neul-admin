@@ -13,6 +13,23 @@ export const ActivityStyled = styled.div`
       margin-bottom: 5px;
     }
 
+    .activitySubmit_ward {
+      display: flex;
+      width: 100%;
+      justify-content: right;
+      align-items: center;
+      gap: 15px;
+
+      .activitySubmit_text {
+        font-size: 14px;
+        //margin-right: 5px;
+      }
+
+      .activitySubmit_select {
+        width: 200px;
+      }
+    }
+
     .activitySubmit_title {
       display: flex;
       justify-content: space-between;
@@ -25,17 +42,30 @@ export const ActivityStyled = styled.div`
 
     .activitySubmit_image {
       .activitySubmit_swiper_div {
+        display: flex;
         width: 100%;
         height: 300px;
         border-radius: 15px;
-        padding: 15px;
-        border: 1px solid black;
+        padding: 10px;
+        border: 1px solid #ccc;
         margin-top: 15px;
+        align-items: center;
+        justify-content: center;
+
+        .activitySubmit_swiper_text {
+          font-size: 14px;
+        }
 
         .activitySubmit_swiper {
           width: 100%;
           height: 100%;
           cursor: pointer;
+
+          .swperimg {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
         }
       }
     }
@@ -83,6 +113,15 @@ export const ActivityTheme = {
       activeShadow: "none",
       hoverBorderColor: "none",
       activeOutlineColor: "none",
+    },
+    Button: {
+      defaultHoverBorderColor: "none",
+      defaultHoverColor: "none",
+      defaultActiveColor: "none",
+      defaultActiveBorderColor: "none",
+    },
+    Radio: {
+      buttonSolidCheckedHoverBg: "#5da487",
     },
   },
 };
