@@ -42,12 +42,7 @@ const ActivitySubmit = () => {
     },
     multiple: true,
     listType: "picture-card",
-    maxCount: 10,
-    // previewFile: async (file) => {
-    //   console.log("Your upload file:", file);
-
-    //   return URL.createObjectURL(file);
-    // },
+    maxCount: 5,
   };
 
   //swiper array -> 파일 업로드 시 파일 이미지 리스트 나올것
@@ -215,7 +210,7 @@ const ActivitySubmit = () => {
                 <Radio.Button className="activitySubmit_radio" value="no">
                   미참여
                 </Radio.Button>
-                <Radio.Button className="activitySubmit_radio" value="non">
+                <Radio.Button className="activitySubmit_radio" value="none">
                   비대상
                 </Radio.Button>
               </Radio.Group>
