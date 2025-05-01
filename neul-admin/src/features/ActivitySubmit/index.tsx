@@ -41,7 +41,8 @@ const ActivitySubmit = () => {
       //console.log("url", fileList);
     },
     multiple: true,
-    listType: "picture",
+    listType: "picture-card",
+    maxCount: 10,
     // previewFile: async (file) => {
     //   console.log("Your upload file:", file);
 
@@ -71,14 +72,34 @@ const ActivitySubmit = () => {
       title: "",
       type: "walk",
       note: "",
+      patient_id: "",
+      rehabilitation: "",
     },
     onSubmit: (values) => {
-      console.log("values", values);
+      //console.log("values", values);
       const userid = 1; //임시 아이디 (도우미)
+
+      const formData = new FormData();
+
+      formData.append("title", values.title);
+      formData.append("type", values.type);
+      formData.append("note", values.note);
+      formData.append("patient_id", values.patient_id);
+      formData.append("rehabilitation", values.rehabilitation);
+
+      imgarr.forEach((fileWrapper: any) => {
+        if (fileWrapper.originFileObj) {
+          formData.append("img", fileWrapper.originFileObj);
+        }
+      });
 
       //백엔드 저장 요청
       // axiosInstance
-      //   .post(`/activity/write/${userid}`, values)
+      //   .post(`/activity/write/${userid}`, formData, {
+      //     headers: {
+      //       "Content-Type": "multipart/form-data",
+      //     },
+      //   })
       //   .then((res) => console.log("/activitiy/write/userid res", res.data));
     },
   });
@@ -115,11 +136,10 @@ const ActivitySubmit = () => {
             />
           </ConfigProvider>
         </div>
-
         {/* swiper */}
         <div className="activitySubmit_image">
           <Upload {...props} fileList={imgarr}>
-            <Button icon={<UploadOutlined />}>이미지 업로드</Button>
+            <Button icon={<UploadOutlined />}></Button>
           </Upload>
           <div className="activitySubmit_swiper_div">
             {imgarr.length > 0 ? (
@@ -135,7 +155,7 @@ const ActivitySubmit = () => {
                 >
                   {imgarr.map((element: any, index: number) => {
                     if (element.originFileObj) {
-                      console.log(URL.createObjectURL(element.originFileObj));
+                      //console.log(URL.createObjectURL(element.originFileObj));
                     }
 
                     const url = element.originFileObj

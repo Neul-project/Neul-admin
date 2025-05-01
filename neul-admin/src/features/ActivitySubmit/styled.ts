@@ -9,7 +9,7 @@ export const ActivityStyled = styled.div`
     gap: 25px;
 
     .activitySubmit_text {
-      font-size: 14px;
+      //font-size: 14px;
       margin-bottom: 5px;
     }
 
@@ -21,7 +21,7 @@ export const ActivityStyled = styled.div`
       gap: 15px;
 
       .activitySubmit_text {
-        font-size: 14px;
+        //font-size: 14px;
         //margin-right: 5px;
       }
 
@@ -41,6 +41,9 @@ export const ActivityStyled = styled.div`
     }
 
     .activitySubmit_image {
+      .ant-upload ant-upload-select {
+        display: none !important;
+      }
       .activitySubmit_swiper_div {
         display: flex;
         width: 100%;
@@ -53,7 +56,7 @@ export const ActivityStyled = styled.div`
         justify-content: center;
 
         .activitySubmit_swiper_text {
-          font-size: 14px;
+          //font-size: 14px;
         }
 
         .activitySubmit_swiper {
