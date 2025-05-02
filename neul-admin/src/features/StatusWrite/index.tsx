@@ -13,9 +13,8 @@ import { StatusTheme, StatusWriteStyled } from "./styled";
 import axiosInstance from "@/lib/axios";
 import clsx from "clsx";
 import TitleCompo from "@/components/TitleCompo";
+import { useRouter } from "next/router";
 const { TextArea } = Input;
-
-/* 백엔드에 연결해야하는 거 -> 52번째줄(get 피보호자 불러오기(로그인한 관리자adminId보냄)), 90번째줄 수정 요청*/
 
 interface PatientType {
   patient_id: number;
@@ -26,26 +25,18 @@ interface DataProps {
   _data?: any;
 }
 
+const dummyPatientData = [
+  { patient_id: 1, name: "홍길동" },
+  { patient_id: 2, name: "랄라라" },
+  { patient_id: 5, name: "헤이헤이" },
+];
+
 // 상태 등록하는 모달
 const StatusWrite = ({ _data }: DataProps) => {
   const [form] = Form.useForm();
   const [patient, setPatient] = useState<PatientType[]>([]);
+  const router = useRouter();
   const adminId = 1; //임의 로그인한 관리자 id
-
-  const dummydata = [
-    {
-      patient_id: 1,
-      name: "홍길동",
-    },
-    {
-      patient_id: 2,
-      name: "랄라라",
-    },
-    {
-      patient_id: 5,
-      name: "헤이헤이",
-    },
-  ];
 
   // 로그인한 관리자의 담당 피보호자 불러오기
   const getPatient = async () => {
@@ -53,9 +44,19 @@ const StatusWrite = ({ _data }: DataProps) => {
       // const res = await axiosInstance.get("/status/patient", {
       //   params: { adminId },
       // });
-      // setPatient(res.data);
-      setPatient(dummydata);
-    } catch (e) {}
+
+      // // 필요한 데이터로 가공
+      // const formatted = res.data.map((item: any) => ({
+      //   patient_id: item.id,
+      //   name: item.name,
+      // }));
+
+      // // 담당 피보호자 id, name저장
+      // setPatient(formatted);
+      setPatient(dummyPatientData);
+    } catch (e) {
+      console.error("담당 피보호자 불러오기 실패: ", e);
+    }
   };
 
   useEffect(() => {
@@ -95,6 +96,8 @@ const StatusWrite = ({ _data }: DataProps) => {
       } else {
         // 등록
         await axiosInstance.post("/status/write", { formatValues, adminId });
+        form.resetFields(); // 폼 초기화
+        router.push("/status");
       }
 
       notification.success({
@@ -103,12 +106,13 @@ const StatusWrite = ({ _data }: DataProps) => {
           _data ? "수정" : "등록"
         } 완료 되었습니다.`,
       });
-      form.resetFields(); // 폼 초기화
     } catch (e) {
-      console.error("등록하기 요청 실패:", e);
+      console.error(`${_data ? "수정" : "등록"}하기 요청 실패:`, e);
       notification.error({
-        message: "등록 실패",
-        description: "상태 등록에 실패했습니다. 다시 시도해주세요.",
+        message: `${_data ? "수정" : "등록"} 실패`,
+        description: `상태 ${
+          _data ? "수정" : "등록"
+        }에 실패했습니다. 다시 시도해주세요.`,
       });
     }
   };
@@ -121,6 +125,7 @@ const StatusWrite = ({ _data }: DataProps) => {
         data: _data.id,
       });
       message.success("선택한 리스트를 삭제했습니다.");
+      router.push("/status");
     } catch (err) {
       message.error("리스트 삭제에 실패했습니다.");
     }
@@ -164,6 +169,7 @@ const StatusWrite = ({ _data }: DataProps) => {
             rules={[{ required: true, message: "피보호자를 선택해주세요" }]}
           >
             <Select
+              disabled={_data ? true : false}
               options={PatientOptions}
               placeholder="피보호자를 선택해주세요"
             />

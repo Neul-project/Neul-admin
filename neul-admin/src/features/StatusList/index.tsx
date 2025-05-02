@@ -13,7 +13,6 @@ interface PatientType {
 
 // 백엔드랑 연결할거 -> 전체 상태 리스트 불러오는 요청, 선택한 피보호자의 상태 리스트 불러오기, 선택한 리스트 삭제
 
-// 더미 데이터 (실제 요청 시 제거)
 const dummyPatientData = [
   { patient_id: 1, name: "홍길동" },
   { patient_id: 2, name: "랄라라" },
@@ -92,7 +91,15 @@ const StatusList = () => {
       // const res = await axiosInstance.get("/status/patient", {
       //   params: { adminId },
       // });
-      // setPatient(res.data);
+
+      // // 필요한 데이터로 가공
+      // const formatted = res.data.map((item: any) => ({
+      //   patient_id: item.id,
+      //   name: item.name,
+      // }));
+
+      // // 담당 피보호자 id, name저장
+      // setPatient(formatted);
       setPatient(dummyPatientData);
     } catch (e) {
       console.error("담당 피보호자 불러오기 실패", e);
@@ -157,8 +164,9 @@ const StatusList = () => {
       message.success("선택한 리스트를 삭제했습니다.");
       setSelectedRowKeys([]);
       getStatusList();
-    } catch (err) {
-      message.error("리스트 삭제에 실패했습니다.");
+    } catch (e) {
+      message.error("리스트 삭제에 실패했습니다:");
+      console.error("리스트 삭제 실패: ", e);
     }
   };
 
