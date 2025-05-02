@@ -14,8 +14,7 @@ import clsx from "clsx";
 import TitleCompo from "@/components/TitleCompo";
 const { TextArea } = Input;
 
-/* 백엔드에 연결해야하는 거 -> 48번째줄(get 피보호자 불러오기(로그인한 관리자adminId보냄)),
- 71번째줄(로그인한 관리자 id와 입력한 데이터를 보냄 post요청) */
+/* 백엔드에 연결해야하는 거 -> 52번째줄(get 피보호자 불러오기(로그인한 관리자adminId보냄)), 수정 요청*/
 
 interface PatientType {
   patient_id: number;
@@ -31,6 +30,8 @@ const StatusWrite = ({ _data }: DataProps) => {
   const [form] = Form.useForm();
   const [patient, setPatient] = useState<PatientType[]>([]);
   const adminId = 1; //임의 로그인한 관리자 id
+
+  console.log("!!!!!!!!!!!!!!!!!!", _data);
 
   const dummydata = [
     {
@@ -61,6 +62,20 @@ const StatusWrite = ({ _data }: DataProps) => {
   useEffect(() => {
     getPatient();
   }, []);
+
+  useEffect(() => {
+    if (_data) {
+      const { meal, ...rest } = _data;
+      form.setFieldsValue({
+        ...rest,
+        meal1: meal?.[0],
+        meal2: meal?.[1],
+        meal3: meal?.[2],
+      });
+
+      console.log("???????????????", meal?.[0]);
+    }
+  }, [_data, form]);
 
   // 로그인한 관리자 id와 입력한 데이터들을 보내 post요청
   const postStatus = async (values: any) => {
@@ -154,7 +169,6 @@ const StatusWrite = ({ _data }: DataProps) => {
           >
             <Select
               options={conditionOptions}
-              defaultValue={_data?.condition}
               placeholder="컨디션을 선택해주세요"
             />
           </Form.Item>

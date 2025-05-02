@@ -6,5 +6,8 @@ export const StatusListStyled = styled.div`
       display: flex;
       justify-content: space-between;
     }
+    .statuslist_select {
+      width: 150px;
+    }
   }
 `;

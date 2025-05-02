@@ -11,6 +11,8 @@ interface PatientType {
   name: string;
 }
 
+// 백엔드랑 연결할거 -> 전체 상태 리스트 불러오는 요청, 선택한 피보호자의 상태 리스트 불러오기, 선택한 리스트 삭제
+
 // 더미 데이터 (실제 요청 시 제거)
 const dummyPatientData = [
   { patient_id: 1, name: "홍길동" },
@@ -21,10 +23,11 @@ const dummyPatientData = [
 const dummyStatusData = [
   {
     id: 1,
+    patient_id: 1,
     patient_name: "홍길동",
     condition: "좋음",
-    medication: "예",
-    meal: ["아침", "점심", "저녁"],
+    medication: "yes",
+    meal: ["완식", "대부분 섭취", "절반 섭취"],
     sleep: "7시간",
     pain: "없음",
     note: "기분이 좋아 보임",
@@ -32,21 +35,23 @@ const dummyStatusData = [
   },
   {
     id: 2,
+    patient_id: 2,
     patient_name: "랄라라",
     condition: "보통",
-    medication: "아니요",
-    meal: ["아침", "점심", "저녁"],
+    medication: "no",
+    meal: ["완식", "대부분 섭취", "절반 섭취"],
     sleep: "5시간",
     pain: "두통",
     note: "약을 거부함",
     recorded_at: "2025-04-30 10:30",
   },
   {
-    id: 3,
+    id: 5,
+    patient_id: 5,
     patient_name: "헤이헤이",
     condition: "나쁨",
-    medication: "없음",
-    meal: ["아침", "점심", "저녁"],
+    medication: "none",
+    meal: ["완식", "대부분 섭취", "절반 섭취"],
     sleep: "3시간",
     pain: "복통",
     note: "",
@@ -81,7 +86,7 @@ const StatusList = () => {
     setStatusList(mapped);
   };
 
-  // 로그인한 관리자의 담당 피보호자 불러오기(이미 있는 요청임)
+  // 로그인한 관리자의 담당 피보호자 불러오기(기록하는 페이지에 이미 있는 요청임)
   const getPatient = async () => {
     try {
       // const res = await axiosInstance.get("/status/patient", {
@@ -115,13 +120,7 @@ const StatusList = () => {
       // const res = await axios.get(`/status/patient`,{params:{adminId, patientId}});
       // mapAndSetStatusList(res.data);
 
-      const selected = dummyPatientData.find(
-        (p) => p.patient_id === patientId
-      )?.name;
-      const filtered = dummyStatusData.filter(
-        (x) => x.patient_name === selected
-      );
-      mapAndSetStatusList(filtered);
+      mapAndSetStatusList(dummyStatusData);
     } catch (e) {
       console.error("특정 피보호자 리스트 실패", e);
     }
@@ -133,9 +132,11 @@ const StatusList = () => {
   }, []);
 
   useEffect(() => {
+    // 전체 선택시
     if (selectedPatient === "all") {
       getStatusList();
     } else {
+      // 각 피보호자 선택시
       getPatientStatusList(Number(selectedPatient));
     }
   }, [selectedPatient]);
@@ -155,6 +156,7 @@ const StatusList = () => {
 
       message.success("선택한 리스트를 삭제했습니다.");
       setSelectedRowKeys([]);
+      getStatusList();
     } catch (err) {
       message.error("리스트 삭제에 실패했습니다.");
     }
@@ -175,7 +177,7 @@ const StatusList = () => {
     },
     {
       key: "patient",
-      title: "피보호자",
+      title: "피보호자(id)",
       dataIndex: "patient",
     },
     {
@@ -197,7 +199,6 @@ const StatusList = () => {
       key: "typeBtn",
       title: "상세",
       render: (data: any) => {
-        console.log(data, "asdasdasd");
         return (
           <Button
             onClick={() => {
@@ -215,13 +216,17 @@ const StatusList = () => {
   // 셀렉트 옵션
   const PatientOptions = [
     { label: "전체", value: "all" },
-    ...patient.map((p) => ({ label: p.name, value: p.patient_id })),
+    ...patient.map((p) => ({
+      label: `${p.name}(${p.patient_id})`,
+      value: p.patient_id,
+    })),
   ];
 
   return (
     <StatusListStyled className={clsx("statuslist_wrap")}>
       <div className="statuslist_box">
         <Select
+          className="statuslist_select"
           options={PatientOptions}
           value={selectedPatient}
           onChange={setSelectedPatient}
@@ -242,7 +247,10 @@ const StatusList = () => {
       <Modal
         open={modalVisible}
         width={600}
-        onCancel={() => setModalVisible(false)}
+        onCancel={() => {
+          setModalVisible(false);
+          setModalData(null);
+        }}
         footer={null}
       >
         <div
