@@ -1,6 +1,6 @@
-import ActivitySubmit from "@/features/ActivitySubmit";
+import ActivityList from "@/features/ActivityList";
 
 const ActivityWrite = () => {
-  return <ActivitySubmit />;
+  return <ActivityList />;
 };
 export default ActivityWrite;
