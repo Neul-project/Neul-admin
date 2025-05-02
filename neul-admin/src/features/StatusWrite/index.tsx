@@ -88,7 +88,7 @@ const StatusWrite = ({ _data }: DataProps) => {
 
       if (_data) {
         // 수정(해당 리스트의 id)
-        await axiosInstance.put(`/status/${_data?.id}`, {
+        await axiosInstance.put(`/status/update/${_data?.id}`, {
           formatValues,
           adminId,
         });
