@@ -210,8 +210,14 @@ const StatusList = () => {
         return (
           <Button
             onClick={() => {
-              setModalVisible(true);
+              // 나중에 요청 다 처리하면 수정할 내용(수정을 안 했을때 그 내용 유지하도록)
+              // const original = statusList.find(
+              //   (x) => x.id === data.id
+              // )?.fullData;
+
+              // setModalData(original ? { ...original } : null);
               setModalData(data?.fullData);
+              setModalVisible(true);
             }}
           >
             상세
