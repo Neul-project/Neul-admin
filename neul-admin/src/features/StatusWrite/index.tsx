@@ -22,8 +22,12 @@ interface PatientType {
   name: string;
 }
 
+interface DataProps {
+  _data?: any;
+}
+
 // 상태 등록하는 모달
-const StatusWrite = () => {
+const StatusWrite = ({ _data }: DataProps) => {
   const [form] = Form.useForm();
   const [patient, setPatient] = useState<PatientType[]>([]);
   const adminId = 1; //임의 로그인한 관리자 id
@@ -69,10 +73,23 @@ const StatusWrite = () => {
       };
 
       console.log("등록된 상태:", formatValues);
-      await axiosInstance.post("/status", { formatValues, adminId });
+
+      if (_data) {
+        // 수정
+        await axiosInstance.put(`/status/${_data?.id}`, {
+          formatValues,
+          adminId,
+        });
+      } else {
+        // 등록
+        await axiosInstance.post("/status/write", { formatValues, adminId });
+      }
+
       notification.success({
-        message: "등록 완료",
-        description: "상태가 성공적으로 등록되었습니다.",
+        message: `${_data ? "수정" : "등록"} 완료`,
+        description: `상태가 성공적으로 ${
+          _data ? "수정" : "등록"
+        } 완료 되었습니다.`,
       });
       form.resetFields(); // 폼 초기화
     } catch (e) {
@@ -86,7 +103,7 @@ const StatusWrite = () => {
 
   // 피보호자 정보
   const PatientOptions = patient.map((patient) => ({
-    label: patient.name,
+    label: `${patient.name}(${patient.patient_id})`,
     value: patient.patient_id,
   }));
 
@@ -111,22 +128,22 @@ const StatusWrite = () => {
   return (
     <StatusWriteStyled className={clsx("statuswrite_page")}>
       <Form form={form} layout="vertical" onFinish={postStatus}>
-        <div className="statuswrite_title">
-          <TitleCompo title="상태 기록" />
-          <br />
-          <ConfigProvider theme={StatusTheme}>
-            <Form.Item
-              name="patient_id"
-              label="피보호자"
-              rules={[{ required: true, message: "피보호자를 선택해주세요" }]}
-            >
-              <Select
-                options={PatientOptions}
-                placeholder="피보호자를 선택해주세요"
-              />
-            </Form.Item>
-          </ConfigProvider>
-        </div>
+        <TitleCompo
+          title={_data ? `${_data?.patient_name}님의 상태 상세` : "상태 기록"}
+        />
+        <br />
+        <ConfigProvider theme={StatusTheme}>
+          <Form.Item
+            name="patient_id"
+            label="피보호자"
+            rules={[{ required: true, message: "피보호자를 선택해주세요" }]}
+          >
+            <Select
+              options={PatientOptions}
+              placeholder="피보호자를 선택해주세요"
+            />
+          </Form.Item>
+        </ConfigProvider>
 
         {/* 컨디션 */}
         <ConfigProvider theme={StatusTheme}>
@@ -137,6 +154,7 @@ const StatusWrite = () => {
           >
             <Select
               options={conditionOptions}
+              defaultValue={_data?.condition}
               placeholder="컨디션을 선택해주세요"
             />
           </Form.Item>
@@ -172,8 +190,8 @@ const StatusWrite = () => {
             rules={[{ required: true, message: "복용 여부를 선택해주세요" }]}
           >
             <Radio.Group optionType="button" buttonStyle="solid">
-              <Radio.Button value="예">예</Radio.Button>
-              <Radio.Button value="아니요">아니요</Radio.Button>
+              <Radio.Button value="yes">예</Radio.Button>
+              <Radio.Button value="no">아니요</Radio.Button>
               <Radio.Button value="none">없음</Radio.Button>
             </Radio.Group>
           </Form.Item>
@@ -212,7 +230,7 @@ const StatusWrite = () => {
         <ConfigProvider theme={StatusTheme}>
           <Form.Item>
             <Button type="primary" htmlType="submit" block>
-              등록
+              {_data ? "수정" : "등록"}
             </Button>
           </Form.Item>
         </ConfigProvider>
