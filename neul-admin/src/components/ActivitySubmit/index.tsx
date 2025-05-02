@@ -90,12 +90,17 @@ const ActivitySubmit = () => {
 
       //백엔드 저장 요청
       // axiosInstance
-      //   .post(`/activity/write/${userid}`, formData, {
+      //   .post(`/activity/write/${usterid}`, formData, {
       //     headers: {
       //       "Content-Type": "multipart/form-data",
       //     },
       //   })
-      //   .then((res) => console.log("/activitiy/write/userid res", res.data));
+      //   .then((res) => {
+      //     console.log("/activitiy/write/userid res", res.data);
+      //   })
+      //   .catch((error: string) => {
+      //     console.log("error", error);
+      //   });
     },
   });
 
