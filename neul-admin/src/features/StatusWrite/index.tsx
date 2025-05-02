@@ -7,6 +7,7 @@ import {
   ConfigProvider,
   notification,
   Input,
+  message,
 } from "antd";
 import { StatusTheme, StatusWriteStyled } from "./styled";
 import axiosInstance from "@/lib/axios";
@@ -14,7 +15,7 @@ import clsx from "clsx";
 import TitleCompo from "@/components/TitleCompo";
 const { TextArea } = Input;
 
-/* 백엔드에 연결해야하는 거 -> 52번째줄(get 피보호자 불러오기(로그인한 관리자adminId보냄)), 수정 요청*/
+/* 백엔드에 연결해야하는 거 -> 52번째줄(get 피보호자 불러오기(로그인한 관리자adminId보냄)), 90번째줄 수정 요청*/
 
 interface PatientType {
   patient_id: number;
@@ -30,8 +31,6 @@ const StatusWrite = ({ _data }: DataProps) => {
   const [form] = Form.useForm();
   const [patient, setPatient] = useState<PatientType[]>([]);
   const adminId = 1; //임의 로그인한 관리자 id
-
-  console.log("!!!!!!!!!!!!!!!!!!", _data);
 
   const dummydata = [
     {
@@ -72,8 +71,6 @@ const StatusWrite = ({ _data }: DataProps) => {
         meal2: meal?.[1],
         meal3: meal?.[2],
       });
-
-      console.log("???????????????", meal?.[0]);
     }
   }, [_data, form]);
 
@@ -90,7 +87,7 @@ const StatusWrite = ({ _data }: DataProps) => {
       console.log("등록된 상태:", formatValues);
 
       if (_data) {
-        // 수정
+        // 수정(해당 리스트의 id)
         await axiosInstance.put(`/status/${_data?.id}`, {
           formatValues,
           adminId,
@@ -113,6 +110,19 @@ const StatusWrite = ({ _data }: DataProps) => {
         message: "등록 실패",
         description: "상태 등록에 실패했습니다. 다시 시도해주세요.",
       });
+    }
+  };
+
+  // 해당 리스트 삭제
+  const WithdrawList = async () => {
+    try {
+      console.log("삭제할 리스트 id:", _data.id);
+      await axiosInstance.delete("/status/delete", {
+        data: _data.id,
+      });
+      message.success("선택한 리스트를 삭제했습니다.");
+    } catch (err) {
+      message.error("리스트 삭제에 실패했습니다.");
     }
   };
 
@@ -141,7 +151,7 @@ const StatusWrite = ({ _data }: DataProps) => {
   ];
 
   return (
-    <StatusWriteStyled className={clsx("statuswrite_page")}>
+    <StatusWriteStyled className={clsx("statuswrite_wrap")}>
       <Form form={form} layout="vertical" onFinish={postStatus}>
         <TitleCompo
           title={_data ? `${_data?.patient_name}님의 상태 상세` : "상태 기록"}
@@ -246,6 +256,17 @@ const StatusWrite = ({ _data }: DataProps) => {
             <Button type="primary" htmlType="submit" block>
               {_data ? "수정" : "등록"}
             </Button>
+            {_data ? (
+              <Button
+                className="statuswrite_delete_btn"
+                onClick={WithdrawList}
+                block
+              >
+                삭제
+              </Button>
+            ) : (
+              <></>
+            )}
           </Form.Item>
         </ConfigProvider>
       </Form>
