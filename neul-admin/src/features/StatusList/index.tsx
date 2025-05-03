@@ -109,13 +109,14 @@ const StatusList = () => {
   // 전체 상태 리스트 불러오는 요청
   const getStatusList = async () => {
     try {
-      // const res = await axiosInstance.get("/status/list", {
-      //   params: {
-      //     adminId,
-      //   },
-      // });
-      // mapAndSetStatusList(res.data);
-      mapAndSetStatusList(dummyStatusData);
+      const res = await axiosInstance.get("/status/allList", {
+        params: {
+          adminId,
+        },
+      });
+      mapAndSetStatusList(res.data);
+      console.log(res.data);
+      // mapAndSetStatusList(dummyStatusData);
     } catch (e) {
       console.error("상태 리스트 불러오기 실패", e);
     }
@@ -124,10 +125,12 @@ const StatusList = () => {
   // 선택한 피보호자의 상태 리스트 불러오기
   const getPatientStatusList = async (patientId: number) => {
     try {
-      // const res = await axios.get(`/status/patient`,{params:{adminId, patientId}});
-      // mapAndSetStatusList(res.data);
+      const res = await axiosInstance.get(`/status/selectList`, {
+        params: { adminId, patientId },
+      });
+      mapAndSetStatusList(res.data);
 
-      mapAndSetStatusList(dummyStatusData);
+      // mapAndSetStatusList(dummyStatusData);
     } catch (e) {
       console.error("특정 피보호자 리스트 실패", e);
     }
