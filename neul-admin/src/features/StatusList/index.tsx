@@ -5,6 +5,7 @@ import { Button, message, Modal, Select, Table } from "antd";
 import clsx from "clsx";
 import axiosInstance from "@/lib/axios";
 import StatusWrite from "../StatusWrite";
+import dayjs from "dayjs";
 
 interface PatientType {
   patient_id: number;
@@ -71,15 +72,21 @@ const StatusList = () => {
   const router = useRouter();
   const adminId = 1;
 
+  const medicationMap: any = {
+    yes: "예",
+    no: "아니요",
+    none: "없음",
+  };
+
   const mapAndSetStatusList = (data: any[]) => {
     const mapped = data.map((x: any, i: number) => ({
       key: x.id,
       id: x.id,
       num: i + 1,
-      patient: x.patient_name,
+      patient: x.patient.name,
       condition: x.condition,
-      medication: x.medication,
-      recorded_at: x.recorded_at,
+      medication: medicationMap[x.medication] || "없음",
+      recorded_at: dayjs(x.recorded_at).format("YYYY-MM-DD HH:mm:ss"),
       fullData: x,
     }));
     setStatusList(mapped);
@@ -115,7 +122,6 @@ const StatusList = () => {
         },
       });
       mapAndSetStatusList(res.data);
-      console.log(res.data);
       // mapAndSetStatusList(dummyStatusData);
     } catch (e) {
       console.error("상태 리스트 불러오기 실패", e);

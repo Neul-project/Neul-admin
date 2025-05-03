@@ -65,12 +65,15 @@ const StatusWrite = ({ _data }: DataProps) => {
 
   useEffect(() => {
     if (_data) {
-      const { meal, ...rest } = _data;
+      const { meal, patient, ...rest } = _data;
+      console.log(patient);
       form.setFieldsValue({
+        patient_id: patient.id,
+        patient_name: patient.name,
         ...rest,
-        meal1: meal?.[0],
-        meal2: meal?.[1],
-        meal3: meal?.[2],
+        meal1: meal?.split(",")[0],
+        meal2: meal?.split(",")[1],
+        meal3: meal?.split(",")[2],
       });
     }
   }, [_data, form]);
@@ -132,9 +135,9 @@ const StatusWrite = ({ _data }: DataProps) => {
   };
 
   // 피보호자 정보
-  const PatientOptions = patient.map((patient) => ({
-    label: `${patient.name}(${patient.patient_id})`,
-    value: patient.patient_id,
+  const PatientOptions = patient.map((item) => ({
+    label: `${item.name}(${item.patient_id})`,
+    value: item.patient_id,
   }));
 
   // 컨디션
@@ -159,7 +162,7 @@ const StatusWrite = ({ _data }: DataProps) => {
     <StatusWriteStyled className={clsx("statuswrite_wrap")}>
       <Form form={form} layout="vertical" onFinish={postStatus}>
         <TitleCompo
-          title={_data ? `${_data?.patient_name}님의 상태 상세` : "상태 기록"}
+          title={_data ? `${_data?.patient.name}님의 상태 상세` : "상태 기록"}
         />
         <br />
         <ConfigProvider theme={StatusTheme}>
