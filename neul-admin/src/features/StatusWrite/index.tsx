@@ -23,8 +23,8 @@ interface PatientType {
 
 interface DataProps {
   _data?: any;
-  getStatusList: any;
-  setModalVisible: any;
+  getStatusList?: any;
+  setModalVisible?: any;
 }
 
 const dummyPatientData = [
