@@ -29,3 +29,5 @@ export const StyledModal = styled(Modal)`
     padding-right: 10px;
   }
 `;
+
+export const StatusTheme = { token: { colorPrimary: "#5da487" } };

@@ -98,6 +98,8 @@ const StatusWrite = ({ _data, getStatusList, setModalVisible }: DataProps) => {
           formatValues,
           adminId,
         });
+        setModalVisible(false);
+        getStatusList();
       } else {
         // 등록
         await axiosInstance.post("/status/write", { formatValues, adminId });

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { StatusListStyled, StyledModal } from "./styled";
+import { StatusListStyled, StatusTheme, StyledModal } from "./styled";
 import { useRouter } from "next/router";
-import { Button, message, Modal, Select, Table } from "antd";
+import { Button, ConfigProvider, message, Modal, Select, Table } from "antd";
 import clsx from "clsx";
 import axiosInstance from "@/lib/axios";
 import StatusWrite from "../StatusWrite";
@@ -11,8 +11,6 @@ interface PatientType {
   patient_id: number;
   name: string;
 }
-
-// 백엔드랑 연결할거 -> 전체 상태 리스트 불러오는 요청, 선택한 피보호자의 상태 리스트 불러오기, 선택한 리스트 삭제
 
 const dummyPatientData = [
   { patient_id: 1, name: "홍길동" },
@@ -247,45 +245,49 @@ const StatusList = () => {
 
   return (
     <StatusListStyled className={clsx("statuslist_wrap")}>
-      <div className="statuslist_box">
-        <Select
-          className="statuslist_select"
-          options={PatientOptions}
-          value={selectedPatient}
-          onChange={setSelectedPatient}
-        />
-        <div>
-          <Button onClick={() => router.push("/statuswrite")}>기록하기</Button>
-          <Button className="statuslist_delete_btn" onClick={WithdrawList}>
-            삭제
-          </Button>
-        </div>
-      </div>
-
-      <Table
-        rowSelection={rowSelection}
-        columns={col}
-        dataSource={statusList}
-        rowKey="id"
-      />
-
-      <StyledModal
-        open={modalVisible}
-        width={600}
-        onCancel={() => {
-          setModalVisible(false);
-          setModalData(null);
-        }}
-        footer={null}
-      >
-        <div className="statuslist_modalbox">
-          <StatusWrite
-            _data={modalData}
-            getStatusList={getStatusList}
-            setModalVisible={setModalVisible}
+      <ConfigProvider theme={StatusTheme}>
+        <div className="statuslist_box">
+          <Select
+            className="statuslist_select"
+            options={PatientOptions}
+            value={selectedPatient}
+            onChange={setSelectedPatient}
           />
+          <div>
+            <Button onClick={() => router.push("/statuswrite")}>
+              기록하기
+            </Button>
+            <Button className="statuslist_delete_btn" onClick={WithdrawList}>
+              삭제
+            </Button>
+          </div>
         </div>
-      </StyledModal>
+
+        <Table
+          rowSelection={rowSelection}
+          columns={col}
+          dataSource={statusList}
+          rowKey="id"
+        />
+
+        <StyledModal
+          open={modalVisible}
+          width={600}
+          onCancel={() => {
+            setModalVisible(false);
+            setModalData(null);
+          }}
+          footer={null}
+        >
+          <div className="statuslist_modalbox">
+            <StatusWrite
+              _data={modalData}
+              getStatusList={getStatusList}
+              setModalVisible={setModalVisible}
+            />
+          </div>
+        </StyledModal>
+      </ConfigProvider>
     </StatusListStyled>
   );
 };
