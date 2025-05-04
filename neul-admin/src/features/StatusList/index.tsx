@@ -256,7 +256,9 @@ const StatusList = () => {
         />
         <div>
           <Button onClick={() => router.push("/statuswrite")}>기록하기</Button>
-          <Button onClick={WithdrawList}>삭제</Button>
+          <Button className="statuslist_delete_btn" onClick={WithdrawList}>
+            삭제
+          </Button>
         </div>
       </div>
 
@@ -284,7 +286,11 @@ const StatusList = () => {
             marginTop: "24px",
           }}
         >
-          <StatusWrite _data={modalData} />
+          <StatusWrite
+            _data={modalData}
+            getStatusList={getStatusList}
+            setModalVisible={setModalVisible}
+          />
         </div>
       </Modal>
     </StatusListStyled>

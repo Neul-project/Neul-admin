@@ -23,6 +23,8 @@ interface PatientType {
 
 interface DataProps {
   _data?: any;
+  getStatusList: any;
+  setModalVisible: any;
 }
 
 const dummyPatientData = [
@@ -32,7 +34,7 @@ const dummyPatientData = [
 ];
 
 // 상태 등록하는 모달
-const StatusWrite = ({ _data }: DataProps) => {
+const StatusWrite = ({ _data, getStatusList, setModalVisible }: DataProps) => {
   const [form] = Form.useForm();
   const [patient, setPatient] = useState<PatientType[]>([]);
   const router = useRouter();
@@ -128,9 +130,11 @@ const StatusWrite = ({ _data }: DataProps) => {
         data: _data.id,
       });
       message.success("선택한 리스트를 삭제했습니다.");
-      router.push("/status");
-    } catch (err) {
+      setModalVisible(false); // 모달 닫기
+      getStatusList(); //리스트 불러오기
+    } catch (e) {
       message.error("리스트 삭제에 실패했습니다.");
+      console.error("리스트 삭제 실패: ", e);
     }
   };
 
