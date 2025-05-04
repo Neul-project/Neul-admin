@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { StatusListStyled } from "./styled";
+import { StatusListStyled, StyledModal } from "./styled";
 import { useRouter } from "next/router";
 import { Button, message, Modal, Select, Table } from "antd";
 import clsx from "clsx";
@@ -269,7 +269,7 @@ const StatusList = () => {
         rowKey="id"
       />
 
-      <Modal
+      <StyledModal
         open={modalVisible}
         width={600}
         onCancel={() => {
@@ -278,21 +278,14 @@ const StatusList = () => {
         }}
         footer={null}
       >
-        <div
-          style={{
-            maxHeight: "70vh",
-            minHeight: "300px",
-            overflowY: "auto",
-            marginTop: "24px",
-          }}
-        >
+        <div className="statuslist_modalbox">
           <StatusWrite
             _data={modalData}
             getStatusList={getStatusList}
             setModalVisible={setModalVisible}
           />
         </div>
-      </Modal>
+      </StyledModal>
     </StatusListStyled>
   );
 };
