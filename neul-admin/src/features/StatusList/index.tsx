@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { StatusListStyled, StatusTheme, StyledModal } from "./styled";
 import { useRouter } from "next/router";
-import { Button, ConfigProvider, message, Modal, Select, Table } from "antd";
+import { Button, ConfigProvider, message, Select, Table } from "antd";
 import clsx from "clsx";
 import axiosInstance from "@/lib/axios";
-import StatusWrite from "../StatusWrite";
+import StatusWrite from "../../components/StatusWrite";
 import dayjs from "dayjs";
 
 interface PatientType {

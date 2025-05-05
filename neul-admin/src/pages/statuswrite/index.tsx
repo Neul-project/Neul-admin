@@ -1,4 +1,4 @@
-import StatusWrite from "@/features/StatusWrite";
+import StatusWrite from "@/components/StatusWrite";
 
 const StatusWritePage = () => {
   return <StatusWrite />;
