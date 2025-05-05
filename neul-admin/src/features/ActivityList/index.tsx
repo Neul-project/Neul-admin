@@ -73,11 +73,14 @@ const ActivityList = () => {
   //useEffect
   useEffect(() => {
     //피보호자  전체 리스트
-    // axiosInstance
-    //   .get("/activity/targetlist", { params: adminId })
-    //   .then((res) => {
-    //     console.log("activity targetlist res", res.data);
-    //   });
+    axiosInstance
+      .get("/activity/targetlist", { params: { adminId } })
+      .then((res) => {
+        console.log("activity targetlist res", res.data);
+      })
+      .catch((error: string) => {
+        console.log("error", error);
+      });
     //피보호자 선택에 따른 리스트 가져오기
     // axiosInstance
     //   .get("/activity/selectlist", { params: { adminId, patientId } })
