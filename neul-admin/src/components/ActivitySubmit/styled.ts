@@ -8,6 +8,11 @@ export const ActivityStyled = styled.div`
     //align-items: center;
     gap: 25px;
 
+    .activitySubmit_error_message {
+      font-size: 14px;
+      margin-top: -15px;
+      color: red;
+    }
     //파일 업로드 후 hover 시 나오는 눈 이모지 변경
     .ant-upload-list-item-actions .anticon-eye {
       display: none;

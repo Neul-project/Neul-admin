@@ -1,5 +1,6 @@
 import { ActivityStyled, ActivityTheme } from "./styled";
 import { useFormik } from "formik";
+import * as Yup from "yup";
 
 //antd
 import {
@@ -20,7 +21,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pagination, A11y } from "swiper/modules";
 import axiosInstance from "@/lib/axios";
 
@@ -28,6 +29,9 @@ import axiosInstance from "@/lib/axios";
 const ActivitySubmit = () => {
   //useState
   const [imgarr, setImgarr] = useState<any[]>([]);
+  const [ward, setWard] = useState(); //피보호자 선택
+  const [type, setType] = useState(); //활동 종류 선택
+  const [rehabilitation, setRehabilitation] = useState(); //재활 치료 선택
 
   //파일 업로드
   const props: UploadProps = {
@@ -61,6 +65,17 @@ const ActivitySubmit = () => {
     { value: 2, label: "김바나나" },
   ];
 
+  useEffect(() => {
+    const adminId = 1; //도우미 id
+
+    //도우미에 따른 피보호자 내용 전체 가져오기
+    // axiosInstance
+    //   .get("/activity/targetlist", { params: adminId })
+    //   .then((res) => {
+    //     console.log("activity targetlist res", res.data);
+    //   });
+  }, []);
+
   //formik
   const activityformik = useFormik({
     initialValues: {
@@ -71,7 +86,6 @@ const ActivitySubmit = () => {
       rehabilitation: "",
     },
     onSubmit: (values) => {
-      //console.log("values", values);
       const userid = 1; //임시 아이디 (도우미)
 
       const formData = new FormData();
@@ -89,19 +103,22 @@ const ActivitySubmit = () => {
       });
 
       //백엔드 저장 요청
-      // axiosInstance
-      //   .post(`/activity/write/${usterid}`, formData, {
-      //     headers: {
-      //       "Content-Type": "multipart/form-data",
-      //     },
-      //   })
-      //   .then((res) => {
-      //     console.log("/activitiy/write/userid res", res.data);
-      //   })
-      //   .catch((error: string) => {
-      //     console.log("error", error);
-      //   });
+      axiosInstance
+        .post(`/activity/write/${userid}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then((res) => {
+          console.log("/activitiy/write/userid res", res.data);
+        })
+        .catch((error: string) => {
+          console.log("error", error);
+        });
     },
+    validationSchema: Yup.object({
+      title: Yup.string().required("제목을 입력해 주세요."),
+    }),
   });
 
   return (
@@ -136,6 +153,11 @@ const ActivitySubmit = () => {
             />
           </ConfigProvider>
         </div>
+        {activityformik.errors.title && (
+          <div className="activitySubmit_error_message">
+            {activityformik.errors.title}
+          </div>
+        )}
         {/* swiper */}
         <div className="activitySubmit_image">
           <Upload {...props} fileList={imgarr}>
@@ -150,8 +172,6 @@ const ActivitySubmit = () => {
                   spaceBetween={50}
                   slidesPerView={1}
                   pagination={{ clickable: true }}
-                  //onSlideChange={() => console.log("slide change")}
-                  //onSwiper={(swiper) => console.log(swiper)}
                 >
                   {imgarr.map((element: any, index: number) => {
                     if (element.originFileObj) {
@@ -238,7 +258,11 @@ const ActivitySubmit = () => {
 
         <div className="activitySubmit_record_div">
           <ConfigProvider theme={ActivityTheme}>
-            <Button htmlType="submit" className="activitySubmit_record">
+            <Button
+              htmlType="submit"
+              className="activitySubmit_record"
+              disabled={!activityformik.isValid && activityformik.dirty}
+            >
               기록하기
             </Button>
           </ConfigProvider>

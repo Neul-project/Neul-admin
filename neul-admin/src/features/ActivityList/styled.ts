@@ -21,5 +21,17 @@ export const ActivityListStyled = styled.div`
         gap: 10px;
       }
     }
+    .ActivityList_Modal {
+      width: 1000px;
+    }
   }
 `;
+
+export const ActivityTheme = {
+  token: {
+    // global token
+  },
+  components: {
+    // component token
+  },
+};

@@ -1,11 +1,15 @@
 import clsx from "clsx";
-import { ActivityListStyled } from "./styled";
+import { ActivityListStyled, ActivityTheme } from "./styled";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import axiosInstance from "@/lib/axios";
 
 //antd
-import { Select, Button, Table } from "antd";
+import { Select, Button, Table, Modal, ConfigProvider } from "antd";
 import type { TableColumnsType, TableProps } from "antd";
-import { useState } from "react";
+
+//component
+import ActivitySubmit from "@/components/ActivitySubmit";
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>["rowSelection"];
@@ -34,12 +38,23 @@ const columns: TableColumnsType<DataType> = [
 ];
 
 //table dummy data ** 추후 백엔드에서 가져오기
-const dataSource = Array.from({ length: 10 }).map<DataType>((_, i) => ({
-  key: i,
-  name: `Edward King ${i}`,
-  type: "놀이",
-  recorded: `London, Park Lane no. ${i}`,
-}));
+const datalist = [
+  { key: 1, name: "lucy", type: "놀이", recorded: "2025.01.12" },
+  { key: 2, name: "lucy", type: "놀이", recorded: "2025.01.12" },
+  { key: 3, name: "Jack", type: "놀이", recorded: "2025.01.12" },
+  { key: 4, name: "Jack", type: "놀이", recorded: "2025.01.12" },
+  { key: 5, name: "Jack", type: "놀이", recorded: "2025.01.12" },
+  { key: 6, name: "yiminighe", type: "놀이", recorded: "2025.01.12" },
+  { key: 7, name: "yiminighe", type: "놀이", recorded: "2025.01.12" },
+  { key: 8, name: "yiminighe", type: "놀이", recorded: "2025.01.12" },
+];
+
+interface DataTableType {
+  key: number;
+  name: string;
+  type: string;
+  recorded: string;
+}
 
 //활동기록 > 활동기록 리스트 컴포넌트
 const ActivityList = () => {
@@ -47,19 +62,45 @@ const ActivityList = () => {
   const router = useRouter();
 
   //useState
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]); //테이블
+  const [isModalOpen, setIsModalOpen] = useState(false); //모달 클릭 여부
+  const [dataSource, setDataSource] = useState<DataTableType[]>();
+
+  const adminId = 1;
+  const patientId = 1;
+
+  //useEffect
+  useEffect(() => {
+    //피보호자  전체 리스트
+    // axiosInstance
+    //   .get("/activity/targetlist", { params: adminId })
+    //   .then((res) => {
+    //     console.log("activity targetlist res", res.data);
+    //   });
+    //피보호자 선택에 따른 리스트 가져오기
+    // axiosInstance
+    //   .get("/activity/selectlist", { params: { adminId, patientId } })
+    //   .then((res) => {
+    //     console.log("activity targetlist res", res.data);
+    //   });
+
+    setDataSource(datalist);
+  }, []);
 
   //antd select handleChange
-  const handleChange = (value: string) => {
-    console.log(`selected ${value}`);
+  const handleChange = (option: { value: number; label: string }) => {
+    //console.log("선택한 value:", option.value);
+    //console.log("선택한 label:", option.label);
+    const matched = datalist.filter((item) => item.name === option.label);
+
+    setDataSource(matched);
   };
 
   //antd - select option -> ** 추후 백엔드에서 가져와서 표시하기
   const userlist = [
     { value: 1, label: "Jack" },
-    { value: 2, label: "Lucy" },
-    { value: 3, label: "yiminghe" },
-    { value: 4, label: "Disabled" },
+    { value: 2, label: "lucy" },
+    { value: 3, label: "yiminighe" },
   ];
 
   //기록하기 페이지 이동
@@ -83,6 +124,15 @@ const ActivityList = () => {
     onChange: onSelectChange,
   };
 
+  //모달 열기
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <ActivityListStyled className={clsx("ActivityList_main_wrap")}>
       {/* 상위 선택 리스트 */}
@@ -91,9 +141,10 @@ const ActivityList = () => {
           <div>피보호자</div>
           <Select
             className="ActivityList_select"
-            defaultValue="lucy"
+            defaultValue={{ value: 2, label: "Lucy" }}
             onChange={handleChange}
             options={userlist}
+            labelInValue
           />
         </div>
         <div className="ActivityList_btns">
@@ -107,7 +158,26 @@ const ActivityList = () => {
         rowSelection={rowSelection}
         columns={columns}
         dataSource={dataSource}
+        onRow={(record, rowIndex) => {
+          return {
+            onClick: (event) => {
+              //console.log("table row", record, rowIndex);
+              showModal();
+            },
+          };
+        }}
       />
+      <ConfigProvider theme={ActivityTheme}>
+        <Modal
+          className="ActivityList_Modal"
+          title="Basic Modal"
+          open={isModalOpen}
+          onCancel={handleCancel}
+          footer={null}
+        >
+          <ActivitySubmit />
+        </Modal>
+      </ConfigProvider>
     </ActivityListStyled>
   );
 };
