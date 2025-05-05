@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { Modal } from "antd";
 
 export const ActivityListStyled = styled.div`
   &.ActivityList_main_wrap {
@@ -21,8 +22,19 @@ export const ActivityListStyled = styled.div`
         gap: 10px;
       }
     }
+  }
+`;
+
+export const StyledModal = styled(Modal)`
+  .ant-modal-content {
+    padding: 20px 10px 20px 20px;
+
     .ActivityList_Modal {
-      width: 1000px;
+      max-height: 70vh;
+      min-height: 300px;
+      overflow-y: auto;
+      margin-top: 24px;
+      padding-right: 10px;
     }
   }
 `;

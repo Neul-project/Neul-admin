@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { ActivityListStyled, ActivityTheme } from "./styled";
+import { ActivityListStyled, ActivityTheme, StyledModal } from "./styled";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axios";
@@ -64,7 +64,8 @@ const ActivityList = () => {
   //useState
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]); //테이블
   const [isModalOpen, setIsModalOpen] = useState(false); //모달 클릭 여부
-  const [dataSource, setDataSource] = useState<DataTableType[]>();
+  const [dataSource, setDataSource] = useState<DataTableType[]>(); //table 행 내용
+  const [userName, setUserName] = useState("");
 
   const adminId = 1;
   const patientId = 1;
@@ -162,21 +163,24 @@ const ActivityList = () => {
           return {
             onClick: (event) => {
               //console.log("table row", record, rowIndex);
+              setUserName(record.name);
               showModal();
             },
           };
         }}
       />
       <ConfigProvider theme={ActivityTheme}>
-        <Modal
-          className="ActivityList_Modal"
-          title="Basic Modal"
+        <StyledModal
+          width={600}
+          title={`${userName}님 활동 기록`}
           open={isModalOpen}
           onCancel={handleCancel}
           footer={null}
         >
-          <ActivitySubmit />
-        </Modal>
+          <div className="ActivityList_Modal">
+            <ActivitySubmit />
+          </div>
+        </StyledModal>
       </ConfigProvider>
     </ActivityListStyled>
   );
