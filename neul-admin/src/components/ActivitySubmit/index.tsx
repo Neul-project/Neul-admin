@@ -26,7 +26,8 @@ import { Pagination, A11y } from "swiper/modules";
 import axiosInstance from "@/lib/axios";
 
 //활동 기록 등록 컴포넌트 - formik 작성
-const ActivitySubmit = () => {
+const ActivitySubmit = (props: { com_type: string }) => {
+  const { com_type } = props;
   //useState
   const [imgarr, setImgarr] = useState<any[]>([]);
   const [ward, setWard] = useState(); //피보호자 선택
@@ -34,7 +35,7 @@ const ActivitySubmit = () => {
   const [rehabilitation, setRehabilitation] = useState(); //재활 치료 선택
 
   //파일 업로드
-  const props: UploadProps = {
+  const fileprops: UploadProps = {
     beforeUpload: () => {
       // 자동 업로드 방지
       return false;
@@ -69,11 +70,11 @@ const ActivitySubmit = () => {
     const adminId = 1; //도우미 id
 
     //도우미에 따른 피보호자 내용 전체 가져오기
-    // axiosInstance
-    //   .get("/activity/targetlist", { params: adminId })
-    //   .then((res) => {
-    //     console.log("activity targetlist res", res.data);
-    //   });
+    axiosInstance
+      .get("/activity/targetlist", { params: { adminId } })
+      .then((res) => {
+        //console.log("activity targetlist res", res.data);
+      });
   }, []);
 
   //formik
@@ -137,6 +138,7 @@ const ActivitySubmit = () => {
                 activityformik.setFieldValue("patient_id", value)
               }
               options={select_ward}
+              disabled={com_type === "modify"}
             />
           </ConfigProvider>
         </div>
@@ -160,7 +162,7 @@ const ActivitySubmit = () => {
         )}
         {/* swiper */}
         <div className="activitySubmit_image">
-          <Upload {...props} fileList={imgarr}>
+          <Upload {...fileprops} fileList={imgarr}>
             <Button icon={<UploadOutlined />}></Button>
           </Upload>
           <div className="activitySubmit_swiper_div">
@@ -263,9 +265,10 @@ const ActivitySubmit = () => {
               className="activitySubmit_record"
               disabled={!activityformik.isValid && activityformik.dirty}
             >
-              기록하기
+              {com_type === "write" ? "기록하기" : "수정하기"}
             </Button>
           </ConfigProvider>
+          {com_type ? <Button>삭제하기</Button> : ""}
         </div>
       </form>
     </ActivityStyled>

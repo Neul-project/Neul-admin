@@ -84,9 +84,9 @@ const Feedback = () => {
 
   useEffect(() => {
     //전체 feedback내용 보여지기
-    // axiosInstance.get(`/activity/feedback/views`).then((res) => {
-    //   console.log("activity feedback views res",res.data)
-    // })
+    axiosInstance.get(`/activity/feedback/views`).then((res) => {
+      console.log("activity feedback views res", res.data);
+    });
   }, [adminId]);
 
   const handleChange = (option: { value: number; label: string }) => {
@@ -94,9 +94,11 @@ const Feedback = () => {
     setAdminId(Number(option.value));
 
     //도우미 id에 해당하는 feedback내용 보여지기
-    // axiosInstance.get(`/activity/feedback/view`,{params : adminId}).then((res) => {
-    //   console.log("activity feedback view res",res.data)
-    // })
+    axiosInstance
+      .get(`/activity/feedback/view`, { params: { adminId } })
+      .then((res) => {
+        console.log("activity feedback view res", res.data);
+      });
     const matched = data.filter((item) => item.admin === option.value);
 
     setList(matched);

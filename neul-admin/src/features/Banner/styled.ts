@@ -38,14 +38,14 @@ export const BannerStyled = styled.div`
     .Banner_btns {
       display: flex;
       justify-content: space-between;
-      padding: 0px 120px;
+      padding: 0px 150px;
       padding-top: 20px;
     }
     .Banner_save {
       width: 100%;
       display: flex;
       justify-content: center;
-      margin-top: 50px;
+      margin-top: 25px;
     }
   }
 `;

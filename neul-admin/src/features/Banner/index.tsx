@@ -72,8 +72,6 @@ const Banner = () => {
 
   return (
     <BannerStyled className={clsx("Banner_main_wrap")}>
-      <h1 className="Banner_title">배너 광고 등록하기</h1>
-
       {/* 미리보기 화면 */}
       <div className="Banner_imgs">
         <div className="Banner_left_img">

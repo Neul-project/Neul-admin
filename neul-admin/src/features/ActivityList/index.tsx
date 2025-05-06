@@ -15,7 +15,7 @@ type TableRowSelection<T extends object = object> =
   TableProps<T>["rowSelection"];
 
 interface DataType {
-  key: React.Key;
+  key: number;
   name: string;
   type: string;
   recorded: string;
@@ -70,38 +70,77 @@ const ActivityList = () => {
   const adminId = 1;
   const patientId = 1;
 
-  //useEffect
   useEffect(() => {
-    //피보호자  전체 리스트
     axiosInstance
-      .get("/activity/targetlist", { params: { adminId } })
+      .get("/activity/selectlistall", { params: { adminId } })
       .then((res) => {
         console.log("activity targetlist res", res.data);
+        const data = res.data;
+        const mappedData: DataType[] = data.map((item: any, index: number) => ({
+          key: item.id ?? index,
+          name: item.patient.name ?? "",
+          type: item.type ?? "",
+          recorded: item.recorded_at ?? "",
+        }));
+
+        setDataSource(mappedData);
       })
       .catch((error: string) => {
-        console.log("error", error);
+        //console.log("error", error);
       });
-    //피보호자 선택에 따른 리스트 가져오기
-    // axiosInstance
-    //   .get("/activity/selectlist", { params: { adminId, patientId } })
-    //   .then((res) => {
-    //     console.log("activity targetlist res", res.data);
-    //   });
-
-    setDataSource(datalist);
   }, []);
 
   //antd select handleChange
   const handleChange = (option: { value: number; label: string }) => {
     //console.log("선택한 value:", option.value);
     //console.log("선택한 label:", option.label);
-    const matched = datalist.filter((item) => item.name === option.label);
 
-    setDataSource(matched);
+    if (option.value === 0) {
+      //피보호자  전체 리스트 ->select 전체 선택 시
+      axiosInstance
+        .get("/activity/selectlistall", { params: { adminId } })
+        .then((res) => {
+          console.log("activity targetlist res", res.data);
+          const data = res.data;
+          const mappedData: DataType[] = data.map(
+            (item: any, index: number) => ({
+              key: item.id ?? index,
+              name: item.patient.name ?? "",
+              type: item.type ?? "",
+              recorded: item.recorded_at ?? "",
+            })
+          );
+
+          setDataSource(mappedData);
+        })
+        .catch((error: string) => {
+          //console.log("error", error);
+        });
+    } else {
+      //피보호자 선택에 따른 리스트 가져오기 -> select 피보호자 선택 시
+      axiosInstance
+        .get("/activity/selectlist", { params: { adminId, patientId } })
+        .then((res) => {
+          console.log("activity selectlist res", res.data);
+          const data = res.data;
+
+          const mappedData: DataType[] = data.map(
+            (item: any, index: number) => ({
+              key: item.id ?? index,
+              name: item.patient.name ?? "",
+              type: item.type ?? "",
+              recorded: item.recorded_at ?? "",
+            })
+          );
+
+          setDataSource(mappedData);
+        });
+    }
   };
 
   //antd - select option -> ** 추후 백엔드에서 가져와서 표시하기
   const userlist = [
+    { value: 0, label: "전체" },
     { value: 1, label: "Jack" },
     { value: 2, label: "lucy" },
     { value: 3, label: "yiminighe" },
@@ -145,7 +184,7 @@ const ActivityList = () => {
           <div>피보호자</div>
           <Select
             className="ActivityList_select"
-            defaultValue={{ value: 2, label: "Lucy" }}
+            defaultValue={{ value: 0, label: "전체" }}
             onChange={handleChange}
             options={userlist}
             labelInValue
@@ -181,7 +220,7 @@ const ActivityList = () => {
           footer={null}
         >
           <div className="ActivityList_Modal">
-            <ActivitySubmit />
+            <ActivitySubmit com_type={"modify"} />
           </div>
         </StyledModal>
       </ConfigProvider>
