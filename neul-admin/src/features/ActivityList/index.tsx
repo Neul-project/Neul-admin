@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axios";
 
 //antd
-import { Select, Button, Table, Modal, ConfigProvider } from "antd";
+import { Select, Button, Table, Modal, ConfigProvider, message } from "antd";
 import type { TableColumnsType, TableProps } from "antd";
 
 //component
@@ -65,8 +65,6 @@ const ActivityList = () => {
   const [userName, setUserName] = useState("");
   const [userlist, setUserlist] = useState<UserType[]>();
   const [rowid, setRowId] = useState<any[]>(); //테이블 행 클릭 시 아이디(select요청 id와 비교할 때 사용)
-
-  //antd - select option -> ** 추후 백엔드에서 가져와서 표시하기
 
   const adminId = 1;
   const patientId = 1;
@@ -164,8 +162,27 @@ const ActivityList = () => {
   };
 
   //삭제하기 버튼 클릭 이벤트
-  const DeleteRows = () => {
-    console.log("selectedRowKeys", selectedRowKeys);
+  const DeleteRows = async () => {
+    //console.log("selectedRowKeys", selectedRowKeys);
+    if (selectedRowKeys.length === 0) {
+      message.warning("삭제할 리스트를 선택해주세요.");
+      return;
+    }
+
+    try {
+      console.log("삭제할 리스트 id:", selectedRowKeys);
+
+      //리스트 삭제 요청
+      await axiosInstance.delete("/activity/delete", {
+        data: { ids: selectedRowKeys },
+      });
+
+      message.success("선택한 리스트를 삭제했습니다.");
+      setSelectedRowKeys([]);
+    } catch (e) {
+      message.error("리스트 삭제에 실패했습니다:");
+      console.error("리스트 삭제 실패: ", e);
+    }
   };
 
   //table checkbox click event

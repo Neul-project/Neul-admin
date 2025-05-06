@@ -39,7 +39,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
   const [note, setNote] = useState(""); //수정 - 특이사항
   const [select_ward, setSelectWard] = useState<any[]>();
 
-  //console.log("rowcontent", rowcontent);
+  console.log("rowcontent", rowcontent);
   useEffect(() => {
     if (rowcontent) {
       setWard(rowcontent.patient.id ?? "");
@@ -72,12 +72,6 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
     { value: "exercise", label: "운동" },
   ];
 
-  //피보호자 select -> 추후 백엔드에서 가져올것
-  // const select_ward = [
-  //   { value: 1, label: "홍길동" },
-  //   { value: 2, label: "김바나나" },
-  // ];
-
   useEffect(() => {
     const adminId = 1; //도우미 id
 
@@ -94,6 +88,15 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
         setSelectWard(mappedData);
       });
   }, []);
+
+  //해당 행 삭젝 클릭 함수
+  const deleteRow = () => {
+    const ids = rowcontent.map((item: any) => item.id); //배열로 보내기
+
+    axiosInstance.delete("/activity/delete", {
+      data: { ids },
+    });
+  };
 
   //formik
   const activityformik = useFormik({
@@ -124,7 +127,8 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
 
       if (rowcontent) {
         //수정하기
-        console.log(activityformik.values);
+        //console.log(activityformik.values);
+
         axiosInstance
           .put(`/activity/update/${userid}`, formData, {
             headers: {
@@ -324,7 +328,9 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
             </Button>
           </ConfigProvider>
           {com_type === "modify" ? (
-            <Button className="activitySubmit_record">삭제하기</Button>
+            <Button className="activitySubmit_record" onClick={deleteRow}>
+              삭제하기
+            </Button>
           ) : (
             ""
           )}
