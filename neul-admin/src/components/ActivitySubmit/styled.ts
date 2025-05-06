@@ -95,6 +95,10 @@ export const ActivityStyled = styled.div`
         width: 120px;
         text-align: center;
       }
+
+      &.activitySubmit_type_column {
+        flex-direction: column;
+      }
     }
 
     .activitySubmit_record_div {
@@ -102,6 +106,7 @@ export const ActivityStyled = styled.div`
       justify-content: center;
       width: 100%;
       margin-top: 50px;
+      gap: 10px;
 
       .activitySubmit_record {
         width: 120px;

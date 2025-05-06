@@ -19,6 +19,22 @@ interface DataType {
   name: string;
   type: string;
   recorded: string;
+  original?: any;
+}
+
+//테이블 데이터 타입
+interface DataTableType {
+  key: number;
+  name: string;
+  type: string;
+  recorded: string;
+  original?: any;
+}
+
+//유저 데이터 타입
+interface UserType {
+  value: number;
+  label: string;
 }
 
 //table colums
@@ -37,25 +53,6 @@ const columns: TableColumnsType<DataType> = [
   },
 ];
 
-//table dummy data ** 추후 백엔드에서 가져오기
-const datalist = [
-  { key: 1, name: "lucy", type: "놀이", recorded: "2025.01.12" },
-  { key: 2, name: "lucy", type: "놀이", recorded: "2025.01.12" },
-  { key: 3, name: "Jack", type: "놀이", recorded: "2025.01.12" },
-  { key: 4, name: "Jack", type: "놀이", recorded: "2025.01.12" },
-  { key: 5, name: "Jack", type: "놀이", recorded: "2025.01.12" },
-  { key: 6, name: "yiminighe", type: "놀이", recorded: "2025.01.12" },
-  { key: 7, name: "yiminighe", type: "놀이", recorded: "2025.01.12" },
-  { key: 8, name: "yiminighe", type: "놀이", recorded: "2025.01.12" },
-];
-
-interface DataTableType {
-  key: number;
-  name: string;
-  type: string;
-  recorded: string;
-}
-
 //활동기록 > 활동기록 리스트 컴포넌트
 const ActivityList = () => {
   //변수 선언
@@ -66,28 +63,51 @@ const ActivityList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); //모달 클릭 여부
   const [dataSource, setDataSource] = useState<DataTableType[]>(); //table 행 내용
   const [userName, setUserName] = useState("");
+  const [userlist, setUserlist] = useState<UserType[]>();
+  const [rowid, setRowId] = useState<any[]>(); //테이블 행 클릭 시 아이디(select요청 id와 비교할 때 사용)
+
+  //antd - select option -> ** 추후 백엔드에서 가져와서 표시하기
 
   const adminId = 1;
   const patientId = 1;
 
   useEffect(() => {
     axiosInstance
-      .get("/activity/selectlistall", { params: { adminId } })
+      .get("/activity/targetlist", { params: { adminId } })
       .then((res) => {
-        console.log("activity targetlist res", res.data);
+        //console.log("REs", res.data);
         const data = res.data;
-        const mappedData: DataType[] = data.map((item: any, index: number) => ({
-          key: item.id ?? index,
-          name: item.patient.name ?? "",
-          type: item.type ?? "",
-          recorded: item.recorded_at ?? "",
+        const mappedDate: UserType[] = data.map((item: any, index: number) => ({
+          key: item.id,
+          value: item.id,
+          label: item.name,
         }));
-
-        setDataSource(mappedData);
-      })
-      .catch((error: string) => {
-        //console.log("error", error);
+        const withAllOption: UserType[] = [
+          { value: 0, label: "전체" },
+          ...mappedDate,
+        ];
+        setUserlist(withAllOption);
       });
+  }, []);
+
+  useEffect(() => {
+    //도우미 id에 따른 활동기록 전체 가져오기
+    // axiosInstance
+    //   .get("/activity/selectlistall", { params: { adminId } })
+    //   .then((res) => {
+    //     console.log("activity targetlist res", res.data);
+    //     const data = res.data;
+    //     const mappedData: DataType[] = data.map((item: any, index: number) => ({
+    //       key: item.id ?? index,
+    //       name: item.patient.name ?? "",
+    //       type: item.type ?? "",
+    //       recorded: item.recorded_at ?? "",
+    //     }));
+    //     setDataSource(mappedData);
+    //   })
+    //   .catch((error: string) => {
+    //     //console.log("error", error);
+    //   });
   }, []);
 
   //antd select handleChange
@@ -97,25 +117,24 @@ const ActivityList = () => {
 
     if (option.value === 0) {
       //피보호자  전체 리스트 ->select 전체 선택 시
-      axiosInstance
-        .get("/activity/selectlistall", { params: { adminId } })
-        .then((res) => {
-          console.log("activity targetlist res", res.data);
-          const data = res.data;
-          const mappedData: DataType[] = data.map(
-            (item: any, index: number) => ({
-              key: item.id ?? index,
-              name: item.patient.name ?? "",
-              type: item.type ?? "",
-              recorded: item.recorded_at ?? "",
-            })
-          );
-
-          setDataSource(mappedData);
-        })
-        .catch((error: string) => {
-          //console.log("error", error);
-        });
+      // axiosInstance
+      //   .get("/activity/selectlistall", { params: { adminId } })
+      //   .then((res) => {
+      //     console.log("activity targetlist res", res.data);
+      //     const data = res.data;
+      //     const mappedData: DataType[] = data.map(
+      //       (item: any, index: number) => ({
+      //         key: item.id ?? index,
+      //         name: item.patient.name ?? "",
+      //         type: item.type ?? "",
+      //         recorded: item.recorded_at ?? "",
+      //       })
+      //     );
+      //     setDataSource(mappedData);
+      //   })
+      //   .catch((error: string) => {
+      //     //console.log("error", error);
+      //   });
     } else {
       //피보호자 선택에 따른 리스트 가져오기 -> select 피보호자 선택 시
       axiosInstance
@@ -130,6 +149,7 @@ const ActivityList = () => {
               name: item.patient.name ?? "",
               type: item.type ?? "",
               recorded: item.recorded_at ?? "",
+              original: item,
             })
           );
 
@@ -137,14 +157,6 @@ const ActivityList = () => {
         });
     }
   };
-
-  //antd - select option -> ** 추후 백엔드에서 가져와서 표시하기
-  const userlist = [
-    { value: 0, label: "전체" },
-    { value: 1, label: "Jack" },
-    { value: 2, label: "lucy" },
-    { value: 3, label: "yiminighe" },
-  ];
 
   //기록하기 페이지 이동
   const ActivityWrite = () => {
@@ -207,6 +219,13 @@ const ActivityList = () => {
               //console.log("table row", record, rowIndex);
               setUserName(record.name);
               showModal();
+              const matchedRow = dataSource?.find(
+                (item) => item.key === record.key
+              );
+              //console.log("tie", matchedRow);
+              if (matchedRow?.original) {
+                setRowId(matchedRow.original);
+              }
             },
           };
         }}
@@ -220,7 +239,7 @@ const ActivityList = () => {
           footer={null}
         >
           <div className="ActivityList_Modal">
-            <ActivitySubmit com_type={"modify"} />
+            <ActivitySubmit com_type={"modify"} rowcontent={rowid} />
           </div>
         </StyledModal>
       </ConfigProvider>

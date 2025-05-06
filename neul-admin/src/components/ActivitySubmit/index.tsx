@@ -11,6 +11,7 @@ import {
   Select,
   Radio,
   ConfigProvider,
+  notification,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import type { UploadProps, RadioChangeEvent } from "antd";
@@ -26,14 +27,28 @@ import { Pagination, A11y } from "swiper/modules";
 import axiosInstance from "@/lib/axios";
 
 //활동 기록 등록 컴포넌트 - formik 작성
-const ActivitySubmit = (props: { com_type: string }) => {
-  const { com_type } = props;
+const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
+  const { com_type, rowcontent } = props;
   //useState
   const [imgarr, setImgarr] = useState<any[]>([]);
-  const [ward, setWard] = useState(); //피보호자 선택
-  const [type, setType] = useState(); //활동 종류 선택
-  const [rehabilitation, setRehabilitation] = useState(); //재활 치료 선택
+  const [ward, setWard] = useState<any>(); //수정 - 피보호자 선택
+  const [type, setType] = useState<string>(""); //수정 - 활동 종류 선택
+  const [rehabilitation, setRehabilitation] = useState(); //수정 - 재활 치료 선택
+  const [title, setTitle] = useState(""); //수정 - 제목
+  const [com_imgarr, setCom_imgarr] = useState<any[]>(); //수정 - 이미지
+  const [note, setNote] = useState(""); //수정 - 특이사항
+  const [select_ward, setSelectWard] = useState<any[]>();
 
+  //console.log("rowcontent", rowcontent);
+  useEffect(() => {
+    if (rowcontent) {
+      setWard(rowcontent.patient.id ?? "");
+      setType(rowcontent.type ?? "");
+      setRehabilitation(rowcontent.rehabilitation ?? "");
+      setTitle(rowcontent.title ?? "");
+      setNote(rowcontent.note ?? "");
+    }
+  }, [rowcontent]);
   //파일 업로드
   const fileprops: UploadProps = {
     beforeUpload: () => {
@@ -50,9 +65,6 @@ const ActivitySubmit = (props: { com_type: string }) => {
     maxCount: 5,
   };
 
-  //swiper array -> 파일 업로드 시 파일 이미지 리스트 나올것
-  //const arr = [1, 2, 3, 4, 5];
-
   //활동 종류 select
   const select_option = [
     { value: "walk", label: "산책" },
@@ -61,10 +73,10 @@ const ActivitySubmit = (props: { com_type: string }) => {
   ];
 
   //피보호자 select -> 추후 백엔드에서 가져올것
-  const select_ward = [
-    { value: 1, label: "홍길동" },
-    { value: 2, label: "김바나나" },
-  ];
+  // const select_ward = [
+  //   { value: 1, label: "홍길동" },
+  //   { value: 2, label: "김바나나" },
+  // ];
 
   useEffect(() => {
     const adminId = 1; //도우미 id
@@ -74,18 +86,25 @@ const ActivitySubmit = (props: { com_type: string }) => {
       .get("/activity/targetlist", { params: { adminId } })
       .then((res) => {
         //console.log("activity targetlist res", res.data);
+        const data = res.data;
+        const mappedData: any[] = data.map((item: any, index: number) => ({
+          value: item.id,
+          label: item.name,
+        }));
+        setSelectWard(mappedData);
       });
   }, []);
 
   //formik
   const activityformik = useFormik({
     initialValues: {
-      title: "",
-      type: "walk",
-      note: "",
-      patient_id: "",
-      rehabilitation: "",
+      title: com_type === "modify" ? title : "",
+      type: com_type === "modify" ? type : "walk",
+      note: com_type === "modify" ? note : "",
+      patient_id: com_type === "modify" ? ward : "",
+      rehabilitation: com_type === "modify" ? rehabilitation : "",
     },
+    enableReinitialize: true, // 외부 값으로 초기값으로 세팅하기 위해 사용
     onSubmit: (values) => {
       const userid = 1; //임시 아이디 (도우미)
 
@@ -94,8 +113,8 @@ const ActivitySubmit = (props: { com_type: string }) => {
       formData.append("title", values.title);
       formData.append("type", values.type);
       formData.append("note", values.note);
-      formData.append("patient_id", values.patient_id);
-      formData.append("rehabilitation", values.rehabilitation);
+      formData.append("patient_id", values.patient_id ?? "");
+      formData.append("rehabilitation", values.rehabilitation ?? "");
 
       imgarr.forEach((fileWrapper: any) => {
         if (fileWrapper.originFileObj) {
@@ -103,19 +122,38 @@ const ActivitySubmit = (props: { com_type: string }) => {
         }
       });
 
-      //백엔드 저장 요청
-      axiosInstance
-        .post(`/activity/write/${userid}`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
-        .then((res) => {
-          console.log("/activitiy/write/userid res", res.data);
-        })
-        .catch((error: string) => {
-          console.log("error", error);
-        });
+      if (rowcontent) {
+        //수정하기
+        console.log(activityformik.values);
+        axiosInstance
+          .put(`/activity/update/${userid}`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((res) => {
+            notification.success({
+              message: `수정 완료`,
+              description: `성공적으로 수정이 완료 되었습니다.`,
+            });
+          });
+      } else {
+        //기록하기
+
+        //백엔드 저장 요청
+        axiosInstance
+          .post(`/activity/write/${userid}`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((res) => {
+            notification.success({
+              message: `등록 완료`,
+              description: `성공적으로 등록이 완료 되었습니다.`,
+            });
+          });
+      }
     },
     validationSchema: Yup.object({
       title: Yup.string().required("제목을 입력해 주세요."),
@@ -139,6 +177,7 @@ const ActivitySubmit = (props: { com_type: string }) => {
               }
               options={select_ward}
               disabled={com_type === "modify"}
+              value={com_type === "modify" ? ward : undefined}
             />
           </ConfigProvider>
         </div>
@@ -148,8 +187,16 @@ const ActivitySubmit = (props: { com_type: string }) => {
           <ConfigProvider theme={ActivityTheme}>
             <Input
               name="title"
-              value={activityformik.values.title}
-              onChange={activityformik.handleChange}
+              value={
+                com_type === "modify" ? title : activityformik.values.title
+              }
+              onChange={(e) => {
+                const value = e.target.value;
+                if (com_type === "modify") {
+                  setTitle(value); // 추가!
+                }
+                activityformik.handleChange(e); // 여전히 formik도 반영
+              }}
               className="activitySubmit_title_input"
               placeholder="제목을 입력하시오"
             />
@@ -202,17 +249,25 @@ const ActivitySubmit = (props: { com_type: string }) => {
         </div>
 
         {/* 활동종류 & 재활 치료 */}
-        <div className="activitySubmit_type">
+        <div
+          className={`activitySubmit_type ${
+            com_type === "modify" ? "activitySubmit_type_column" : ""
+          }`}
+        >
           {/* 활동종류 */}
           <div>
             <div className="activitySubmit_text">활동 종류</div>
             <ConfigProvider theme={ActivityTheme}>
               <Select
                 className="activitySubmit_select"
-                defaultValue="walk"
-                onChange={(value) =>
-                  activityformik.setFieldValue("type", value)
+                value={
+                  com_type === "modify" ? type : activityformik.values.type
                 }
+                defaultValue="walk"
+                onChange={(value) => {
+                  setType(value);
+                  activityformik.setFieldValue("type", value);
+                }}
                 options={select_option}
               />
             </ConfigProvider>
@@ -252,7 +307,7 @@ const ActivitySubmit = (props: { com_type: string }) => {
             <TextArea
               rows={7}
               name="note"
-              value={activityformik.values.note}
+              value={com_type === "modify" ? note : activityformik.values.note}
               onChange={activityformik.handleChange}
             />
           </ConfigProvider>
@@ -268,7 +323,11 @@ const ActivitySubmit = (props: { com_type: string }) => {
               {com_type === "write" ? "기록하기" : "수정하기"}
             </Button>
           </ConfigProvider>
-          {com_type ? <Button>삭제하기</Button> : ""}
+          {com_type === "modify" ? (
+            <Button className="activitySubmit_record">삭제하기</Button>
+          ) : (
+            ""
+          )}
         </div>
       </form>
     </ActivityStyled>
