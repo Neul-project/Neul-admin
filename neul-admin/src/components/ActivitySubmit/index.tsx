@@ -41,12 +41,19 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
 
   console.log("rowcontent", rowcontent);
   useEffect(() => {
+    //수정하기로 들어 온 경우 상태 업데이트
     if (rowcontent) {
       setWard(rowcontent.patient.id ?? "");
       setType(rowcontent.type ?? "");
       setRehabilitation(rowcontent.rehabilitation ?? "");
       setTitle(rowcontent.title ?? "");
       setNote(rowcontent.note ?? "");
+
+      const imageUrls = rowcontent.img
+        ? rowcontent.img.split(",").map((img: any) => img.trim())
+        : [];
+
+      setCom_imgarr(imageUrls);
     }
   }, [rowcontent]);
   //파일 업로드
@@ -58,7 +65,6 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
 
     onChange({ fileList }) {
       setImgarr(fileList); // 파일 리스트 상태 업데이트
-      //console.log("url", fileList);
     },
     multiple: true,
     listType: "picture-card",
@@ -106,6 +112,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
       note: com_type === "modify" ? note : "",
       patient_id: com_type === "modify" ? ward : "",
       rehabilitation: com_type === "modify" ? rehabilitation : "",
+      imgarr: com_type === "modify" ? com_imgarr : [""],
     },
     enableReinitialize: true, // 외부 값으로 초기값으로 세팅하기 위해 사용
     onSubmit: (values) => {
@@ -125,9 +132,11 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
         }
       });
 
+      console.log("imgarr", imgarr);
+
       if (rowcontent) {
         //수정하기
-        //console.log(activityformik.values);
+        console.log("수정 ", activityformik.values);
 
         axiosInstance
           .put(`/activity/update/${userid}`, formData, {
@@ -143,7 +152,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
           });
       } else {
         //기록하기
-
+        console.log("등록 ", activityformik.values);
         //백엔드 저장 요청
         axiosInstance
           .post(`/activity/write/${userid}`, formData, {
@@ -163,6 +172,8 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
       title: Yup.string().required("제목을 입력해 주세요."),
     }),
   });
+
+  const imageList = com_type === "modify" ? com_imgarr : imgarr;
 
   return (
     <ActivityStyled>
@@ -213,12 +224,12 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
         )}
         {/* swiper */}
         <div className="activitySubmit_image">
-          <Upload {...fileprops} fileList={imgarr}>
+          <Upload {...fileprops} fileList={imageList}>
             <Button icon={<UploadOutlined />}></Button>
           </Upload>
           <div className="activitySubmit_swiper_div">
-            {imgarr.length > 0 ? (
-              <>
+            {com_type === "modify" ? (
+              com_imgarr && com_imgarr.length > 0 ? (
                 <Swiper
                   modules={[Pagination]}
                   className="activitySubmit_swiper"
@@ -226,11 +237,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
                   slidesPerView={1}
                   pagination={{ clickable: true }}
                 >
-                  {imgarr.map((element: any, index: number) => {
-                    if (element.originFileObj) {
-                      //console.log(URL.createObjectURL(element.originFileObj));
-                    }
-
+                  {com_imgarr.map((element: any, index: number) => {
                     const url = element.originFileObj
                       ? URL.createObjectURL(element.originFileObj)
                       : element.thumbUrl;
@@ -245,7 +252,32 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
                     );
                   })}
                 </Swiper>
-              </>
+              ) : (
+                <div className="activitySubmit_swiper_text">미리보기</div>
+              )
+            ) : imgarr && imgarr.length > 0 ? (
+              <Swiper
+                modules={[Pagination]}
+                className="activitySubmit_swiper"
+                spaceBetween={50}
+                slidesPerView={1}
+                pagination={{ clickable: true }}
+              >
+                {imgarr.map((element: any, index: number) => {
+                  const url = element.originFileObj
+                    ? URL.createObjectURL(element.originFileObj)
+                    : element.thumbUrl;
+                  return (
+                    <SwiperSlide key={index}>
+                      <img
+                        src={url}
+                        alt={`preview-${index}`}
+                        className="swperimg"
+                      />
+                    </SwiperSlide>
+                  );
+                })}
+              </Swiper>
             ) : (
               <div className="activitySubmit_swiper_text">미리보기</div>
             )}

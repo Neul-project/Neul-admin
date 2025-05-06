@@ -1,109 +1,99 @@
 import clsx from "clsx";
 import { BannerStyled } from "./styled";
 
-//antd
-import { Button, Upload, message, notification } from "antd";
+// antd
+import { Button, Upload, notification } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-import type { UploadProps } from "antd";
-import { useState } from "react";
+import { UploadProps } from "antd";
+import { useFormik } from "formik";
 import axiosInstance from "@/lib/axios";
 
-//배너 광고 등록 컴포넌트
 const Banner = () => {
-  //useState
-  const [leftimg, setLeftImg] = useState<string>("");
-  const [rightimg, setRightImg] = useState<string>("");
-
-  //좌측 이미지 미리보기
-  const propsleft: UploadProps = {
-    beforeUpload: () => {
-      // 자동 업로드 방지
-      return false;
+  const formik = useFormik({
+    initialValues: {
+      leftimg: null as File | null,
+      rightimg: null as File | null,
     },
-    onChange({ fileList }) {
-      const url = fileList[0].originFileObj
-        ? URL.createObjectURL(fileList[0].originFileObj)
-        : fileList[0].thumbUrl || "";
+    onSubmit: async (values) => {
+      //console.log("values", values);
+      const formData = new FormData();
+      if (values.leftimg) formData.append("img", values.leftimg);
+      if (values.rightimg) formData.append("img", values.rightimg);
 
-      setLeftImg(url); // 파일 리스트 상태 업데이트
-      //console.log("url", fileList);
-    },
-    maxCount: 1,
-  };
+      //console.log("FormData 내용:", Array.from(formData.entries()));
 
-  //우측 이미지 미리보기
-  const propsright: UploadProps = {
-    beforeUpload: () => {
-      // 자동 업로드 방지
-      return false;
-    },
-    onChange({ fileList }) {
-      const url = fileList[0].originFileObj
-        ? URL.createObjectURL(fileList[0].originFileObj)
-        : fileList[0].thumbUrl || "";
-
-      setRightImg(url); // 파일 리스트 상태 업데이트
-    },
-    maxCount: 1,
-  };
-
-  //저장하기 버튼 클릭 함수
-  const saveimg = () => {
-    axiosInstance
-      .post(
-        `/banner/registration`,
-        {
-          leftimg,
-          rightimg,
-        },
-        {
+      try {
+        await axiosInstance.post("/banner/registration", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        }
-      )
-      .then((res) => {
+        });
         notification.success({
           message: "등록 완료",
           description: "광고가 정상적으로 등록되었습니다.",
         });
-      });
-  };
+      } catch (error) {
+        notification.error({
+          message: "에러",
+          description: "업로드 중 문제가 발생했습니다.",
+        });
+      }
+    },
+  });
+
+  const handleUpload = (side: "leftimg" | "rightimg"): UploadProps => ({
+    beforeUpload: (file) => {
+      formik.setFieldValue(side, file);
+      return false; // 자동 업로드 방지
+    },
+    maxCount: 1,
+  });
 
   return (
-    <BannerStyled className={clsx("Banner_main_wrap")}>
-      {/* 미리보기 화면 */}
-      <div className="Banner_imgs">
-        <div className="Banner_left_img">
-          {leftimg ? (
-            <img className="Banner_imgstyle" src={leftimg} alt="banner-1" />
-          ) : (
-            <div className="Banner_preview_text">미리보기 화면</div>
-          )}
+    <form onSubmit={formik.handleSubmit}>
+      <BannerStyled className={clsx("Banner_main_wrap")}>
+        {/* 미리보기 */}
+        <div className="Banner_imgs">
+          <div className="Banner_left_img">
+            {formik.values.leftimg ? (
+              <img
+                className="Banner_imgstyle"
+                src={URL.createObjectURL(formik.values.leftimg)}
+                alt="banner-left"
+              />
+            ) : (
+              <div className="Banner_preview_text">미리보기 화면</div>
+            )}
+          </div>
+          <div className="Banner_right_img">
+            {formik.values.rightimg ? (
+              <img
+                className="Banner_imgstyle"
+                src={URL.createObjectURL(formik.values.rightimg)}
+                alt="banner-right"
+              />
+            ) : (
+              <div className="Banner_preview_text">미리보기 화면</div>
+            )}
+          </div>
         </div>
-        <div className="Banner_right_img">
-          {rightimg ? (
-            <img className="Banner_imgstyle" src={rightimg} alt="banner-2" />
-          ) : (
-            <div className="Banner_preview_text">미리보기 화면</div>
-          )}
+
+        {/* 업로드 버튼 */}
+        <div className="Banner_btns">
+          <Upload {...handleUpload("leftimg")}>
+            <Button icon={<UploadOutlined />}>좌측 이미지 업로드</Button>
+          </Upload>
+          <Upload {...handleUpload("rightimg")}>
+            <Button icon={<UploadOutlined />}>우측 이미지 업로드</Button>
+          </Upload>
         </div>
-      </div>
 
-      {/* 이미지 등록하기 */}
-      <div className="Banner_btns">
-        <Upload {...propsleft}>
-          <Button icon={<UploadOutlined />}>이미지 업로드</Button>
-        </Upload>
-        <Upload {...propsright}>
-          <Button icon={<UploadOutlined />}>이미지 업로드</Button>
-        </Upload>
-      </div>
-
-      <div className="Banner_save">
-        <Button onClick={saveimg}>저장하기</Button>
-      </div>
-    </BannerStyled>
+        {/* 저장 버튼 */}
+        <div className="Banner_save">
+          <Button htmlType="submit">저장하기</Button>
+        </div>
+      </BannerStyled>
+    </form>
   );
 };
 
