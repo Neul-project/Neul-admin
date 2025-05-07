@@ -66,7 +66,7 @@ const ActivityList = () => {
   const [userlist, setUserlist] = useState<UserType[]>();
   const [rowid, setRowId] = useState<any[]>(); //테이블 행 클릭 시 아이디(select요청 id와 비교할 때 사용)
 
-  const adminId = 1;
+  const adminId = 5;
   const patientId = 1;
 
   useEffect(() => {
@@ -90,22 +90,23 @@ const ActivityList = () => {
 
   useEffect(() => {
     //도우미 id에 따른 활동기록 전체 가져오기
-    // axiosInstance
-    //   .get("/activity/selectlistall", { params: { adminId } })
-    //   .then((res) => {
-    //     console.log("activity targetlist res", res.data);
-    //     const data = res.data;
-    //     const mappedData: DataType[] = data.map((item: any, index: number) => ({
-    //       key: item.id ?? index,
-    //       name: item.patient.name ?? "",
-    //       type: item.type ?? "",
-    //       recorded: item.recorded_at ?? "",
-    //     }));
-    //     setDataSource(mappedData);
-    //   })
-    //   .catch((error: string) => {
-    //     //console.log("error", error);
-    //   });
+    axiosInstance
+      .get("/activity/selectlistall", { params: { adminId } })
+      .then((res) => {
+        //console.log("activity targetlist res", res.data);
+        const data = res.data;
+        const mappedData: DataType[] = data.map((item: any, index: number) => ({
+          key: item.id,
+          name: item.patient.name ?? "",
+          type: item.type ?? "",
+          recorded: item.recorded_at ?? "",
+          original: item,
+        }));
+        setDataSource(mappedData);
+      })
+      .catch((error: string) => {
+        //console.log("error", error);
+      });
   }, []);
 
   //antd select handleChange
@@ -115,30 +116,31 @@ const ActivityList = () => {
 
     if (option.value === 0) {
       //피보호자  전체 리스트 ->select 전체 선택 시
-      // axiosInstance
-      //   .get("/activity/selectlistall", { params: { adminId } })
-      //   .then((res) => {
-      //     console.log("activity targetlist res", res.data);
-      //     const data = res.data;
-      //     const mappedData: DataType[] = data.map(
-      //       (item: any, index: number) => ({
-      //         key: item.id ?? index,
-      //         name: item.patient.name ?? "",
-      //         type: item.type ?? "",
-      //         recorded: item.recorded_at ?? "",
-      //       })
-      //     );
-      //     setDataSource(mappedData);
-      //   })
-      //   .catch((error: string) => {
-      //     //console.log("error", error);
-      //   });
+      axiosInstance
+        .get("/activity/selectlistall", { params: { adminId } })
+        .then((res) => {
+          //console.log("activity targetlist res", res.data);
+          const data = res.data;
+          const mappedData: DataType[] = data.map(
+            (item: any, index: number) => ({
+              key: item.id ?? index,
+              name: item.patient.name ?? "",
+              type: item.type ?? "",
+              recorded: item.recorded_at ?? "",
+              original: item,
+            })
+          );
+          setDataSource(mappedData);
+        })
+        .catch((error: string) => {
+          //console.log("error", error);
+        });
     } else {
       //피보호자 선택에 따른 리스트 가져오기 -> select 피보호자 선택 시
       axiosInstance
         .get("/activity/selectlist", { params: { adminId, patientId } })
         .then((res) => {
-          console.log("activity selectlist res", res.data);
+          //console.log("activity selectlist res", res.data);
           const data = res.data;
 
           const mappedData: DataType[] = data.map(
@@ -187,7 +189,7 @@ const ActivityList = () => {
 
   //table checkbox click event
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
+    //console.log("selectedRowKeys changed: ", newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
   };
 
@@ -233,9 +235,10 @@ const ActivityList = () => {
         onRow={(record, rowIndex) => {
           return {
             onClick: (event) => {
-              //console.log("table row", record, rowIndex);
+              console.log("table row", record, rowIndex);
               setUserName(record.name);
               showModal();
+
               const matchedRow = dataSource?.find(
                 (item) => item.key === record.key
               );

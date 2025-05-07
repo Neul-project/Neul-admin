@@ -1,15 +1,14 @@
 import { useEffect, useState } from "react";
 import { FeedbackStyled } from "./styled";
 import axiosInstance from "@/lib/axios";
-
-//antd
-import { Table, TableProps, Select } from "antd";
+import { Table, TableProps, Select, Modal } from "antd";
 
 interface DataType {
-  key: string;
+  key: number;
   content: string;
   date: string;
   admin: number;
+  origin: any;
 }
 
 interface AdminType {
@@ -17,103 +16,122 @@ interface AdminType {
   label: string;
 }
 
-//테이블 열
 const columns: TableProps<DataType>["columns"] = [
-  {
-    title: "번호",
-    dataIndex: "key",
-    key: "key",
-  },
-  {
-    title: "내용",
-    dataIndex: "content",
-    key: "content",
-  },
-  {
-    title: "날짜",
-    dataIndex: "date",
-    key: "date",
-  },
+  { title: "번호", dataIndex: "key", key: "key" },
+  { title: "내용", dataIndex: "content", key: "content" },
+  { title: "날짜", dataIndex: "date", key: "date" },
 ];
 
-//dummy data
-const data: DataType[] = [
-  {
-    key: "1",
-    content: "너무 성의 없어요",
-    date: "2025.01.12",
-    admin: 1,
-  },
-  {
-    key: "2",
-    content: "너무 재미 없어요",
-    date: "2025.01.12",
-    admin: 1,
-  },
-  {
-    key: "3",
-    content: "너무 실망이에요",
-    date: "2025.01.12",
-    admin: 1,
-  },
-];
-
-//피드백 컴포넌트
 const Feedback = () => {
-  //변수 선언
-
-  //useState
-  const [adminId, setAdminId] = useState(1);
+  const [adminId, setAdminId] = useState<number>();
   const [list, setList] = useState<DataType[]>();
   const [adminlist, setAdminlist] = useState<AdminType[]>();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<DataType | null>(null);
 
-  //useEffect
   useEffect(() => {
-    //모든 도우미 리스트 조회하기 (value -> adminId label -> name)
-    // axiosInstance.get(`/user/adminlist`).then((res)=> {
-    //   console.log("all list" , res.data)
-    // })
+    axiosInstance.get(`/user/adminlist`).then((res) => {
+      const data: AdminType[] = res.data;
+      setAdminlist([{ value: 0, label: "전체" }, ...data]);
+    });
 
-    const admin = [
-      { value: 1, label: "Jack" },
-      { value: 2, label: "Lucy" },
-      { value: 3, label: "yiminghe" },
-    ];
-    setAdminlist(admin);
+    axiosInstance
+      .get(`/activity/feedback/views`, { params: { adminId } })
+      .then((res) => {
+        const data = res.data;
+        const mappedList: DataType[] = data.map((item: any) => ({
+          key: item.id,
+          content: item.message,
+          date: item.recorded_at,
+          admin: item.activity.id,
+          origin: item,
+        }));
+        setList(mappedList);
+      });
   }, []);
 
-  useEffect(() => {
-    //전체 feedback내용 보여지기
-    axiosInstance.get(`/activity/feedback/views`).then((res) => {
-      console.log("activity feedback views res", res.data);
-    });
-  }, [adminId]);
-
   const handleChange = (option: { value: number; label: string }) => {
-    //console.log(`selected ${value}`);
-    setAdminId(Number(option.value));
+    //console.log(`selected ${option.value}`);
+    setAdminId(option.value);
+    if (option.value === 0) {
+      //전체 feedback내용 보여지기
+      axiosInstance
+        .get("/activity/feedback/views", { params: { adminId } })
+        .then((res) => {
+          //console.log("activity feedback views res", res.data);
+          const data = res.data;
+          const mappedList: DataType[] = data.map((item: any) => ({
+            key: item.id,
+            content: item.message,
+            date: item.recorded_at,
+            admin: item.activity.id,
+            origin: item,
+          }));
 
-    //도우미 id에 해당하는 feedback내용 보여지기
-    axiosInstance
-      .get(`/activity/feedback/view`, { params: { adminId } })
-      .then((res) => {
-        console.log("activity feedback view res", res.data);
-      });
-    const matched = data.filter((item) => item.admin === option.value);
+          setList(mappedList);
+        });
+    } else {
+      //도우미 id에 해당하는 feedback내용 보여지기
+      axiosInstance
+        .get("/activity/feedback/view", { params: { adminId: 5 } })
+        .then((res) => {
+          //console.log("activity feedback view res", res.data);
+          const data = res.data;
+          const mappedList: DataType[] = data.map((item: any) => ({
+            key: item.id,
+            content: item.message,
+            date: item.recorded_at,
+            admin: item.activity.id,
+            origin: item,
+          }));
 
-    setList(matched);
+          setList(mappedList);
+        });
+    }
   };
-
   return (
     <FeedbackStyled>
-      <Select
-        defaultValue={{ value: 2, label: "Lucy" }}
-        style={{ width: 120 }}
-        onChange={handleChange}
-        options={adminlist}
-        labelInValue
+      <div className="Feedback_admin_select">
+        <div>관리자</div>
+        <Select
+          defaultValue={{ value: 0, label: "전체" }}
+          style={{ width: 120 }}
+          onChange={handleChange}
+          options={adminlist}
+          labelInValue
+        />
+      </div>
+      <Table<DataType>
+        columns={columns}
+        dataSource={list}
+        onRow={(record) => ({
+          onClick: () => {
+            setSelectedRecord(record);
+            setIsModalOpen(true);
+          },
+        })}
       />
-      <Table<DataType> columns={columns} dataSource={list} />
+      <Modal
+        title="피드백 상세"
+        open={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
+        footer={null}
+        className="Feedback_Modal"
+      >
+        {selectedRecord && (
+          <div className="Feedback_content">
+            <div>
+              <strong>번호:</strong> {selectedRecord.key}
+            </div>
+            <div>
+              <strong>내용:</strong> {selectedRecord.content}
+            </div>
+            <div>
+              <strong>날짜:</strong> {selectedRecord.date}
+            </div>
+          </div>
+        )}
+      </Modal>
     </FeedbackStyled>
   );
 };

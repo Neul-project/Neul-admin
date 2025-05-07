@@ -1,6 +1,7 @@
 import { ActivityStyled, ActivityTheme } from "./styled";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { useRouter } from "next/router";
 
 //antd
 import {
@@ -29,6 +30,8 @@ import axiosInstance from "@/lib/axios";
 //활동 기록 등록 컴포넌트 - formik 작성
 const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
   const { com_type, rowcontent } = props;
+  const router = useRouter();
+
   //useState
   const [imgarr, setImgarr] = useState<any[]>([]);
   const [ward, setWard] = useState<any>(); //수정 - 피보호자 선택
@@ -39,7 +42,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
   const [note, setNote] = useState(""); //수정 - 특이사항
   const [select_ward, setSelectWard] = useState<any[]>();
 
-  console.log("rowcontent", rowcontent);
+  //console.log("rowcontent", rowcontent);
   useEffect(() => {
     //수정하기로 들어 온 경우 상태 업데이트
     if (rowcontent) {
@@ -79,7 +82,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
   ];
 
   useEffect(() => {
-    const adminId = 1; //도우미 id
+    const adminId = 5; //도우미 id
 
     //도우미에 따른 피보호자 내용 전체 가져오기
     axiosInstance
@@ -116,7 +119,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
     },
     enableReinitialize: true, // 외부 값으로 초기값으로 세팅하기 위해 사용
     onSubmit: (values) => {
-      const userid = 1; //임시 아이디 (도우미)
+      const userid = 5; //도우미 임시 아이디
 
       const formData = new FormData();
 
@@ -132,11 +135,11 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
         }
       });
 
-      console.log("imgarr", imgarr);
+      //console.log("imgarr", imgarr);
 
       if (rowcontent) {
         //수정하기
-        console.log("수정 ", activityformik.values);
+        //console.log("수정 ", activityformik.values);
 
         axiosInstance
           .put(`/activity/update/${userid}`, formData, {
@@ -166,6 +169,8 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
               description: `성공적으로 등록이 완료 되었습니다.`,
             });
           });
+
+        router.push("/activity/write");
       }
     },
     validationSchema: Yup.object({
@@ -173,8 +178,8 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
     }),
   });
 
-  const imageList = com_type === "modify" ? com_imgarr : imgarr;
-
+  const imageList =
+    com_type === "modify" ? [...(com_imgarr || []), ...imgarr] : imgarr;
   return (
     <ActivityStyled>
       <form
@@ -208,7 +213,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
               onChange={(e) => {
                 const value = e.target.value;
                 if (com_type === "modify") {
-                  setTitle(value); // 추가!
+                  setTitle(value);
                 }
                 activityformik.handleChange(e); // 여전히 formik도 반영
               }}
@@ -242,7 +247,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
                       ? URL.createObjectURL(element.originFileObj)
                       : element.thumbUrl;
                     return (
-                      <SwiperSlide key={index}>
+                      <SwiperSlide key={url}>
                         <img
                           src={url}
                           alt={`preview-${index}`}
@@ -268,7 +273,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
                     ? URL.createObjectURL(element.originFileObj)
                     : element.thumbUrl;
                   return (
-                    <SwiperSlide key={index}>
+                    <SwiperSlide key={url}>
                       <img
                         src={url}
                         alt={`preview-${index}`}
@@ -344,7 +349,13 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
               rows={7}
               name="note"
               value={com_type === "modify" ? note : activityformik.values.note}
-              onChange={activityformik.handleChange}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (com_type === "modify") {
+                  setNote(value);
+                }
+                activityformik.handleChange(e);
+              }}
             />
           </ConfigProvider>
         </div>
