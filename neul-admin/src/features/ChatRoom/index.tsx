@@ -195,13 +195,10 @@ const ChatRoom = () => {
     const messageToSend = {
       userId: selectedUserId, // 상대방 id
       adminId, //로그인한 관리자 id
-      chatting: inputValue, // 보낼 메시지 내용
+      message: inputValue, // 보낼 메시지 내용
     };
 
     try {
-      // 서버에 메시지 저장 요청
-      await axiosInstance.post("/chat/write", messageToSend);
-
       // 소켓 실시간 메시지 전송
       socketRef.current.emit("send_message", messageToSend);
 
