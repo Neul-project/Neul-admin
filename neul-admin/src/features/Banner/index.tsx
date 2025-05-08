@@ -7,8 +7,20 @@ import { UploadOutlined } from "@ant-design/icons";
 import { UploadProps } from "antd";
 import { useFormik } from "formik";
 import axiosInstance from "@/lib/axios";
+import { useEffect, useState } from "react";
 
 const Banner = () => {
+  //useState
+  const [arr, setArr] = useState([]);
+
+  useEffect(() => {
+    axiosInstance.get("/banner/list").then((res) => {
+      const datalist = res.data;
+      const data = res.data[datalist.length - 1].img.split(",");
+      setArr(data);
+    });
+  }, []);
+
   const formik = useFormik({
     initialValues: {
       leftimg: null as File | null,
@@ -17,8 +29,8 @@ const Banner = () => {
     onSubmit: async (values) => {
       //console.log("values", values);
       const formData = new FormData();
-      if (values.leftimg) formData.append("img", values.leftimg);
-      if (values.rightimg) formData.append("img", values.rightimg);
+      if (values.leftimg) formData.append("img", values.leftimg || arr[0]);
+      if (values.rightimg) formData.append("img", values.rightimg || arr[1]);
 
       //console.log("FormData 내용:", Array.from(formData.entries()));
 
@@ -61,6 +73,14 @@ const Banner = () => {
                 src={URL.createObjectURL(formik.values.leftimg)}
                 alt="banner-left"
               />
+            ) : arr ? (
+              <div>
+                <img
+                  className="Banner_imgstyle"
+                  src={process.env.NEXT_PUBLIC_API_URL + "/uploads/" + arr[0]}
+                  alt="왼쪽 이미지"
+                />
+              </div>
             ) : (
               <div className="Banner_preview_text">미리보기 화면</div>
             )}
@@ -72,6 +92,14 @@ const Banner = () => {
                 src={URL.createObjectURL(formik.values.rightimg)}
                 alt="banner-right"
               />
+            ) : arr ? (
+              <div>
+                <img
+                  className="Banner_imgstyle"
+                  src={process.env.NEXT_PUBLIC_API_URL + "/uploads/" + arr[1]}
+                  alt="오른쪽 이미지"
+                />
+              </div>
             ) : (
               <div className="Banner_preview_text">미리보기 화면</div>
             )}
@@ -80,10 +108,10 @@ const Banner = () => {
 
         {/* 업로드 버튼 */}
         <div className="Banner_btns">
-          <Upload {...handleUpload("leftimg")}>
+          <Upload {...handleUpload("leftimg")} showUploadList={false}>
             <Button icon={<UploadOutlined />}>좌측 이미지 업로드</Button>
           </Upload>
-          <Upload {...handleUpload("rightimg")}>
+          <Upload {...handleUpload("rightimg")} showUploadList={false}>
             <Button icon={<UploadOutlined />}>우측 이미지 업로드</Button>
           </Upload>
         </div>

@@ -2,6 +2,8 @@ import { ActivityStyled, ActivityTheme } from "./styled";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import axiosInstance from "@/lib/axios";
 
 //antd
 import {
@@ -22,10 +24,7 @@ const { TextArea } = Input;
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
-
-import { useEffect, useState } from "react";
 import { Pagination, A11y } from "swiper/modules";
-import axiosInstance from "@/lib/axios";
 
 //활동 기록 등록 컴포넌트 - formik 작성
 const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
@@ -55,7 +54,10 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
       const imageUrls = rowcontent.img
         ? rowcontent.img.split(",").map((img: any) => img.trim())
         : [];
-
+      console.log(
+        "img",
+        process.env.NEXT_PUBLIC_API_URL + "/uploads/" + imageUrls
+      );
       setCom_imgarr(imageUrls);
     }
   }, [rowcontent]);
@@ -246,10 +248,15 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
                     const url = element.originFileObj
                       ? URL.createObjectURL(element.originFileObj)
                       : element.thumbUrl;
+                    console.log("urldfs", element);
                     return (
-                      <SwiperSlide key={url}>
+                      <SwiperSlide key={index}>
                         <img
-                          src={url}
+                          src={
+                            process.env.NEXT_PUBLIC_API_URL +
+                            "/uploads/" +
+                            element
+                          }
                           alt={`preview-${index}`}
                           className="swperimg"
                         />
@@ -273,7 +280,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
                     ? URL.createObjectURL(element.originFileObj)
                     : element.thumbUrl;
                   return (
-                    <SwiperSlide key={url}>
+                    <SwiperSlide key={index}>
                       <img
                         src={url}
                         alt={`preview-${index}`}
