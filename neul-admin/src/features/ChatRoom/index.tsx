@@ -6,17 +6,18 @@ import io from "socket.io-client";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
-import "dayjs/locale/ko";
 import axiosInstance from "@/lib/axios";
+import "dayjs/locale/ko"; // 한국어 로케일 불러오기
 
-// 백엔드랑 연결할거 -> 채팅 목록 불러오기, 채팅미리보기 불러오기, 서버에 메시지 저장 요청
+dayjs.locale("ko"); // 로케일 설정
+
+// 백엔드랑 연결할거 ->채팅미리보기 불러오기, 채팅 읽음 처리
 
 //Chatting 인터페이스 정의
 interface Chatting {
   id: number;
-  userId?: number; // 보호자 id
-  adminId?: number; // 관리자 id
-  name: string; // 보호자 or 관리자 이름
+  user: any;
+  admin: any;
   message: string;
   time: string;
   date: string;
@@ -58,44 +59,7 @@ const ChatRoom = () => {
   const [inputValue, setInputValue] = useState("");
   const [chatRoomList, setChatRoomList] = useState<ChatRoomPreview[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
-  const [chattings, setChattings] = useState<Chatting[]>([
-    {
-      id: 1,
-      userId: 1,
-      name: "보호자",
-      message: `혹시 그때 가능한가요?`,
-      time: "17:06",
-      date: "2025년 4월 28일",
-      isMe: false,
-    },
-    {
-      id: 2,
-      adminId: 2,
-      name: "도우미",
-      message: `내 가능합니다`,
-      time: "17:07",
-      date: "2025년 4월 28일",
-      isMe: true,
-    },
-    {
-      id: 3,
-      userId: 3,
-      name: "보호자",
-      message: `그럼 그때로 할게요`,
-      time: "17:08",
-      date: "2025년 4월 28일",
-      isMe: false,
-    },
-    {
-      id: 4,
-      adminId: 4,
-      name: "도우미",
-      message: `네^^`,
-      time: "17:09",
-      date: "2025년 4월 29일",
-      isMe: true,
-    },
-  ]);
+  const [chattings, setChattings] = useState<Chatting[]>([]);
 
   const socketRef = useRef<any>(null);
 
@@ -108,15 +72,15 @@ const ChatRoom = () => {
   // 채팅방 목록 불러오기
   const fetchChatRoomList = async () => {
     try {
-      const res = await axiosInstance.get("/chat/rooms", {
-        params: { adminId },
-      });
-      setChatRoomList(res.data);
+      // const res = await axiosInstance.get("/chat/rooms", {
+      //   params: { adminId },
+      // });
+      // setChatRoomList(res.data);
 
       //[{id(채팅방 고유 id),userId(보호자 id),userName(관리자가 담당하고 있는 보호자 이름),
       // patientName(해당 보호자의 피보호자 이름),lastMessage(마지막으로 보낸 채팅 내용),lastTime(마지막 채팅 보낸 시각),unreadCount(안 읽은 알림 개수)}]
 
-      // setChatRoomList(dummyUser);
+      setChatRoomList(dummyUser);
     } catch (e) {
       console.error("채팅방 목록 불러오기 실패: ", e);
     }
@@ -130,9 +94,30 @@ const ChatRoom = () => {
       const res = await axiosInstance.get(`/chat/list`, {
         params: { userId },
       });
-      // [{채팅 고유 id(id),  userId 또는 adminId(작성한 사람 id), 채팅 작성한 사람 이름(name), 채팅 내용(message),
-      //  채팅 작성 시간(time), 채팅 작성 날짜(date), 사용자 본인이 작성한지 여부(isMe)}] 보내주기
-      setChattings(res.data);
+      // 데이터 가공
+      const parsedChats: Chatting[] = res.data.map((chat: any) => {
+        // 본인이 작성한 채팅인지 확인
+        const isMe = chat.user.id !== userId;
+
+        // 시간, 날짜
+        const date = dayjs(chat.created_at).format("YYYY년 MM월 DD일");
+        const time = dayjs(chat.created_at).format("A h:mm");
+
+        return {
+          ...chat,
+          isMe,
+          date,
+          time,
+        };
+      });
+
+      setChattings(parsedChats);
+
+      // 읽음 처리 요청
+      // axiosInstance.post("/chat/read", {
+      //   userId: selectedUserId,
+      //   adminId,
+      // });
 
       // 선택 시 unreadCount 초기화
       setChatRoomList((prevRooms) =>
@@ -156,14 +141,20 @@ const ChatRoom = () => {
 
     socketRef.current.off("receive_message"); // 기존 리스너 제거
     socketRef.current.on("receive_message", (message: Chatting) => {
-      if (message.userId === selectedUserId) {
+      if (message.user.id === selectedUserId) {
         // 현재 보고 있는 방이면 그냥 append
         setChattings((prev) => [...prev, message]);
+
+        // 읽음 처리 요청
+        // axiosInstance.post("/chat/read", {
+        //   userId: selectedUserId,
+        //   adminId,
+        // });
       } else {
         // 다른 방이면 unreadCount 증가
         setChatRoomList((prevRooms) =>
           prevRooms.map((room) =>
-            room.userId === message.userId
+            room.userId === message.user.id
               ? { ...room, unreadCount: (room.unreadCount || 0) + 1 }
               : room
           )
@@ -223,7 +214,7 @@ const ChatRoom = () => {
           >
             <div className="chatroom_name_box">
               <div className="chatroom_name">
-                {room.userName} - {room.patientName}님의 보호자님
+                {room.patientName}님의 보호자님 - <span>{room.userName}</span>
               </div>
               <div className="chatroom_lasttime">
                 {(() => {
@@ -251,15 +242,20 @@ const ChatRoom = () => {
           {Object.entries(groupDate).map(([date, messages]) => (
             <div key={date}>
               <div className="chatroom_date">{date}</div>
-              {messages.map((chat) => (
-                <ChatMessage
-                  key={chat.id}
-                  name={chat.name}
-                  message={chat.message}
-                  time={chat.time}
-                  isMe={chat.isMe}
-                />
-              ))}
+              {messages.map((chat, i) => {
+                const currentTime = chat.time;
+                const nextTime = messages[i + 1]?.time;
+                const shouldShowTime = currentTime !== nextTime;
+                return (
+                  <ChatMessage
+                    key={chat.id}
+                    name={i === 0 || shouldShowTime ? chat.user.name : ""}
+                    message={chat.message}
+                    time={shouldShowTime ? chat.time : ""}
+                    isMe={chat.isMe}
+                  />
+                );
+              })}
             </div>
           ))}
         </div>
