@@ -218,19 +218,19 @@ const UserManage = () => {
   ];
 
   return (
-    <UserManageStyled className={clsx("manage-wrap")}>
-      <div className="manage-title-box">
+    <UserManageStyled className={clsx("usermanage_wrap")}>
+      <div className="usermanage_title_box">
         <TitleCompo title="회원 관리" />
         <div>
           <Button onClick={() => router.push("/memberadd")}>회원추가</Button>
-          <Button className="manage-delete-button" onClick={WithdrawUser}>
+          <Button className="usermanage_delete_button" onClick={WithdrawUser}>
             회원삭제
           </Button>
         </div>
       </div>
 
-      <div className="manage-info">
-        <div className="manage-total-num">총 {users.length}명</div>
+      <div className="usermanage_info">
+        <div className="usermanage_total_num">총 {users.length}명</div>
         <Button onClick={handleDownloadExcel}>엑셀</Button>
       </div>
       <Table

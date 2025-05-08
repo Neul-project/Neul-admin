@@ -1,25 +1,25 @@
 import styled from "styled-components";
 
 export const UserManageStyled = styled.div`
-  &.manage-wrap {
+  &.usermanage_wrap {
     padding: 24px;
-    .manage-title-box {
+    .usermanage_title_box {
       display: flex;
       justify-content: space-between;
       margin-bottom: 10px;
     }
 
-    .manage-info {
+    .usermanage_info {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 3px;
-      .manage-total-num {
+      .usermanage_total_num {
         font-weight: 600;
         margin: 15px 0 2px 5px;
       }
     }
-    .manage-delete-button {
+    .usermanage_delete_button {
       margin-left: 3px;
     }
   }
