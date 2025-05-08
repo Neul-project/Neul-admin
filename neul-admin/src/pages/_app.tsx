@@ -7,9 +7,14 @@ import Head from "next/head";
 import { useEffect, useState } from "react";
 import { ThemeProvider } from "styled-components";
 import theme from "../styles/theme";
+import { useRouter } from "next/router";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function App({ Component, pageProps }: AppProps) {
+  const router = useRouter();
   const [notPc, setNotPc] = useState(false);
+  const isLoginPage = router.pathname === "/login"; // 현재 라우터 경로 체크
+  const { isLoggedIn } = useAuthStore();
 
   useEffect(() => {
     const handleResize = () => {
@@ -32,6 +37,14 @@ export default function App({ Component, pageProps }: AppProps) {
     };
   }, []);
 
+  useEffect(() => {
+    // 로그인 페이지를 제외한 모든 페이지에서 로그인 여부를 확인
+    if (!isLoggedIn && router.pathname !== "/login") {
+      alert("로그인 후 사용이 가능합니다.");
+      router.replace("/login");
+    }
+  }, [isLoggedIn, router]);
+
   return (
     <>
       <Head>
@@ -40,6 +53,8 @@ export default function App({ Component, pageProps }: AppProps) {
 
       {notPc ? (
         <NotPc />
+      ) : isLoginPage ? (
+        <Component {...pageProps} />
       ) : (
         <ThemeProvider theme={theme}>
           <Header />

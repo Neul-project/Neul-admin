@@ -66,18 +66,8 @@ export const sidebarMenus = createSidebarMenus([
     ],
   },
   {
-    key: "/activity",
+    key: "/activity/write",
     label: "활동기록",
-    children: [
-      {
-        key: "/activity/write",
-        label: "활동기록 리스트",
-      },
-      {
-        key: "/activity/report",
-        label: "활동기록 리포트",
-      },
-    ],
   },
   {
     key: "/status",
@@ -94,5 +84,9 @@ export const sidebarMenus = createSidebarMenus([
   {
     key: "/chat",
     label: "채팅",
+  },
+  {
+    key: "/userinfo",
+    label: "개인정보",
   },
 ]);

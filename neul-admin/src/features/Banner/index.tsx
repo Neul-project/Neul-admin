@@ -14,7 +14,7 @@ const Banner = () => {
   const [arr, setArr] = useState([]);
 
   useEffect(() => {
-    if (!arr) {
+    if (arr) {
       axiosInstance.get("/banner/list").then((res) => {
         const datalist = res.data;
         const data = res.data[datalist.length - 1].img.split(",");

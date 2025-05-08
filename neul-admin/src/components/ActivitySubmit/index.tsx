@@ -54,10 +54,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
       const imageUrls = rowcontent.img
         ? rowcontent.img.split(",").map((img: any) => img.trim())
         : [];
-      console.log(
-        "img",
-        process.env.NEXT_PUBLIC_API_URL + "/uploads/" + imageUrls
-      );
+
       setCom_imgarr(imageUrls);
     }
   }, [rowcontent]);
@@ -157,7 +154,9 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
           });
       } else {
         //기록하기
-        console.log("등록 ", activityformik.values);
+
+        //console.log("등록 ", activityformik.values);
+
         //백엔드 저장 요청
         axiosInstance
           .post(`/activity/write/${userid}`, formData, {
