@@ -50,6 +50,7 @@ export const ChatRoomStyled = styled.div`
             width: 20px;
             height: 20px;
             border-radius: 50%;
+            font-size: 12px;
           }
           .chatroom_lastmessage {
             width: 250px;

@@ -8,6 +8,7 @@ import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import axiosInstance from "@/lib/axios";
 import "dayjs/locale/ko"; // 한국어 로케일 불러오기
+import { message, Modal } from "antd";
 
 dayjs.locale("ko"); // 로케일 설정
 
@@ -184,7 +185,6 @@ const ChatRoom = () => {
     // 채팅 객체
     const messageToSend = {
       userId: selectedUserId, // 상대방 id
-      adminId, //로그인한 관리자 id
       message: inputValue, // 보낼 메시지 내용
       sender: "admin",
     };
@@ -200,6 +200,42 @@ const ChatRoom = () => {
     }
   };
 
+  const onClickDeleteChattingRoom = (
+    e: React.MouseEvent<HTMLDivElement>,
+    userId: number
+  ) => {
+    e.preventDefault();
+
+    Modal.confirm({
+      title: "해당 채팅방 내용을 삭제하시겠습니까?",
+      content: "삭제한 내용은 복구할 수 없습니다.",
+      okText: "삭제",
+      cancelText: "취소",
+      okButtonProps: {
+        style: { backgroundColor: "#5DA487" },
+      },
+      cancelButtonProps: {
+        style: { color: "#5DA487" },
+      },
+      async onOk() {
+        if (userId == null) return;
+        try {
+          await axiosInstance.delete(`/chat/alldelete`, {
+            params: { userId },
+          });
+          message.success("해당 채팅방 내용이 삭제되었습니다.");
+          fetchChatRoomList();
+          if (selectedUserId === userId) {
+            setChattings([]);
+          }
+        } catch (e) {
+          console.error("해당 채팅방 내용 삭제 실패: ", e);
+          message.error("해당 채팅방 내용 삭제에 실패했습니다.");
+        }
+      },
+    });
+  };
+
   return (
     <ChatRoomStyled className={clsx("chatroom_wrap")}>
       {/* 채팅 상대 선택 */}
@@ -211,6 +247,7 @@ const ChatRoom = () => {
               selectedUserId === room.userId ? "selected" : ""
             }`}
             onClick={() => handleSelectUser(room.userId)}
+            onContextMenu={(e) => onClickDeleteChattingRoom(e, room.userId)}
           >
             <div className="chatroom_name_box">
               <div className="chatroom_name">
