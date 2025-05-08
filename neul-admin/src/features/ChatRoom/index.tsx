@@ -8,10 +8,9 @@ import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import axiosInstance from "@/lib/axios";
 import "dayjs/locale/ko"; // 한국어 로케일 불러오기
+import { message, Modal } from "antd";
 
 dayjs.locale("ko"); // 로케일 설정
-
-// 백엔드랑 연결할거 ->채팅미리보기 불러오기, 채팅 읽음 처리
 
 //Chatting 인터페이스 정의
 interface Chatting {
@@ -19,9 +18,11 @@ interface Chatting {
   user: any;
   admin: any;
   message: string;
+  read: boolean;
   time: string;
   date: string;
   isMe: boolean;
+  created_at: string;
 }
 
 interface ChatRoomPreview {
@@ -34,26 +35,6 @@ interface ChatRoomPreview {
   unreadCount?: number;
 }
 
-const dummyUser = [
-  {
-    id: 1,
-    userId: 1,
-    userName: "권민수",
-    patientName: "아이",
-    lastMessage: "아 그런가요",
-    lastTime: "2025-04-29 17:09",
-    unreadCount: 1,
-  },
-  {
-    id: 2,
-    userId: 2,
-    userName: "아민아",
-    patientName: "아이민",
-    lastMessage: "네네",
-    lastTime: "2025-05-05 17:59",
-  },
-];
-
 // 채팅 전체 화면
 const ChatRoom = () => {
   const [inputValue, setInputValue] = useState("");
@@ -62,25 +43,27 @@ const ChatRoom = () => {
   const [chattings, setChattings] = useState<Chatting[]>([]);
 
   const socketRef = useRef<any>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   dayjs.extend(localizedFormat);
   dayjs.locale("ko");
 
-  const userId = 1; //아직 로그인한 사용자 정보 없어서 임의로 정해놓음
-  const adminId = 1; //로그인한 임의의 관리자id
+  const adminId = 2; //로그인한 임의의 관리자id
+
+  // 무조건 아래에서 시작하도록
+  const scrollToBottom = () => {
+    bottomRef.current?.scrollIntoView({ behavior: "auto" });
+  };
 
   // 채팅방 목록 불러오기
   const fetchChatRoomList = async () => {
     try {
-      // const res = await axiosInstance.get("/chat/rooms", {
-      //   params: { adminId },
-      // });
-      // setChatRoomList(res.data);
+      const res = await axiosInstance.get("/chat/rooms", {
+        params: { adminId },
+      });
 
-      //[{id(채팅방 고유 id),userId(보호자 id),userName(관리자가 담당하고 있는 보호자 이름),
-      // patientName(해당 보호자의 피보호자 이름),lastMessage(마지막으로 보낸 채팅 내용),lastTime(마지막 채팅 보낸 시각),unreadCount(안 읽은 알림 개수)}]
-
-      setChatRoomList(dummyUser);
+      console.log("채팅방 목록 ", res.data);
+      setChatRoomList(res.data);
     } catch (e) {
       console.error("채팅방 목록 불러오기 실패: ", e);
     }
@@ -94,10 +77,13 @@ const ChatRoom = () => {
       const res = await axiosInstance.get(`/chat/list`, {
         params: { userId },
       });
+
+      console.log(res.data);
+
       // 데이터 가공
       const parsedChats: Chatting[] = res.data.map((chat: any) => {
         // 본인이 작성한 채팅인지 확인
-        const isMe = chat.user.id !== userId;
+        const isMe = chat.admin.id === userId;
 
         // 시간, 날짜
         const date = dayjs(chat.created_at).format("YYYY년 MM월 DD일");
@@ -142,8 +128,17 @@ const ChatRoom = () => {
     socketRef.current.off("receive_message"); // 기존 리스너 제거
     socketRef.current.on("receive_message", (message: Chatting) => {
       if (message.user.id === selectedUserId) {
+        const date = dayjs(message.created_at).format("YYYY년 MM월 DD일");
+        const time = dayjs(message.created_at).format("A h:mm");
+
+        const parsedMessage = {
+          ...message,
+          date,
+          time,
+        };
+
         // 현재 보고 있는 방이면 그냥 append
-        setChattings((prev) => [...prev, message]);
+        setChattings((prev) => [...prev, parsedMessage]);
 
         // 읽음 처리 요청
         // axiosInstance.post("/chat/read", {
@@ -169,6 +164,11 @@ const ChatRoom = () => {
     };
   }, [selectedUserId]);
 
+  // 새로운 채팅이 추가될 때마다 자동으로 스크롤 맨 아래로
+  useEffect(() => {
+    scrollToBottom();
+  }, [chattings]);
+
   // 날짜별로 그룹화
   const groupDate = useMemo(() => {
     return chattings.reduce((acc: Record<string, Chatting[]>, chat) => {
@@ -185,8 +185,8 @@ const ChatRoom = () => {
     // 채팅 객체
     const messageToSend = {
       userId: selectedUserId, // 상대방 id
-      adminId, //로그인한 관리자 id
       message: inputValue, // 보낼 메시지 내용
+      sender: "admin",
     };
 
     try {
@@ -200,6 +200,42 @@ const ChatRoom = () => {
     }
   };
 
+  const onClickDeleteChattingRoom = (
+    e: React.MouseEvent<HTMLDivElement>,
+    userId: number
+  ) => {
+    e.preventDefault();
+
+    Modal.confirm({
+      title: "해당 채팅방 내용을 삭제하시겠습니까?",
+      content: "삭제한 내용은 복구할 수 없습니다.",
+      okText: "삭제",
+      cancelText: "취소",
+      okButtonProps: {
+        style: { backgroundColor: "#5DA487" },
+      },
+      cancelButtonProps: {
+        style: { color: "#5DA487" },
+      },
+      async onOk() {
+        if (userId == null) return;
+        try {
+          await axiosInstance.delete(`/chat/alldelete`, {
+            params: { userId },
+          });
+          message.success("해당 채팅방 내용이 삭제되었습니다.");
+          fetchChatRoomList();
+          if (selectedUserId === userId) {
+            setChattings([]);
+          }
+        } catch (e) {
+          console.error("해당 채팅방 내용 삭제 실패: ", e);
+          message.error("해당 채팅방 내용 삭제에 실패했습니다.");
+        }
+      },
+    });
+  };
+
   return (
     <ChatRoomStyled className={clsx("chatroom_wrap")}>
       {/* 채팅 상대 선택 */}
@@ -211,6 +247,7 @@ const ChatRoom = () => {
               selectedUserId === room.userId ? "selected" : ""
             }`}
             onClick={() => handleSelectUser(room.userId)}
+            onContextMenu={(e) => onClickDeleteChattingRoom(e, room.userId)}
           >
             <div className="chatroom_name_box">
               <div className="chatroom_name">
@@ -226,8 +263,8 @@ const ChatRoom = () => {
                 })()}
               </div>
             </div>
-            <div className="chatroom_lastmessage">
-              {room.lastMessage}{" "}
+            <div className="chatroom_lastmessage_box">
+              <span className="chatroom_lastmessage">{room.lastMessage}</span>
               {room.unreadCount ? (
                 <span className="chatroom_unread">{room.unreadCount}</span>
               ) : null}
@@ -258,6 +295,7 @@ const ChatRoom = () => {
               })}
             </div>
           ))}
+          <div ref={bottomRef} />
         </div>
         {/* 보내는 메시지 */}
         <div className="chatroom_message_box">
