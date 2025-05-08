@@ -59,8 +59,8 @@ export const ActivityStyled = styled.div`
         width: 100%;
         height: 300px;
         border-radius: 15px;
-        padding: 10px;
-        border: 1px solid #ccc;
+        padding: 5px;
+        //border: 1px solid #ccc;
         margin-top: 15px;
         align-items: center;
         justify-content: center;

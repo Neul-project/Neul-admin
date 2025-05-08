@@ -14,11 +14,13 @@ const Banner = () => {
   const [arr, setArr] = useState([]);
 
   useEffect(() => {
-    axiosInstance.get("/banner/list").then((res) => {
-      const datalist = res.data;
-      const data = res.data[datalist.length - 1].img.split(",");
-      setArr(data);
-    });
+    if (!arr) {
+      axiosInstance.get("/banner/list").then((res) => {
+        const datalist = res.data;
+        const data = res.data[datalist.length - 1].img.split(",");
+        setArr(data);
+      });
+    }
   }, []);
 
   const formik = useFormik({
@@ -73,7 +75,7 @@ const Banner = () => {
                 src={URL.createObjectURL(formik.values.leftimg)}
                 alt="banner-left"
               />
-            ) : arr ? (
+            ) : arr.length > 0 ? (
               <div>
                 <img
                   className="Banner_imgstyle"
@@ -92,7 +94,7 @@ const Banner = () => {
                 src={URL.createObjectURL(formik.values.rightimg)}
                 alt="banner-right"
               />
-            ) : arr ? (
+            ) : arr.length > 0 ? (
               <div>
                 <img
                   className="Banner_imgstyle"

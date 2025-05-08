@@ -248,7 +248,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
                     const url = element.originFileObj
                       ? URL.createObjectURL(element.originFileObj)
                       : element.thumbUrl;
-                    console.log("urldfs", element);
+
                     return (
                       <SwiperSlide key={index}>
                         <img
