@@ -35,7 +35,7 @@ export const ChatRoomStyled = styled.div`
           }
         }
 
-        .chatroom_lastmessage {
+        .chatroom_lastmessage_box {
           color: #555;
           font-size: 0.9rem;
           margin-top: 4px;
@@ -50,6 +50,16 @@ export const ChatRoomStyled = styled.div`
             width: 20px;
             height: 20px;
             border-radius: 50%;
+          }
+          .chatroom_lastmessage {
+            width: 250px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            word-break: break-word;
+
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
           }
         }
       }
