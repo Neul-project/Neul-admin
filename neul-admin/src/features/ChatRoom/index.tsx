@@ -21,6 +21,7 @@ interface Chatting {
   time: string;
   date: string;
   isMe: boolean;
+  created_at: string;
 }
 
 interface ChatRoomPreview {
@@ -126,8 +127,17 @@ const ChatRoom = () => {
     socketRef.current.off("receive_message"); // 기존 리스너 제거
     socketRef.current.on("receive_message", (message: Chatting) => {
       if (message.user.id === selectedUserId) {
+        const date = dayjs(message.created_at).format("YYYY년 MM월 DD일");
+        const time = dayjs(message.created_at).format("A h:mm");
+
+        const parsedMessage = {
+          ...message,
+          date,
+          time,
+        };
+
         // 현재 보고 있는 방이면 그냥 append
-        setChattings((prev) => [...prev, message]);
+        setChattings((prev) => [...prev, parsedMessage]);
 
         // 읽음 처리 요청
         // axiosInstance.post("/chat/read", {
