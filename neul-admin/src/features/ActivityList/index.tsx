@@ -10,6 +10,7 @@ import type { TableColumnsType, TableProps } from "antd";
 
 //component
 import ActivitySubmit from "@/components/ActivitySubmit";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>["rowSelection"];
@@ -57,6 +58,7 @@ const columns: TableColumnsType<DataType> = [
 const ActivityList = () => {
   //변수 선언
   const router = useRouter();
+  const { user } = useAuthStore();
 
   //useState
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]); //테이블
@@ -65,11 +67,15 @@ const ActivityList = () => {
   const [userName, setUserName] = useState("");
   const [userlist, setUserlist] = useState<UserType[]>();
   const [rowid, setRowId] = useState<any[]>(); //테이블 행 클릭 시 아이디(select요청 id와 비교할 때 사용)
-
-  const adminId = 5;
+  const [adminId, setAdminId] = useState(user?.id);
+  //const adminId = user?.id;
   const patientId = 1;
 
   useEffect(() => {
+    if (!user?.id) return;
+    //console.log("ad", adminId);
+
+    //도우미 아이디 전체 리스트 가지고 오기
     axiosInstance
       .get("/activity/targetlist", { params: { adminId } })
       .then((res) => {
@@ -86,7 +92,7 @@ const ActivityList = () => {
         ];
         setUserlist(withAllOption);
       });
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     //도우미 id에 따른 활동기록 전체 가져오기
@@ -235,7 +241,7 @@ const ActivityList = () => {
         onRow={(record, rowIndex) => {
           return {
             onClick: (event) => {
-              console.log("table row", record, rowIndex);
+              //console.log("table row", record, rowIndex);
               setUserName(record.name);
               showModal();
 

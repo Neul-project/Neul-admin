@@ -26,16 +26,12 @@ const columns: TableProps<DataType>["columns"] = [
 //피드백 리스트 컴포넌트
 const Feedback = () => {
   //변수 선언
-  const [adminId, setAdminId] = useState<number>();
   const [list, setList] = useState<DataType[]>();
   const [adminlist, setAdminlist] = useState<AdminType[]>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<DataType | null>(null);
 
-  const { user } = useAuthStore();
-
   useEffect(() => {
-    //setAdminId(user?.id);
     axiosInstance.get(`/user/adminlist`).then((res) => {
       const data: AdminType[] = res.data;
       setAdminlist([{ value: 0, label: "전체" }, ...data]);
@@ -57,8 +53,8 @@ const Feedback = () => {
 
   const handleChange = (option: { value: number; label: string }) => {
     //console.log(`selected ${option.value}`);
-    setAdminId(option.value);
-    if (option.value === 0) {
+    const admin = option.value;
+    if (admin === 0) {
       //전체 feedback내용 보여지기
       axiosInstance.get("/activity/feedback/views").then((res) => {
         const data = res.data;
@@ -74,11 +70,11 @@ const Feedback = () => {
       });
     } else {
       //도우미 id에 해당하는 feedback내용 보여지기
-      console.log("Ad", adminId);
+      //console.log("Ad", admin);
       axiosInstance
-        .get("/activity/feedback/view", { params: { adminId: adminId } })
+        .get("/activity/feedback/view", { params: { adminId: admin } })
         .then((res) => {
-          console.log("activity feedback view res", res.data);
+          //console.log("activity feedback view res", res.data);
           const data = res.data;
           const mappedList: DataType[] = data.map((item: any) => ({
             key: item.id,

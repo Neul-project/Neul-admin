@@ -1,7 +1,7 @@
-import Feedback from "@/features/Feedback";
+import Programlist from "@/features/Programlist";
 
-const ProgramManagePage = () => {
-  return <Feedback />;
+const ProgramListPage = () => {
+  return <Programlist />;
 };
 
-export default ProgramManagePage;
+export default ProgramListPage;

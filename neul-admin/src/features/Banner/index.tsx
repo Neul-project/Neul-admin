@@ -9,6 +9,7 @@ import { useFormik } from "formik";
 import axiosInstance from "@/lib/axios";
 import { useEffect, useState } from "react";
 
+//배너 등록 컴포넌트
 const Banner = () => {
   //useState
   const [arr, setArr] = useState([]);
