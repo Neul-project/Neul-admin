@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, message, Select, Table } from "antd";
+import { Button, message, Modal, Select, Table } from "antd";
 import clsx from "clsx";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -7,18 +7,22 @@ import { useRouter } from "next/router";
 import TitleCompo from "@/components/TitleCompo";
 import axiosInstance from "@/lib/axios";
 import { UserManageStyled } from "./styled";
+import { useAuthStore } from "@/stores/useAuthStore";
+import Search, { SearchProps } from "antd/es/input/Search";
 
 const UserManage = () => {
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [modalOpen, setModalOpen] = useState(false);
   const [users, setUsers] = useState<any[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [userOrder, setUserOrder] = useState("DESC");
   const [sortKey, setSortKey] = useState("created_at");
   const [sortedUsers, setSortedUsers] = useState<any[]>([]);
-  const router = useRouter();
+  const adminId = useAuthStore((state) => state.user?.id);
 
   const getUserList = async () => {
     try {
-      // 모든 user불러오기(담당 adminId, 관리자 이름, 유저 id, email, name, phone, 피보호자id, 피보호자이름,성별, 피보호자 생년월일, 특이사항 보내주기)
+      // 모든 user불러오기
       const res = await axiosInstance.get("/matching/alluser");
       const data = res.data;
       console.log(data);
@@ -33,7 +37,7 @@ const UserManage = () => {
         phone: x.user_phone,
         patient_id: x.patient_id,
         patient_name: x.patient_name,
-        patient_gender: x.patient_gender || "없음",
+        patient_gender: x.patient_gender === "male" ? "남" : "여",
         patient_birth: x.patient_birth || "없음",
         patient_note: x.patient_note || "없음",
         created_at: x.user_create,
@@ -173,28 +177,116 @@ const UserManage = () => {
     {
       key: "matching",
       title: "매칭",
-      render: (data: any) => (
-        <Button onClick={() => router.push(`/memberedit/${data.key}`)}>
-          매칭
-        </Button>
-      ),
+      render: (data: any) =>
+        data.admin_id === null ? (
+          // 담당 관리자 없을경우
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+
+              Modal.confirm({
+                title: "해당 유저와 매칭하시겠습니까?",
+                content: "해당 유저의 담당 관리자가 됩니다.",
+                okText: "매칭",
+                cancelText: "취소",
+                okButtonProps: {
+                  style: { backgroundColor: "#5DA487" },
+                },
+                cancelButtonProps: {
+                  style: { color: "#5DA487" },
+                },
+                async onOk() {
+                  try {
+                    await axiosInstance.post(`/matching/user`, {
+                      adminId,
+                      userId: data.id,
+                      patientId: data.patient_id,
+                    });
+                    message.success("해당 유저와 매칭되었습니다.");
+                  } catch (e) {
+                    console.error("해당 유저와의 매칭 실패: ", e);
+                    message.error("해당 유저와의 매칭에 실패했습니다.");
+                  }
+                },
+              });
+            }}
+          >
+            매칭
+          </Button>
+        ) : data.admin_id === adminId ? (
+          // 본인이 담당 관리자인 경우
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+
+              Modal.confirm({
+                title: "해당 유저와 매칭 취소하시겠습니까?",
+                content: "해당 유저의 담당이 취소됩니다.",
+                okText: "예",
+                cancelText: "아니요",
+                okButtonProps: {
+                  style: { backgroundColor: "#5DA487" },
+                },
+                cancelButtonProps: {
+                  style: { color: "#5DA487" },
+                },
+                async onOk() {
+                  try {
+                    await axiosInstance.patch(`/matching/cancel`, {
+                      adminId,
+                      userId: data.id,
+                      patientId: data.patient_id,
+                    });
+                    message.success("해당 유저와의 매칭이 취소되었습니다.");
+                  } catch (e) {
+                    console.error("해당 유저와의 매칭 취소 실패: ", e);
+                    message.error("해당 유저와의 매칭 취소에 실패했습니다.");
+                  }
+                },
+              });
+            }}
+          >
+            매칭취소
+          </Button>
+        ) : (
+          // 다른 사람이 담당 관리자인 경우
+          <>{data.admin_name}</>
+        ),
     },
   ];
 
-  const option1 = [
+  const sortOption = [
     { value: "DESC", label: "최신순" },
     { value: "ASC", label: "오래된순" },
   ];
+
+  const searchOption = [
+    { value: "user", label: "보호자 ID" },
+    { value: "DESC", label: "보호자 이름" },
+    { value: "ASC", label: "피보호자 이름" },
+  ];
+
+  const onSearch: SearchProps["onSearch"] = (value, _e, info) =>
+    console.log(info?.source, value);
 
   return (
     <UserManageStyled className={clsx("usermanage_wrap")}>
       <div className="usermanage_title_box">
         <TitleCompo title="회원 관리" />
       </div>
+      <div>
+        <Select value={userOrder} options={searchOption} onChange={(e) => {}} />
+        <Search
+          placeholder="input search text"
+          allowClear
+          onSearch={onSearch}
+          style={{ width: 200 }}
+        />
+      </div>
       <div className="manage-select-box">
         <Select
           value={userOrder}
-          options={option1}
+          options={sortOption}
           onChange={(e) => {
             setUserOrder(e);
             setSortKey("created_at"); // 최신순/오래된순 정렬 기준을 가입일로 변경
@@ -215,7 +307,26 @@ const UserManage = () => {
         columns={columns}
         dataSource={sortedUsers}
         rowKey="key"
+        onRow={(record) => ({
+          onClick: () => {
+            setSelectedUser(record); // 클릭한 유저 데이터
+            setModalOpen(true); // 모달 열기
+          },
+        })}
       />
+      <Modal
+        title="특이사항"
+        open={modalOpen}
+        onCancel={() => setModalOpen(false)}
+        footer={null}
+        centered
+      >
+        {selectedUser && (
+          <div>
+            <p>{selectedUser.patient_note}</p>
+          </div>
+        )}
+      </Modal>
     </UserManageStyled>
   );
 };
