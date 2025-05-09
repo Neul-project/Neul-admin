@@ -6,6 +6,7 @@ import clsx from "clsx";
 import axiosInstance from "@/lib/axios";
 import StatusWrite from "../../components/StatusWrite";
 import dayjs from "dayjs";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 interface PatientType {
   patient_id: number;
@@ -68,7 +69,8 @@ const StatusList = () => {
   const [modalVisible, setModalVisible] = useState(false);
 
   const router = useRouter();
-  const adminId = 1;
+  const adminId = useAuthStore((state) => state.user?.id);
+  console.log("관리자 id", adminId);
 
   const medicationMap: any = {
     yes: "예",

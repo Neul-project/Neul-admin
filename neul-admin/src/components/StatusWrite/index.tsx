@@ -14,6 +14,7 @@ import axiosInstance from "@/lib/axios";
 import clsx from "clsx";
 import TitleCompo from "@/components/TitleCompo";
 import { useRouter } from "next/router";
+import { useAuthStore } from "@/stores/useAuthStore";
 const { TextArea } = Input;
 
 interface PatientType {
@@ -38,7 +39,7 @@ const StatusWrite = ({ _data, getStatusList, setModalVisible }: DataProps) => {
   const [form] = Form.useForm();
   const [patient, setPatient] = useState<PatientType[]>([]);
   const router = useRouter();
-  const adminId = 1; //임의 로그인한 관리자 id
+  const adminId = useAuthStore((state) => state.user?.id);
 
   // 로그인한 관리자의 담당 피보호자 불러오기
   const getPatient = async () => {
