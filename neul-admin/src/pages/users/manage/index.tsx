@@ -78,8 +78,8 @@ const UserManage = () => {
 
   const getUserList = async () => {
     try {
-      // 모든 user불러오기(유저 id, email, name, phone, 피보호자id, 피보호자이름,성별, 피보호자 생년월일, 특이사항 보내주기)
-      const res = await axiosInstance.get("/user/alluser");
+      // 모든 user불러오기(담당 adminId, 관리자 이름, 유저 id, email, name, phone, 피보호자id, 피보호자이름,성별, 피보호자 생년월일, 특이사항 보내주기)
+      const res = await axiosInstance.get("/matching/alluser");
       const data = res.data;
 
       const mapped = data.map((x: any) => ({
@@ -215,18 +215,21 @@ const UserManage = () => {
         </Button>
       ),
     },
+    {
+      key: "withdraw",
+      title: "관리",
+      render: (data: any) => (
+        <Button className="usermanage_delete_button" onClick={WithdrawUser}>
+          회원탈퇴
+        </Button>
+      ),
+    },
   ];
 
   return (
     <UserManageStyled className={clsx("usermanage_wrap")}>
       <div className="usermanage_title_box">
         <TitleCompo title="회원 관리" />
-        <div>
-          <Button onClick={() => router.push("/memberadd")}>회원추가</Button>
-          <Button className="usermanage_delete_button" onClick={WithdrawUser}>
-            회원삭제
-          </Button>
-        </div>
       </div>
 
       <div className="usermanage_info">
