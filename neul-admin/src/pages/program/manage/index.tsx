@@ -1,7 +1,7 @@
 import Programlist from "@/features/Programlist";
 
-const ProgramManagePage = () => {
+const ProgramListPage = () => {
   return <Programlist />;
 };
 
-export default ProgramManagePage;
+export default ProgramListPage;
