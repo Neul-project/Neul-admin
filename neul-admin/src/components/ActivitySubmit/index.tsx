@@ -29,9 +29,12 @@ import { useAuthStore } from "@/stores/useAuthStore";
 
 //활동 기록 등록 컴포넌트 - formik 작성
 const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
+  //변수 선언
   const { com_type, rowcontent } = props;
   const router = useRouter();
   const { user } = useAuthStore();
+
+  //console.log("Res", rowcontent);
 
   //useState
   const [imgarr, setImgarr] = useState<any[]>([]);
@@ -63,7 +66,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
   useEffect(() => {
     //수정하기로 들어 온 경우 상태 업데이트
     if (rowcontent) {
-      setWard(rowcontent.patient.id ?? "");
+      setWard(rowcontent.patient.name ?? "");
       setType(rowcontent.type ?? "");
       setRehabilitation(rowcontent.rehabilitation ?? "");
       setTitle(rowcontent.title ?? "");

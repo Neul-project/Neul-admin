@@ -31,8 +31,6 @@ const Feedback = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<DataType | null>(null);
 
-  const { user } = useAuthStore();
-
   useEffect(() => {
     axiosInstance.get(`/user/adminlist`).then((res) => {
       const data: AdminType[] = res.data;
