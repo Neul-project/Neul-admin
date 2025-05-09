@@ -20,7 +20,7 @@ export const UserManageStyled = styled.div`
       }
     }
     .usermanage_delete_button {
-      margin-left: 3px;
+      margin-right: 3px;
     }
   }
 `;

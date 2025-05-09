@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, message, Table } from "antd";
+import { Button, message, Select, Table } from "antd";
 import clsx from "clsx";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -8,72 +8,12 @@ import TitleCompo from "@/components/TitleCompo";
 import axiosInstance from "@/lib/axios";
 import { UserManageStyled } from "./styled";
 
-const dummyData = [
-  {
-    key: 1,
-    id: 1,
-    email: "testuser1@example.com",
-    name: "홍길동",
-    phone: "010-1234-5678",
-    patient_id: "1",
-    patient_name: "김철수",
-    patient_gender: "남성",
-    patient_birth: "1985-06-15",
-    patient_note: "특이사항 없음",
-  },
-  {
-    key: 2,
-    id: 2,
-    email: "testname2@example.com",
-    name: "김영희",
-    phone: "010-2345-6789",
-    patient_id: "2",
-    patient_name: "박영수",
-    patient_gender: "여성",
-    patient_birth: "1992-03-22",
-    patient_note: "알러지 있음",
-  },
-  {
-    key: 3,
-    id: 3,
-    email: "testname3@example.com",
-    name: "이민수",
-    phone: "010-3456-7890",
-    patient_id: "3",
-    patient_name: "최정희",
-    patient_gender: "여성",
-    patient_birth: "2000-12-30",
-    patient_note: "발열 증상 있음",
-  },
-  {
-    key: 4,
-    id: 4,
-    email: "testname4@example.com",
-    name: "박준호",
-    phone: "010-4567-8901",
-    patient_id: "4",
-    patient_name: "정지훈",
-    patient_gender: "남성",
-    patient_birth: "1978-11-05",
-    patient_note: "고혈압",
-  },
-  {
-    key: 5,
-    id: 5,
-    email: "testname5@example.com",
-    name: "정은지",
-    phone: "010-5678-9012",
-    patient_id: "5",
-    patient_name: "오성현",
-    patient_gender: "남성",
-    patient_birth: "1995-07-14",
-    patient_note: "운동 부족",
-  },
-];
-
 const UserManage = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [userOrder, setUserOrder] = useState("DESC");
+  const [sortKey, setSortKey] = useState("created_at");
+  const [sortedUsers, setSortedUsers] = useState<any[]>([]);
   const router = useRouter();
 
   const getUserList = async () => {
@@ -81,22 +21,25 @@ const UserManage = () => {
       // 모든 user불러오기(담당 adminId, 관리자 이름, 유저 id, email, name, phone, 피보호자id, 피보호자이름,성별, 피보호자 생년월일, 특이사항 보내주기)
       const res = await axiosInstance.get("/matching/alluser");
       const data = res.data;
+      console.log(data);
 
       const mapped = data.map((x: any) => ({
-        key: x.id,
-        id: x.id,
-        email: x.email,
-        name: x.name,
-        phone: x.phone,
+        key: x.user_id,
+        admin_id: x.admin_id,
+        admin_name: x.admin_name,
+        id: x.user_id,
+        email: x.user_email,
+        name: x.user_name,
+        phone: x.user_phone,
         patient_id: x.patient_id,
         patient_name: x.patient_name,
         patient_gender: x.patient_gender || "없음",
         patient_birth: x.patient_birth || "없음",
         patient_note: x.patient_note || "없음",
+        created_at: x.user_create,
       }));
 
       setUsers(mapped);
-      // setUsers(dummyData);
     } catch (err) {
       console.error("유저 불러오기 실패", err);
     }
@@ -105,6 +48,25 @@ const UserManage = () => {
   useEffect(() => {
     getUserList();
   }, []);
+
+  // 유저 정렬하기
+  const sortUsers = () => {
+    let sorted = [...users];
+
+    if (sortKey === "created_at") {
+      sorted.sort((a, b) =>
+        userOrder === "DESC"
+          ? new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          : new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      );
+    }
+    setSortedUsers(sorted);
+  };
+
+  // 유저정렬
+  useEffect(() => {
+    sortUsers();
+  }, [userOrder, sortKey, users]);
 
   const handleDownloadExcel = () => {
     const excelData = users.map((user) => ({
@@ -132,26 +94,28 @@ const UserManage = () => {
     saveAs(file, "회원목록.xlsx");
   };
 
+  // 회원삭제(userId들 보냄)
   const WithdrawUser = async () => {
     if (selectedRowKeys.length === 0) {
       message.warning("삭제할 회원을 선택해주세요.");
       return;
     }
-
+    console.log(selectedRowKeys);
     try {
-      // 선택한 회원 삭제(탈퇴)
-      await axiosInstance.delete("/user/delete", {
+      await axiosInstance.delete("/matching/userdelete", {
         data: { userIds: selectedRowKeys },
       });
+
       message.success("선택한 회원을 완전히 삭제했습니다.");
-      getUserList();
-      setSelectedRowKeys([]);
+      getUserList(); // 목록 다시 불러오기
+      setSelectedRowKeys([]); // 선택 초기화
     } catch (err) {
       console.error("회원 삭제 실패:", err);
       message.error("회원 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.");
     }
   };
 
+  // 테이블 rowSelection 설정
   const rowSelection = {
     selectedRowKeys,
     onChange: (keys: React.Key[]) => {
@@ -215,15 +179,11 @@ const UserManage = () => {
         </Button>
       ),
     },
-    {
-      key: "withdraw",
-      title: "관리",
-      render: (data: any) => (
-        <Button className="usermanage_delete_button" onClick={WithdrawUser}>
-          회원탈퇴
-        </Button>
-      ),
-    },
+  ];
+
+  const option1 = [
+    { value: "DESC", label: "최신순" },
+    { value: "ASC", label: "오래된순" },
   ];
 
   return (
@@ -231,15 +191,29 @@ const UserManage = () => {
       <div className="usermanage_title_box">
         <TitleCompo title="회원 관리" />
       </div>
-
+      <div className="manage-select-box">
+        <Select
+          value={userOrder}
+          options={option1}
+          onChange={(e) => {
+            setUserOrder(e);
+            setSortKey("created_at"); // 최신순/오래된순 정렬 기준을 가입일로 변경
+          }}
+        />
+      </div>
       <div className="usermanage_info">
         <div className="usermanage_total_num">총 {users.length}명</div>
-        <Button onClick={handleDownloadExcel}>엑셀</Button>
+        <div>
+          <Button className="usermanage_delete_button" onClick={WithdrawUser}>
+            회원삭제
+          </Button>
+          <Button onClick={handleDownloadExcel}>엑셀 다운</Button>
+        </div>
       </div>
       <Table
         rowSelection={rowSelection}
         columns={columns}
-        dataSource={users}
+        dataSource={sortedUsers}
         rowKey="key"
       />
     </UserManageStyled>
