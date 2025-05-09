@@ -74,6 +74,7 @@ const UserManage = () => {
     sortUsers();
   }, [userOrder, sortKey, users]);
 
+  // 엑셀 다운
   const handleDownloadExcel = () => {
     const excelData = users.map((user) => ({
       보호자ID: user.id,
@@ -109,7 +110,7 @@ const UserManage = () => {
     console.log(selectedRowKeys);
     try {
       await axiosInstance.delete("/matching/userdelete", {
-        data: { userIds: selectedRowKeys },
+        data: { ids: selectedRowKeys },
       });
 
       message.success("선택한 회원을 완전히 삭제했습니다.");
@@ -178,7 +179,7 @@ const UserManage = () => {
     },
     {
       key: "matching",
-      title: "매칭",
+      title: "담당",
       render: (data: any) =>
         data.admin_id === null ? (
           // 담당 관리자 없을경우
@@ -273,44 +274,79 @@ const UserManage = () => {
     setSelectSearch(value);
   };
 
-  const onSearch: SearchProps["onSearch"] = (value, _e, info) =>
-    console.log(info?.source, value);
+  const onSearch: SearchProps["onSearch"] = async (value) => {
+    console.log("검색 기준", selectSearch);
+    console.log("검색 단어", value);
+    try {
+      const res = await axiosInstance.get("/matching/searchuser", {
+        params: {
+          search: selectSearch, // 어떤 기준으로 검색하는지(user_id->보호자ID, user_name->보호자 이름, patient_name->피보호자 이름)
+          word: value, // 검색 단어
+        },
+      });
+      const searchData = res.data;
+      console.log("검색된 유저들", searchData);
+
+      const mapped = searchData.map((x: any) => ({
+        key: x.user_id,
+        admin_id: x.admin_id,
+        admin_name: x.admin_name,
+        id: x.user_id,
+        email: x.user_email,
+        name: x.user_name,
+        phone: x.user_phone,
+        patient_id: x.patient_id,
+        patient_name: x.patient_name,
+        patient_gender: x.patient_gender === "male" ? "남" : "여",
+        patient_birth: x.patient_birth || "없음",
+        patient_note: x.patient_note || "없음",
+        created_at: x.user_create,
+      }));
+
+      setUsers(mapped);
+    } catch (e) {
+      console.error("검색 실패: ", e);
+      message.error("검색에 실패하였습니다.");
+    }
+  };
 
   return (
     <UserManageStyled className={clsx("usermanage_wrap")}>
       <div className="usermanage_title_box">
         <TitleCompo title="회원 관리" />
-      </div>
-      <div>
-        <Select
-          value={selectSearch}
-          options={searchOption}
-          onChange={handleChange}
-        />
-        <Search
-          placeholder="선택한 기준으로 검색"
-          allowClear
-          onSearch={onSearch}
-          style={{ width: 200 }}
-        />
-      </div>
-      <div className="manage-select-box">
-        <Select
-          value={userOrder}
-          options={sortOption}
-          onChange={(e) => {
-            setUserOrder(e);
-            setSortKey("created_at"); // 최신순/오래된순 정렬 기준을 가입일로 변경
-          }}
-        />
-      </div>
-      <div className="usermanage_info">
-        <div className="usermanage_total_num">총 {users.length}명</div>
         <div>
           <Button className="usermanage_delete_button" onClick={WithdrawUser}>
             회원삭제
           </Button>
           <Button onClick={handleDownloadExcel}>엑셀 다운</Button>
+        </div>
+      </div>
+
+      <div className="usermanage_info">
+        <div className="usermanage_sort_box">
+          <div className="usermanage_total_num">총 {users.length}명</div>
+          <Select
+            value={userOrder}
+            options={sortOption}
+            onChange={(e) => {
+              setUserOrder(e);
+              setSortKey("created_at"); // 최신순/오래된순 정렬 기준을 가입일로 변경
+            }}
+          />
+        </div>
+        <div>
+          <Select
+            className="usermanage_search_select"
+            value={selectSearch}
+            options={searchOption}
+            onChange={handleChange}
+          />
+          <Search
+            placeholder="선택한 기준으로 검색"
+            allowClear
+            onSearch={onSearch}
+            style={{ width: 200 }}
+          />
         </div>
       </div>
       <Table
