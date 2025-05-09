@@ -25,11 +25,13 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import { Pagination, A11y } from "swiper/modules";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 //활동 기록 등록 컴포넌트 - formik 작성
 const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
   const { com_type, rowcontent } = props;
   const router = useRouter();
+  const { user } = useAuthStore();
 
   //useState
   const [imgarr, setImgarr] = useState<any[]>([]);
@@ -41,7 +43,23 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
   const [note, setNote] = useState(""); //수정 - 특이사항
   const [select_ward, setSelectWard] = useState<any[]>();
 
-  //console.log("rowcontent", rowcontent);
+  useEffect(() => {
+    const adminId = user?.id; //도우미 id
+
+    //도우미에 따른 피보호자 내용 전체 가져오기
+    axiosInstance
+      .get("/activity/targetlist", { params: { adminId } })
+      .then((res) => {
+        //console.log("activity targetlist res", res.data);
+        const data = res.data;
+        const mappedData: any[] = data.map((item: any, index: number) => ({
+          value: item.id,
+          label: item.name,
+        }));
+        setSelectWard(mappedData);
+      });
+  }, []);
+
   useEffect(() => {
     //수정하기로 들어 온 경우 상태 업데이트
     if (rowcontent) {
@@ -58,6 +76,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
       setCom_imgarr(imageUrls);
     }
   }, [rowcontent]);
+
   //파일 업로드
   const fileprops: UploadProps = {
     beforeUpload: () => {
@@ -79,23 +98,6 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
     { value: "play", label: "놀이" },
     { value: "exercise", label: "운동" },
   ];
-
-  useEffect(() => {
-    const adminId = 5; //도우미 id
-
-    //도우미에 따른 피보호자 내용 전체 가져오기
-    axiosInstance
-      .get("/activity/targetlist", { params: { adminId } })
-      .then((res) => {
-        //console.log("activity targetlist res", res.data);
-        const data = res.data;
-        const mappedData: any[] = data.map((item: any, index: number) => ({
-          value: item.id,
-          label: item.name,
-        }));
-        setSelectWard(mappedData);
-      });
-  }, []);
 
   //해당 행 삭젝 클릭 함수
   const deleteRow = () => {
@@ -216,7 +218,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
                 if (com_type === "modify") {
                   setTitle(value);
                 }
-                activityformik.handleChange(e); // 여전히 formik도 반영
+                activityformik.handleChange(e);
               }}
               className="activitySubmit_title_input"
               placeholder="제목을 입력하시오"
