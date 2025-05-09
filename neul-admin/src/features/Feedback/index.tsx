@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { FeedbackStyled } from "./styled";
 import axiosInstance from "@/lib/axios";
 import { Table, TableProps, Select, Modal } from "antd";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 interface DataType {
   key: number;
@@ -22,22 +23,44 @@ const columns: TableProps<DataType>["columns"] = [
   { title: "날짜", dataIndex: "date", key: "date" },
 ];
 
+//피드백 리스트 컴포넌트
 const Feedback = () => {
+  //변수 선언
   const [adminId, setAdminId] = useState<number>();
   const [list, setList] = useState<DataType[]>();
   const [adminlist, setAdminlist] = useState<AdminType[]>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<DataType | null>(null);
 
+  const { user } = useAuthStore();
+
   useEffect(() => {
+    //setAdminId(user?.id);
     axiosInstance.get(`/user/adminlist`).then((res) => {
       const data: AdminType[] = res.data;
       setAdminlist([{ value: 0, label: "전체" }, ...data]);
     });
 
-    axiosInstance
-      .get(`/activity/feedback/views`, { params: { adminId } })
-      .then((res) => {
+    //피드백 내용 전체 불러오기
+    axiosInstance.get(`/activity/feedback/views`).then((res) => {
+      const data = res.data;
+      const mappedList: DataType[] = data.map((item: any) => ({
+        key: item.id,
+        content: item.message,
+        date: item.recorded_at,
+        admin: item.activity.id,
+        origin: item,
+      }));
+      setList(mappedList);
+    });
+  }, []);
+
+  const handleChange = (option: { value: number; label: string }) => {
+    //console.log(`selected ${option.value}`);
+    setAdminId(option.value);
+    if (option.value === 0) {
+      //전체 feedback내용 보여지기
+      axiosInstance.get("/activity/feedback/views").then((res) => {
         const data = res.data;
         const mappedList: DataType[] = data.map((item: any) => ({
           key: item.id,
@@ -46,36 +69,16 @@ const Feedback = () => {
           admin: item.activity.id,
           origin: item,
         }));
+
         setList(mappedList);
       });
-  }, []);
-
-  const handleChange = (option: { value: number; label: string }) => {
-    //console.log(`selected ${option.value}`);
-    setAdminId(option.value);
-    if (option.value === 0) {
-      //전체 feedback내용 보여지기
-      axiosInstance
-        .get("/activity/feedback/views", { params: { adminId } })
-        .then((res) => {
-          //console.log("activity feedback views res", res.data);
-          const data = res.data;
-          const mappedList: DataType[] = data.map((item: any) => ({
-            key: item.id,
-            content: item.message,
-            date: item.recorded_at,
-            admin: item.activity.id,
-            origin: item,
-          }));
-
-          setList(mappedList);
-        });
     } else {
       //도우미 id에 해당하는 feedback내용 보여지기
+      console.log("Ad", adminId);
       axiosInstance
-        .get("/activity/feedback/view", { params: { adminId: 5 } })
+        .get("/activity/feedback/view", { params: { adminId: adminId } })
         .then((res) => {
-          //console.log("activity feedback view res", res.data);
+          console.log("activity feedback view res", res.data);
           const data = res.data;
           const mappedList: DataType[] = data.map((item: any) => ({
             key: item.id,

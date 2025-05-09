@@ -37,14 +37,6 @@ export default function App({ Component, pageProps }: AppProps) {
     };
   }, []);
 
-  useEffect(() => {
-    // 로그인 페이지를 제외한 모든 페이지에서 로그인 여부를 확인
-    if (!isLoggedIn && router.pathname !== "/login") {
-      alert("로그인 후 사용이 가능합니다.");
-      router.replace("/login");
-    }
-  }, [isLoggedIn, router]);
-
   return (
     <>
       <Head>
