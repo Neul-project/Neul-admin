@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
-import { Button, message, Modal, Select, Table } from "antd";
+import { Button, message, Modal, Select, Table, Input } from "antd";
 import clsx from "clsx";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { useRouter } from "next/router";
 import TitleCompo from "@/components/TitleCompo";
 import axiosInstance from "@/lib/axios";
 import { UserManageStyled } from "./styled";
 import { useAuthStore } from "@/stores/useAuthStore";
-import Search, { SearchProps } from "antd/es/input/Search";
+
+import type { SearchProps } from "antd/es/input";
+const { Search } = Input;
 
 const UserManage = () => {
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -18,6 +19,7 @@ const UserManage = () => {
   const [userOrder, setUserOrder] = useState("DESC");
   const [sortKey, setSortKey] = useState("created_at");
   const [sortedUsers, setSortedUsers] = useState<any[]>([]);
+  const [selectSearch, setSelectSearch] = useState<string>("user_id");
   const adminId = useAuthStore((state) => state.user?.id);
 
   const getUserList = async () => {
@@ -261,10 +263,15 @@ const UserManage = () => {
   ];
 
   const searchOption = [
-    { value: "user", label: "보호자 ID" },
-    { value: "DESC", label: "보호자 이름" },
-    { value: "ASC", label: "피보호자 이름" },
+    { value: "user_id", label: "보호자 ID" },
+    { value: "user_name", label: "보호자 이름" },
+    { value: "patient_name", label: "피보호자 이름" },
   ];
+
+  const handleChange = (value: string) => {
+    // 선택된 검색 셀렉트
+    setSelectSearch(value);
+  };
 
   const onSearch: SearchProps["onSearch"] = (value, _e, info) =>
     console.log(info?.source, value);
@@ -275,9 +282,13 @@ const UserManage = () => {
         <TitleCompo title="회원 관리" />
       </div>
       <div>
-        <Select value={userOrder} options={searchOption} onChange={(e) => {}} />
+        <Select
+          value={selectSearch}
+          options={searchOption}
+          onChange={handleChange}
+        />
         <Search
-          placeholder="input search text"
+          placeholder="선택한 기준으로 검색"
           allowClear
           onSearch={onSearch}
           style={{ width: 200 }}
