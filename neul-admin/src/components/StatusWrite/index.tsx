@@ -28,12 +28,6 @@ interface DataProps {
   setModalVisible?: any;
 }
 
-const dummyPatientData = [
-  { patient_id: 1, name: "홍길동" },
-  { patient_id: 2, name: "랄라라" },
-  { patient_id: 5, name: "헤이헤이" },
-];
-
 // 상태 등록하는 모달
 const StatusWrite = ({ _data, getStatusList, setModalVisible }: DataProps) => {
   const [form] = Form.useForm();
@@ -44,19 +38,18 @@ const StatusWrite = ({ _data, getStatusList, setModalVisible }: DataProps) => {
   // 로그인한 관리자의 담당 피보호자 불러오기
   const getPatient = async () => {
     try {
-      // const res = await axiosInstance.get("/status/patient", {
-      //   params: { adminId },
-      // });
+      const res = await axiosInstance.get("/status/patient", {
+        params: { adminId },
+      });
 
-      // // 필요한 데이터로 가공
-      // const formatted = res.data.map((item: any) => ({
-      //   patient_id: item.id,
-      //   name: item.name,
-      // }));
+      // 필요한 데이터로 가공
+      const formatted = res.data.map((item: any) => ({
+        patient_id: item.id,
+        name: item.name,
+      }));
 
-      // // 담당 피보호자 id, name저장
-      // setPatient(formatted);
-      setPatient(dummyPatientData);
+      // 담당 피보호자 id, name저장
+      setPatient(formatted);
     } catch (e) {
       console.error("담당 피보호자 불러오기 실패: ", e);
     }

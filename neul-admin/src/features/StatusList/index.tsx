@@ -13,51 +13,6 @@ interface PatientType {
   name: string;
 }
 
-const dummyPatientData = [
-  { patient_id: 1, name: "홍길동" },
-  { patient_id: 2, name: "랄라라" },
-  { patient_id: 5, name: "헤이헤이" },
-];
-
-const dummyStatusData = [
-  {
-    id: 1,
-    patient_id: 1,
-    patient_name: "홍길동",
-    condition: "좋음",
-    medication: "yes",
-    meal: ["완식", "대부분 섭취", "절반 섭취"],
-    sleep: "7시간",
-    pain: "없음",
-    note: "기분이 좋아 보임",
-    recorded_at: "2025-04-30 09:00",
-  },
-  {
-    id: 2,
-    patient_id: 2,
-    patient_name: "랄라라",
-    condition: "보통",
-    medication: "no",
-    meal: ["완식", "대부분 섭취", "절반 섭취"],
-    sleep: "5시간",
-    pain: "두통",
-    note: "약을 거부함",
-    recorded_at: "2025-04-30 10:30",
-  },
-  {
-    id: 5,
-    patient_id: 5,
-    patient_name: "헤이헤이",
-    condition: "나쁨",
-    medication: "none",
-    meal: ["완식", "대부분 섭취", "절반 섭취"],
-    sleep: "3시간",
-    pain: "복통",
-    note: "",
-    recorded_at: "2025-04-30 11:00",
-  },
-];
-
 const StatusList = () => {
   const [statusList, setStatusList] = useState<any[]>([]);
   const [selectedPatient, setSelectedPatient] = useState<string | number>(
@@ -95,19 +50,18 @@ const StatusList = () => {
   // 로그인한 관리자의 담당 피보호자 불러오기(기록하는 페이지에 이미 있는 요청임)
   const getPatient = async () => {
     try {
-      // const res = await axiosInstance.get("/status/patient", {
-      //   params: { adminId },
-      // });
+      const res = await axiosInstance.get("/status/patient", {
+        params: { adminId },
+      });
 
-      // // 필요한 데이터로 가공
-      // const formatted = res.data.map((item: any) => ({
-      //   patient_id: item.id,
-      //   name: item.name,
-      // }));
+      // 필요한 데이터로 가공
+      const formatted = res.data.map((item: any) => ({
+        patient_id: item.id,
+        name: item.name,
+      }));
 
-      // // 담당 피보호자 id, name저장
-      // setPatient(formatted);
-      setPatient(dummyPatientData);
+      // 담당 피보호자 id, name저장
+      setPatient(formatted);
     } catch (e) {
       console.error("담당 피보호자 불러오기 실패", e);
     }
@@ -122,7 +76,6 @@ const StatusList = () => {
         },
       });
       mapAndSetStatusList(res.data);
-      // mapAndSetStatusList(dummyStatusData);
     } catch (e) {
       console.error("상태 리스트 불러오기 실패", e);
     }
