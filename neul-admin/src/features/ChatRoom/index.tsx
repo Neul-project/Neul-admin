@@ -242,85 +242,103 @@ const ChatRoom = () => {
     <ChatRoomStyled className={clsx("chatroom_wrap")}>
       {/* 채팅 상대 선택 */}
       <div className="chatroom_select">
-        {chatRoomList.map((room) => (
-          <div
-            key={room.userId}
-            className={`chatroom_item ${
-              selectedUserId === room.userId ? "selected" : ""
-            }`}
-            onClick={() => handleSelectUser(room.userId)}
-            onContextMenu={(e) => onClickDeleteChattingRoom(e, room.userId)}
-          >
-            <div className="chatroom_name_box">
-              <div className="chatroom_name">
-                {room.patientName}님의 보호자님 - <span>{room.userName}</span>
+        {selectedUserId ? (
+          <>
+            {chatRoomList.map((room) => (
+              <div
+                key={room.userId}
+                className={`chatroom_item ${
+                  selectedUserId === room.userId ? "selected" : ""
+                }`}
+                onClick={() => handleSelectUser(room.userId)}
+                onContextMenu={(e) => onClickDeleteChattingRoom(e, room.userId)}
+              >
+                <div className="chatroom_name_box">
+                  <div className="chatroom_name">
+                    {room.patientName}님의 보호자님 -{" "}
+                    <span>{room.userName}</span>
+                  </div>
+                  <div className="chatroom_lasttime">
+                    {(() => {
+                      const now = dayjs();
+                      const last = dayjs(room.lastTime, "YYYY-MM-DD HH:mm");
+                      return last.isSame(now, "day")
+                        ? last.format("A h:mm") // 오후 5:09
+                        : last.format("YYYY-MM-DD");
+                    })()}
+                  </div>
+                </div>
+                <div className="chatroom_lastmessage_box">
+                  <span className="chatroom_lastmessage">
+                    {room.lastMessage}
+                  </span>
+                  {room.unreadCount ? (
+                    <span className="chatroom_unread">{room.unreadCount}</span>
+                  ) : null}
+                </div>
               </div>
-              <div className="chatroom_lasttime">
-                {(() => {
-                  const now = dayjs();
-                  const last = dayjs(room.lastTime, "YYYY-MM-DD HH:mm");
-                  return last.isSame(now, "day")
-                    ? last.format("A h:mm") // 오후 5:09
-                    : last.format("YYYY-MM-DD");
-                })()}
-              </div>
-            </div>
-            <div className="chatroom_lastmessage_box">
-              <span className="chatroom_lastmessage">{room.lastMessage}</span>
-              {room.unreadCount ? (
-                <span className="chatroom_unread">{room.unreadCount}</span>
-              ) : null}
-            </div>
+            ))}
+          </>
+        ) : (
+          <div className="chatroom_unpeople">
+            담당하고 있는 피보호자가 없습니다.
           </div>
-        ))}
+        )}
       </div>
-
       {/* 채팅 내용 */}
       <div className="chatroom_content_box">
         <div className="chatroom_content">
-          {Object.entries(groupDate).map(([date, messages]) => (
-            <div key={date}>
-              <div className="chatroom_date">{date}</div>
-              {messages.map((chat, i) => {
-                const currentTime = chat.time;
-                const nextTime = messages[i + 1]?.time;
-                const shouldShowTime = currentTime !== nextTime;
-                return (
-                  <ChatMessage
-                    key={chat.id}
-                    name={i === 0 || shouldShowTime ? chat.user.name : ""}
-                    message={chat.message}
-                    time={shouldShowTime ? chat.time : ""}
-                    isMe={chat.isMe}
-                  />
-                );
-              })}
-            </div>
-          ))}
-          <div ref={bottomRef} />
+          {selectedUserId ? (
+            <>
+              {Object.entries(groupDate).map(([date, messages]) => (
+                <div key={date}>
+                  <div className="chatroom_date">{date}</div>
+                  {messages.map((chat, i) => {
+                    const currentTime = chat.time;
+                    const nextTime = messages[i + 1]?.time;
+                    const shouldShowTime = currentTime !== nextTime;
+                    return (
+                      <ChatMessage
+                        key={chat.id}
+                        name={i === 0 || shouldShowTime ? chat.user.name : ""}
+                        message={chat.message}
+                        time={shouldShowTime ? chat.time : ""}
+                        isMe={chat.isMe}
+                      />
+                    );
+                  })}
+                </div>
+              ))}
+              <div ref={bottomRef} />
+            </>
+          ) : (
+            <div className="chatroom_uncontent">채팅방을 선택해주세요.</div>
+          )}
         </div>
         {/* 보내는 메시지 */}
-        <div className="chatroom_message_box">
-          <div className="chatroom_message">
-            <input
-              type="text"
-              placeholder="메시지 입력"
-              value={inputValue}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") sendMessage();
-              }}
-              onChange={(e) => {
-                setInputValue(e.target.value);
-              }}
+        {selectedUserId && (
+          <div className="chatroom_message_box">
+            <div className="chatroom_message">
+              <input
+                type="text"
+                placeholder="메시지 입력"
+                value={inputValue}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") sendMessage();
+                }}
+                onChange={(e) => {
+                  setInputValue(e.target.value);
+                }}
+              />
+            </div>
+            <SendOutlined
+              className={`chatroom_sendbtn ${
+                inputValue.trim() === "" ? "chatroom_disabled" : ""
+              }`}
+              onClick={sendMessage}
             />
           </div>
-          <SendOutlined
-            className={`chatroom_sendbtn ${
-              inputValue.trim() === "" ? "chatroom_disabled" : ""
-            }`}
-            onClick={sendMessage}
-          />
-        </div>
+        )}
       </div>
     </ChatRoomStyled>
   );

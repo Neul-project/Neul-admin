@@ -10,6 +10,13 @@ export const ChatRoomStyled = styled.div`
       border-top: 1.5px solid #ccc;
       border-left: 1.5px solid #ccc;
       border-bottom: 1.5px solid #ccc;
+      .chatroom_unpeople {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #999;
+      }
       .chatroom_item {
         padding: 10px;
         border-bottom: 1px solid #eee;
@@ -88,6 +95,13 @@ export const ChatRoomStyled = styled.div`
           text-align: center;
           color: #ccc;
           margin-top: 20px;
+        }
+        .chatroom_uncontent {
+          color: #999;
+          height: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
         }
       }
 
