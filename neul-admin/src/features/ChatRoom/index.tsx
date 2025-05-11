@@ -9,6 +9,7 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 import axiosInstance from "@/lib/axios";
 import "dayjs/locale/ko"; // 한국어 로케일 불러오기
 import { message, Modal } from "antd";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 dayjs.locale("ko"); // 로케일 설정
 
@@ -48,7 +49,8 @@ const ChatRoom = () => {
   dayjs.extend(localizedFormat);
   dayjs.locale("ko");
 
-  const adminId = 2; //로그인한 임의의 관리자id
+  const adminId = useAuthStore((state) => state.user?.id);
+  console.log("관리자 id", adminId);
 
   // 무조건 아래에서 시작하도록
   const scrollToBottom = () => {
