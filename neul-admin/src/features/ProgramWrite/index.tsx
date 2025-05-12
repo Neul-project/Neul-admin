@@ -78,13 +78,13 @@ const ProgramWrite = () => {
       });
 
       //프로그램 등록 요청
-      // axiosInstance
-      //   .post(`/program/registration`, formData, {
-      //     headers: { "Content-Type": "multipart/form-data" },
-      //   })
-      //   .then((res) => {
-      //     console.log("등록 성공", res);
-      //   });
+      axiosInstance
+        .post(`/program/registration`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        })
+        .then((res) => {
+          console.log("등록 성공", res);
+        });
     },
   });
 

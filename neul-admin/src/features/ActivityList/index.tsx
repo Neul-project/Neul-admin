@@ -78,8 +78,6 @@ const ActivityList = () => {
   }, [user]);
 
   useEffect(() => {
-    //if (!user?.id) return;
-
     //도우미 id에 따른 활동기록 전체 가져오기
     axiosInstance
       .get("/activity/selectlistall", { params: { adminId } })
