@@ -75,14 +75,14 @@ const ChatRoom = () => {
   const handleSelectUser = async (userId: number) => {
     setSelectedUserId(userId);
 
-    console.log("유저 아이디", userId);
+    console.log("------------유저 아이디----------", userId);
 
     try {
       const res = await axiosInstance.get(`/chat/list`, {
         params: { userId },
       });
 
-      console.log(res.data);
+      console.log("목록 왔다", res.data);
 
       // 데이터 가공
       const parsedChats: Chatting[] = res.data.map((chat: any) => {
@@ -117,6 +117,8 @@ const ChatRoom = () => {
   };
 
   useEffect(() => {
+    if (!adminId) return;
+
     console.log("선택된 userID", selectedUserId);
     // 채팅방 불러오기(자신의 담당 보호자-피보호자들)
     fetchChatRoomList();
@@ -163,7 +165,7 @@ const ChatRoom = () => {
       socketRef.current?.off("receive_message");
       socketRef.current?.disconnect();
     };
-  }, [selectedUserId]);
+  }, [adminId, selectedUserId]);
 
   // 새로운 채팅이 추가될 때마다 자동으로 스크롤 맨 아래로
   useEffect(() => {
