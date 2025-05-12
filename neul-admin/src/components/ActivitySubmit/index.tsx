@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axios";
-
+import { activityOptions } from "@/utill/activityoptionlist";
 //antd
 import {
   Input,
@@ -45,6 +45,14 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
   const [com_imgarr, setCom_imgarr] = useState<any[]>(); //수정 - 이미지
   const [note, setNote] = useState(""); //수정 - 특이사항
   const [select_ward, setSelectWard] = useState<any[]>();
+  const [adminId, setAdminId] = useState<number | null>(); //관리자id(===로그인한 userid)
+
+  //userid useState넣기
+  useEffect(() => {
+    if (user?.id) {
+      setAdminId(user.id);
+    }
+  }, [user]);
 
   useEffect(() => {
     const adminId = user?.id; //도우미 id
@@ -57,7 +65,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
         const data = res.data;
         const mappedData: any[] = data.map((item: any, index: number) => ({
           value: item.id,
-          label: item.name,
+          label: item.name + "(" + item.id + ")",
         }));
         setSelectWard(mappedData);
       });
@@ -72,11 +80,23 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
       setTitle(rowcontent.title ?? "");
       setNote(rowcontent.note ?? "");
 
+      //기존 이미지 배열에 있는 내용 가공하기
       const imageUrls = rowcontent.img
         ? rowcontent.img.split(",").map((img: any) => img.trim())
         : [];
 
-      setCom_imgarr(imageUrls);
+      const fileList = imageUrls.map((url: string, index: number) => ({
+        uid: `init-${index}`, // 고유 ID
+        name: `img${url}`, // 파일명
+        status: "done", // 업로드 완료 상태
+        url: process.env.NEXT_PUBLIC_API_URL + "/uploads/" + url, // 실제 이미지 경로
+      }));
+
+      //console.log("file", fileList);
+
+      setImgarr(fileList); // Upload에서 사용할 리스트
+
+      setCom_imgarr([...imageUrls]);
     }
   }, [rowcontent]);
 
@@ -94,13 +114,6 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
     listType: "picture-card",
     maxCount: 5,
   };
-
-  //활동 종류 select
-  const select_option = [
-    { value: "walk", label: "산책" },
-    { value: "play", label: "놀이" },
-    { value: "exercise", label: "운동" },
-  ];
 
   //해당 행 삭젝 클릭 함수
   const deleteRow = () => {
@@ -123,7 +136,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
     },
     enableReinitialize: true, // 외부 값으로 초기값으로 세팅하기 위해 사용
     onSubmit: (values) => {
-      const userid = 5; //도우미 임시 아이디
+      const userid = user?.id; //도우미 id
 
       const formData = new FormData();
 
@@ -184,8 +197,6 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
     }),
   });
 
-  const imageList =
-    com_type === "modify" ? [...(com_imgarr || []), ...imgarr] : imgarr;
   return (
     <ActivityStyled>
       <form
@@ -194,7 +205,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
       >
         {/* 피보호자 선택 */}
         <div className="activitySubmit_ward">
-          <div className="activitySubmit_text">피보호자</div>
+          <div className="activitySubmit_text">피보호자(ID)</div>
           <ConfigProvider theme={ActivityTheme}>
             <Select
               className="activitySubmit_select"
@@ -235,7 +246,11 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
         )}
         {/* swiper */}
         <div className="activitySubmit_image">
-          <Upload {...fileprops} fileList={imageList}>
+          <Upload
+            {...fileprops}
+            fileList={imgarr}
+            onPreview={(file) => window.open(file.url)} // 이미지 미리보기
+          >
             <Button icon={<UploadOutlined />}></Button>
           </Upload>
           <div className="activitySubmit_swiper_div">
@@ -320,7 +335,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
                   setType(value);
                   activityformik.setFieldValue("type", value);
                 }}
-                options={select_option}
+                options={activityOptions}
               />
             </ConfigProvider>
           </div>
