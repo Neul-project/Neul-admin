@@ -10,6 +10,7 @@ import type { UploadProps } from "antd";
 import { categorylist } from "@/utill/programcategory";
 import { useState } from "react";
 import axiosInstance from "@/lib/axios";
+import clsx from "clsx";
 
 //프로그램 등록 컴포넌트
 const ProgramWrite = () => {
@@ -77,19 +78,21 @@ const ProgramWrite = () => {
       });
 
       //프로그램 등록 요청
-      axiosInstance
-        .post(`/program/registration`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        })
-        .then((res) => {
-          console.log("등록 성공", res);
-        });
+      // axiosInstance
+      //   .post(`/program/registration`, formData, {
+      //     headers: { "Content-Type": "multipart/form-data" },
+      //   })
+      //   .then((res) => {
+      //     console.log("등록 성공", res);
+      //   });
     },
   });
 
   return (
-    <ProgramWriteStyled>
-      <div>프로그램 등록 페이지</div>
+    <ProgramWriteStyled className={clsx("ProgramWrite_main_wrap")}>
+      <div className="ProgramWrite_h3">
+        <h3>프로그램 등록 페이지</h3>
+      </div>
 
       <form onSubmit={programformik.handleSubmit}>
         <div>
