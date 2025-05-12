@@ -46,7 +46,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
   const [note, setNote] = useState(""); //수정 - 특이사항
   const [select_ward, setSelectWard] = useState<any[]>();
   const [adminId, setAdminId] = useState<number | null>(); //관리자id(===로그인한 userid)
-
+  const [activityId, setActivityId] = useState();
   //userid useState넣기
   useEffect(() => {
     if (user?.id) {
@@ -74,11 +74,13 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
   useEffect(() => {
     //수정하기로 들어 온 경우 상태 업데이트
     if (rowcontent) {
+      //console.log("res", rowcontent);
       setWard(rowcontent.patient.name ?? "");
       setType(rowcontent.type ?? "");
       setRehabilitation(rowcontent.rehabilitation ?? "");
       setTitle(rowcontent.title ?? "");
       setNote(rowcontent.note ?? "");
+      setActivityId(rowcontent.id ?? "");
 
       //기존 이미지 배열에 있는 내용 가공하기
       const imageUrls = rowcontent.img
@@ -158,18 +160,22 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
         //수정하기
         //console.log("수정 ", activityformik.values);
 
-        axiosInstance
-          .put(`/activity/update/${userid}`, formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          })
-          .then((res) => {
-            notification.success({
-              message: `수정 완료`,
-              description: `성공적으로 수정이 완료 되었습니다.`,
-            });
-          });
+        for (const [key, value] of formData.entries()) {
+          console.log(`${key}:`, value);
+        }
+
+        // axiosInstance
+        //   .put(`/activity/update/${activityId}`, formData, {
+        //     headers: {
+        //       "Content-Type": "multipart/form-data",
+        //     },
+        //   })
+        //   .then((res) => {
+        //     notification.success({
+        //       message: `수정 완료`,
+        //       description: `성공적으로 수정이 완료 되었습니다.`,
+        //     });
+        // });
       } else {
         //기록하기
 
