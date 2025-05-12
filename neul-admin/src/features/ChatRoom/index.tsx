@@ -75,6 +75,8 @@ const ChatRoom = () => {
   const handleSelectUser = async (userId: number) => {
     setSelectedUserId(userId);
 
+    console.log("유저 아이디", userId);
+
     try {
       const res = await axiosInstance.get(`/chat/list`, {
         params: { userId },
@@ -102,10 +104,10 @@ const ChatRoom = () => {
       setChattings(parsedChats);
 
       // 읽음 처리 요청
-      // axiosInstance.post("/chat/read", {
-      //   userId: selectedUserId,
-      //   adminId,
-      // });
+      axiosInstance.post("/chat/read", {
+        userId,
+        adminId,
+      });
 
       // 선택 시 unreadCount 초기화
       setChatRoomList((prevRooms) =>
@@ -119,6 +121,7 @@ const ChatRoom = () => {
   };
 
   useEffect(() => {
+    console.log("선택된 userID", selectedUserId);
     // 채팅방 불러오기(자신의 담당 보호자-피보호자들)
     fetchChatRoomList();
 
@@ -143,10 +146,10 @@ const ChatRoom = () => {
         setChattings((prev) => [...prev, parsedMessage]);
 
         // 읽음 처리 요청
-        // axiosInstance.post("/chat/read", {
-        //   userId: selectedUserId,
-        //   adminId,
-        // });
+        axiosInstance.post("/chat/read", {
+          userId: selectedUserId,
+          adminId,
+        });
       } else {
         // 다른 방이면 unreadCount 증가
         setChatRoomList((prevRooms) =>
@@ -242,7 +245,7 @@ const ChatRoom = () => {
     <ChatRoomStyled className={clsx("chatroom_wrap")}>
       {/* 채팅 상대 선택 */}
       <div className="chatroom_select">
-        {selectedUserId ? (
+        {chatRoomList.length !== 0 ? (
           <>
             {chatRoomList.map((room) => (
               <div
