@@ -206,6 +206,7 @@ const UserManage = () => {
                       patientId: data.patient_id,
                     });
                     message.success("해당 유저와 매칭되었습니다.");
+                    getUserList();
                   } catch (e) {
                     console.error("해당 유저와의 매칭 실패: ", e);
                     message.error("해당 유저와의 매칭에 실패했습니다.");
@@ -241,6 +242,7 @@ const UserManage = () => {
                       patientId: data.patient_id,
                     });
                     message.success("해당 유저와의 매칭이 취소되었습니다.");
+                    getUserList();
                   } catch (e) {
                     console.error("해당 유저와의 매칭 취소 실패: ", e);
                     message.error("해당 유저와의 매칭 취소에 실패했습니다.");

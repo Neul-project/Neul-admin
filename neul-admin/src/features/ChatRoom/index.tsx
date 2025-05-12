@@ -22,7 +22,7 @@ interface Chatting {
   read: boolean;
   time: string;
   date: string;
-  isMe: boolean;
+  sender: string;
   created_at: string;
 }
 
@@ -75,6 +75,8 @@ const ChatRoom = () => {
   const handleSelectUser = async (userId: number) => {
     setSelectedUserId(userId);
 
+    console.log("유저 아이디", userId);
+
     try {
       const res = await axiosInstance.get(`/chat/list`, {
         params: { userId },
@@ -84,16 +86,12 @@ const ChatRoom = () => {
 
       // 데이터 가공
       const parsedChats: Chatting[] = res.data.map((chat: any) => {
-        // 본인이 작성한 채팅인지 확인
-        const isMe = chat.admin.id === userId;
-
         // 시간, 날짜
         const date = dayjs(chat.created_at).format("YYYY년 MM월 DD일");
         const time = dayjs(chat.created_at).format("A h:mm");
 
         return {
           ...chat,
-          isMe,
           date,
           time,
         };
@@ -102,10 +100,10 @@ const ChatRoom = () => {
       setChattings(parsedChats);
 
       // 읽음 처리 요청
-      // axiosInstance.post("/chat/read", {
-      //   userId: selectedUserId,
-      //   adminId,
-      // });
+      axiosInstance.post("/chat/read", {
+        userId,
+        adminId,
+      });
 
       // 선택 시 unreadCount 초기화
       setChatRoomList((prevRooms) =>
@@ -119,6 +117,7 @@ const ChatRoom = () => {
   };
 
   useEffect(() => {
+    console.log("선택된 userID", selectedUserId);
     // 채팅방 불러오기(자신의 담당 보호자-피보호자들)
     fetchChatRoomList();
 
@@ -143,10 +142,10 @@ const ChatRoom = () => {
         setChattings((prev) => [...prev, parsedMessage]);
 
         // 읽음 처리 요청
-        // axiosInstance.post("/chat/read", {
-        //   userId: selectedUserId,
-        //   adminId,
-        // });
+        axiosInstance.post("/chat/read", {
+          userId: selectedUserId,
+          adminId,
+        });
       } else {
         // 다른 방이면 unreadCount 증가
         setChatRoomList((prevRooms) =>
@@ -206,6 +205,7 @@ const ChatRoom = () => {
     e: React.MouseEvent<HTMLDivElement>,
     userId: number
   ) => {
+    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!유저 id", userId);
     e.preventDefault();
 
     Modal.confirm({
@@ -242,7 +242,7 @@ const ChatRoom = () => {
     <ChatRoomStyled className={clsx("chatroom_wrap")}>
       {/* 채팅 상대 선택 */}
       <div className="chatroom_select">
-        {selectedUserId ? (
+        {chatRoomList.length !== 0 ? (
           <>
             {chatRoomList.map((room) => (
               <div
@@ -303,7 +303,7 @@ const ChatRoom = () => {
                         name={i === 0 || shouldShowTime ? chat.user.name : ""}
                         message={chat.message}
                         time={shouldShowTime ? chat.time : ""}
-                        isMe={chat.isMe}
+                        sender={chat.sender}
                       />
                     );
                   })}
