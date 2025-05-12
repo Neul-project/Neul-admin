@@ -18,6 +18,7 @@ export const ChatRoomStyled = styled.div`
         color: #999;
       }
       .chatroom_item {
+        height: 65.3px;
         padding: 10px;
         border-bottom: 1px solid #eee;
         cursor: pointer;

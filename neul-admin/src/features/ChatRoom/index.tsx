@@ -22,7 +22,7 @@ interface Chatting {
   read: boolean;
   time: string;
   date: string;
-  isMe: boolean;
+  sender: string;
   created_at: string;
 }
 
@@ -86,16 +86,12 @@ const ChatRoom = () => {
 
       // 데이터 가공
       const parsedChats: Chatting[] = res.data.map((chat: any) => {
-        // 본인이 작성한 채팅인지 확인
-        const isMe = chat.admin.id === userId;
-
         // 시간, 날짜
         const date = dayjs(chat.created_at).format("YYYY년 MM월 DD일");
         const time = dayjs(chat.created_at).format("A h:mm");
 
         return {
           ...chat,
-          isMe,
           date,
           time,
         };
@@ -209,6 +205,7 @@ const ChatRoom = () => {
     e: React.MouseEvent<HTMLDivElement>,
     userId: number
   ) => {
+    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!유저 id", userId);
     e.preventDefault();
 
     Modal.confirm({
@@ -306,7 +303,7 @@ const ChatRoom = () => {
                         name={i === 0 || shouldShowTime ? chat.user.name : ""}
                         message={chat.message}
                         time={shouldShowTime ? chat.time : ""}
-                        isMe={chat.isMe}
+                        sender={chat.sender}
                       />
                     );
                   })}
