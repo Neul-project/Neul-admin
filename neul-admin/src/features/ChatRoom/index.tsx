@@ -75,8 +75,6 @@ const ChatRoom = () => {
   const handleSelectUser = async (userId: number) => {
     setSelectedUserId(userId);
 
-    console.log("------------유저 아이디----------", userId);
-
     try {
       const res = await axiosInstance.get(`/chat/list`, {
         params: { userId },
@@ -130,34 +128,39 @@ const ChatRoom = () => {
 
     socketRef.current.off("receive_message"); // 기존 리스너 제거
     socketRef.current.on("receive_message", (message: Chatting) => {
-      if (message.user.id === selectedUserId) {
-        const date = dayjs(message.created_at).format("YYYY년 MM월 DD일");
-        const time = dayjs(message.created_at).format("A h:mm");
+      const date = dayjs(message.created_at).format("YYYY년 MM월 DD일");
+      const time = dayjs(message.created_at).format("A h:mm");
 
-        const parsedMessage = {
-          ...message,
-          date,
-          time,
-        };
+      const parsedMessage = {
+        ...message,
+        date,
+        time,
+      };
 
-        // 현재 보고 있는 방이면 그냥 append
-        setChattings((prev) => [...prev, parsedMessage]);
+      // 현재 보고 있는 방이면 그냥 append
+      setChattings((prev) => [...prev, parsedMessage]);
 
-        // 읽음 처리 요청
-        axiosInstance.post("/chat/read", {
-          userId: selectedUserId,
-          adminId,
-        });
-      } else {
-        // 다른 방이면 unreadCount 증가
-        setChatRoomList((prevRooms) =>
-          prevRooms.map((room) =>
-            room.userId === message.user.id
-              ? { ...room, unreadCount: (room.unreadCount || 0) + 1 }
-              : room
-          )
-        );
-      }
+      // 읽음 처리 요청
+      axiosInstance.post("/chat/read", {
+        userId: selectedUserId,
+        adminId,
+      });
+
+      setChatRoomList((prevRooms) =>
+        prevRooms.map((room) =>
+          room.userId === message.user.id
+            ? {
+                ...room,
+                lastMessage: message.message,
+                lastTime: message.created_at,
+                unreadCount:
+                  message.user.id === selectedUserId
+                    ? 0
+                    : (room.unreadCount || 0) + 1,
+              }
+            : room
+        )
+      );
     });
 
     return () => {
@@ -170,7 +173,7 @@ const ChatRoom = () => {
   // 새로운 채팅이 추가될 때마다 자동으로 스크롤 맨 아래로
   useEffect(() => {
     scrollToBottom();
-    fetchChatRoomList();
+    // fetchChatRoomList();
   }, [chattings]);
 
   // 날짜별로 그룹화
@@ -299,7 +302,9 @@ const ChatRoom = () => {
                   {messages.map((chat, i) => {
                     const currentTime = chat.time;
                     const nextTime = messages[i + 1]?.time;
-                    const shouldShowTime = currentTime !== nextTime;
+                    const nextSender = messages[i + 1]?.sender;
+                    const shouldShowTime =
+                      chat.sender !== nextSender || currentTime !== nextTime;
                     return (
                       <ChatMessage
                         key={chat.id}
