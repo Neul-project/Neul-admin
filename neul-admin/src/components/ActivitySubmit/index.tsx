@@ -47,6 +47,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
   const [select_ward, setSelectWard] = useState<any[]>();
   const [adminId, setAdminId] = useState<number | null>(); //관리자id(===로그인한 userid)
   const [activityId, setActivityId] = useState();
+
   //userid useState넣기
   useEffect(() => {
     if (user?.id) {
@@ -109,6 +110,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
 
     onChange({ fileList }) {
       setImgarr(fileList); // 파일 리스트 상태 업데이트
+      activityformik.setFieldValue("imgarr", fileList);
     },
     multiple: true,
     listType: "picture-card",
@@ -147,11 +149,11 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
       formData.append("patient_id", values.patient_id ?? "");
       formData.append("rehabilitation", values.rehabilitation ?? "");
 
-      console.log("imgarr", imgarr);
+      //console.log("imgarr", imgarr);
       imgarr.forEach((fileWrapper: any) => {
         if (fileWrapper.originFileObj) {
           // 새로 업로드된 이미지
-          formData.append("img", fileWrapper.originFileObj.name);
+          formData.append("img", fileWrapper.originFileObj);
         } else if (fileWrapper.url) {
           // 수정 시 기존 이미지
           const fileName = fileWrapper.url.split("/").pop(); //마지막 요소만 가져오기(파일명)
@@ -166,26 +168,30 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
       if (rowcontent) {
         //수정하기
         //console.log("수정 ", activityformik.values);
-        for (const [key, value] of formData.entries()) {
-          console.log(`${key}:`, value);
-        }
+        // for (const [key, value] of formData.entries()) {
+        //   console.log(`${key}:`, value);
+        // }
 
-        // axiosInstance
-        //   .patch(`/activity/update/${activityId}`, formData, {
-        //     headers: {
-        //       "Content-Type": "multipart/form-data",
-        //     },
-        //   })
-        //   .then((res) => {
-        //     notification.success({
-        //       message: `수정 완료`,
-        //       description: `성공적으로 수정이 완료 되었습니다.`,
-        //     });
-        //   });
+        axiosInstance
+          .patch(`/activity/update/${activityId}`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((res) => {
+            notification.success({
+              message: `수정 완료`,
+              description: `성공적으로 수정이 완료 되었습니다.`,
+            });
+          });
       } else {
         //기록하기
 
-        //console.log("등록 ", activityformik.values);
+        // console.log("등록 ", activityformik.values);
+
+        // for (const [key, value] of formData.entries()) {
+        //   console.log(`등록 ${key}:`, value);
+        // }
 
         //백엔드 저장 요청
         axiosInstance
@@ -325,7 +331,6 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
                 value={
                   com_type === "modify" ? type : activityformik.values.type
                 }
-                defaultValue="walk"
                 onChange={(value) => {
                   setType(value);
                   activityformik.setFieldValue("type", value);
@@ -341,11 +346,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
 
             <ConfigProvider theme={ActivityTheme}>
               <Radio.Group
-                value={
-                  com_type === "modify"
-                    ? rehabilitation
-                    : activityformik.values.rehabilitation
-                }
+                value={activityformik.values.rehabilitation}
                 onChange={(e) =>
                   activityformik.setFieldValue("rehabilitation", e.target.value)
                 }
