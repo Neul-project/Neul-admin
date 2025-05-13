@@ -164,18 +164,18 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
           console.log(`${key}:`, value);
         }
 
-        // axiosInstance
-        //   .put(`/activity/update/${activityId}`, formData, {
-        //     headers: {
-        //       "Content-Type": "multipart/form-data",
-        //     },
-        //   })
-        //   .then((res) => {
-        //     notification.success({
-        //       message: `수정 완료`,
-        //       description: `성공적으로 수정이 완료 되었습니다.`,
-        //     });
-        // });
+        axiosInstance
+          .put(`/activity/update/${activityId}`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((res) => {
+            notification.success({
+              message: `수정 완료`,
+              description: `성공적으로 수정이 완료 되었습니다.`,
+            });
+          });
       } else {
         //기록하기
 

@@ -2,7 +2,7 @@ import { ProgramWriteStyled } from "./styled";
 import { useFormik } from "formik";
 
 //antd
-import { Button, Select, Upload, message } from "antd";
+import { Button, Input, Select, Upload, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
 
@@ -51,7 +51,7 @@ const ProgramWrite = () => {
     initialValues: {
       name: "",
       progress: "",
-      category: "2",
+      category: "",
       recruitment: "",
       price: "",
       manager: "",
@@ -95,27 +95,30 @@ const ProgramWrite = () => {
       </div>
 
       <form onSubmit={programformik.handleSubmit}>
-        <div>
+        <div className="ProgramWrite_submit">
           <Button htmlType="submit">등록</Button>
         </div>
-        <Select
-          defaultValue="lucy"
-          style={{ width: 120 }}
-          options={categorylist}
-          value={programformik.values.category}
-          onChange={handleChange}
-        />
-        <div>
-          <div>
-            <label>이미지</label>
+
+        <div className="ProgramWrite_form_content">
+          <div className="ProgramWrite_row">
+            <div className="ProgramWrite_name">카테고리</div>
+            <Select
+              style={{ width: 120 }}
+              options={categorylist}
+              value={programformik.values.category}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="ProgramWrite_row">
+            <div>이미지</div>
             <Upload {...imageprops}>
               <Button icon={<UploadOutlined />}>Click to Upload</Button>
             </Upload>
           </div>
 
-          <div>
-            <label>프로그램 명</label>
-            <input
+          <div className="ProgramWrite_row">
+            <div>프로그램 명</div>
+            <Input
               type="text"
               name="name"
               placeholder="프로그램명을 입력해 주세요."
@@ -124,9 +127,9 @@ const ProgramWrite = () => {
             />
           </div>
 
-          <div>
-            <label>진행기간</label>
-            <input
+          <div className="ProgramWrite_row">
+            <div>진행기간</div>
+            <Input
               type="text"
               name="progress"
               placeholder="진행기간을 입력해 주세요."
@@ -135,9 +138,9 @@ const ProgramWrite = () => {
             />
           </div>
 
-          <div>
-            <label>모집기간</label>
-            <input
+          <div className="ProgramWrite_row">
+            <div>모집기간</div>
+            <Input
               type="text"
               name="recruitment"
               placeholder="모집기간을 입력해 주세요."
@@ -146,9 +149,9 @@ const ProgramWrite = () => {
             />
           </div>
 
-          <div>
-            <label>수강료</label>
-            <input
+          <div className="ProgramWrite_row">
+            <div>수강료</div>
+            <Input
               type="text"
               name="price"
               placeholder="수강료를 입력해 주세요."
@@ -157,9 +160,9 @@ const ProgramWrite = () => {
             />
           </div>
 
-          <div>
-            <label>담당자명</label>
-            <input
+          <div className="ProgramWrite_row">
+            <div>담당자명</div>
+            <Input
               type="text"
               name="manager"
               placeholder="담당자명을 입력해 주세요."
@@ -168,9 +171,9 @@ const ProgramWrite = () => {
             />
           </div>
 
-          <div>
-            <label>모집인원</label>
-            <input
+          <div className="ProgramWrite_row">
+            <div>모집인원</div>
+            <Input
               type="text"
               name="capacity"
               placeholder="모집인원을 입력해 주세요."
@@ -179,9 +182,9 @@ const ProgramWrite = () => {
             />
           </div>
 
-          <div>
-            <label>문의전화</label>
-            <input
+          <div className="ProgramWrite_row">
+            <div>문의전화</div>
+            <Input
               type="text"
               name="call"
               placeholder="문의 전화번호를 입력해 주세요."

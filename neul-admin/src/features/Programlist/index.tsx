@@ -6,6 +6,9 @@ import { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axios";
 import ProgramModal from "../ProgramModal";
 
+type TableRowSelection<T extends object = object> =
+  TableProps<T>["rowSelection"];
+
 interface DataType {
   key: number;
   title: string;
@@ -39,6 +42,17 @@ const Programlist = () => {
   const [filterlst, setFilterlst] = useState();
   const [title, setTitle] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+
+  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
+    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
+    setSelectedRowKeys(newSelectedRowKeys);
+  };
+
+  const rowSelection: TableRowSelection<DataType> = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+  };
 
   const ProgramPost = () => {
     router.push("/program/manage/write");
@@ -80,6 +94,7 @@ const Programlist = () => {
       </div>
       <div>
         <Table<DataType>
+          rowSelection={rowSelection}
           columns={columns}
           dataSource={list}
           onRow={(record, rowIndex) => {
@@ -88,8 +103,6 @@ const Programlist = () => {
                 console.log("re", record);
                 showModal();
                 setTitle(record.title);
-
-                //setFilterlst(list?.filter((item) => item.key === record.key));
               },
             };
           }}
