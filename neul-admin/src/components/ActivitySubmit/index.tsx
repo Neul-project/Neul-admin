@@ -152,7 +152,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
       imgarr.forEach((fileWrapper: any) => {
         if (fileWrapper.originFileObj) {
           // 새로 업로드된 이미지
-          formData.append("img[]", fileWrapper.originFileObj);
+          formData.append("img", fileWrapper.originFileObj);
         } else if (fileWrapper.url) {
           // 수정 시 기존 이미지
           const fileName = fileWrapper.url.split("/").pop(); //마지막 요소만 가져오기(파일명)
