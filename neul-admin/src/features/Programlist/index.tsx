@@ -14,6 +14,7 @@ interface DataType {
   title: string;
   manager: string;
   price: number;
+  origin: any;
 }
 
 const columns: TableProps<DataType>["columns"] = [
@@ -43,6 +44,7 @@ const Programlist = () => {
   const [title, setTitle] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [originlist, setOriginList] = useState([]);
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
     console.log("selectedRowKeys changed: ", newSelectedRowKeys);
@@ -77,6 +79,7 @@ const Programlist = () => {
         title: item.name,
         manager: item.manager,
         price: item.price,
+        origin: item,
       }));
 
       setList(programList);
@@ -100,9 +103,10 @@ const Programlist = () => {
           onRow={(record, rowIndex) => {
             return {
               onClick: (event) => {
-                console.log("re", record);
+                //console.log("re", record);
                 showModal();
                 setTitle(record.title);
+                setOriginList(record.origin);
               },
             };
           }}
@@ -114,7 +118,7 @@ const Programlist = () => {
           onCancel={handleCancel}
           footer={null}
         >
-          <ProgramModal list={list} />
+          <ProgramModal list={originlist} />
         </Modal>
       </div>
     </ProgramlistStyled>

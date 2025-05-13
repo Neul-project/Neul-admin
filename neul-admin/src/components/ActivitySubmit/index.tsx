@@ -159,23 +159,21 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
       if (rowcontent) {
         //수정하기
         //console.log("수정 ", activityformik.values);
-
-        for (const [key, value] of formData.entries()) {
-          console.log(`${key}:`, value);
-        }
-
-        axiosInstance
-          .put(`/activity/update/${activityId}`, formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          })
-          .then((res) => {
-            notification.success({
-              message: `수정 완료`,
-              description: `성공적으로 수정이 완료 되었습니다.`,
-            });
-          });
+        // for (const [key, value] of formData.entries()) {
+        //   console.log(`${key}:`, value);
+        // }
+        // axiosInstance
+        //   .put(`/activity/update/${activityId}`, formData, {
+        //     headers: {
+        //       "Content-Type": "multipart/form-data",
+        //     },
+        //   })
+        //   .then((res) => {
+        //     notification.success({
+        //       message: `수정 완료`,
+        //       description: `성공적으로 수정이 완료 되었습니다.`,
+        //     });
+        //   });
       } else {
         //기록하기
 
@@ -352,11 +350,13 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
 
             <ConfigProvider theme={ActivityTheme}>
               <Radio.Group
-                onChange={(value) =>
-                  activityformik.setFieldValue(
-                    "rehabilitation",
-                    value.target.value
-                  )
+                value={
+                  com_type === "modify"
+                    ? rehabilitation
+                    : activityformik.values.rehabilitation
+                }
+                onChange={(e) =>
+                  activityformik.setFieldValue("rehabilitation", e.target.value)
                 }
               >
                 <Radio.Button className="activitySubmit_radio" value="yes">
