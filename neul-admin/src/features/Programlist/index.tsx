@@ -4,7 +4,6 @@ import clsx from "clsx";
 import { Button, Table, TableProps, Modal } from "antd";
 import { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axios";
-import ProgramModal from "../ProgramModal";
 import ProgramWrite from "../ProgramWrite";
 
 type TableRowSelection<T extends object = object> =

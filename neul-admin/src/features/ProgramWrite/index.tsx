@@ -2,7 +2,7 @@ import { ProgramWriteStyled } from "./styled";
 import { useFormik } from "formik";
 
 //antd
-import { Button, Input, Select, Upload, message } from "antd";
+import { Button, Input, Select, Upload, message, notification } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
 
@@ -11,12 +11,13 @@ import { categorylist } from "@/utill/programcategory";
 import { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axios";
 import clsx from "clsx";
+import { useRouter } from "next/router";
 
 //프로그램 등록 컴포넌트
 const ProgramWrite = (props: { modify: string; list: any }) => {
   //변수 선언
   const { modify, list } = props;
-
+  const router = useRouter();
   //useState
   const [programId, setProgramId] = useState();
   const [call, setCall] = useState();
@@ -35,16 +36,16 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
     console.log("list", list);
 
     if (list) {
-      setProgramId(list.id);
-      setCall(list.call);
-      setCapacity(list.capacity);
-      setCategory(list.category);
-      setManager(list.manager);
-      setName(list.name);
-      setPrice(list.price);
-      setProgress(list.progress);
-      setRecruitment(list.recruitment);
-      setRegistation(list.registration_at);
+      setProgramId(list.id ?? "");
+      setCall(list.call ?? "");
+      setCapacity(list.capacity ?? "");
+      setCategory(list.category ?? "");
+      setManager(list.manager ?? "");
+      setName(list.name ?? "");
+      setPrice(list.price ?? "");
+      setProgress(list.progress ?? "");
+      setRecruitment(list.recruitment ?? "");
+      setRegistation(list.registration_at ?? "");
 
       //기존 이미지 배열에 있는 내용 가공하기
       const imageUrls = list.img
@@ -94,18 +95,18 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
 
   const programformik = useFormik({
     initialValues: {
-      name: "",
-      progress: "",
-      category: "",
-      recruitment: "",
-      price: "",
-      manager: "",
-      capacity: "",
-      call: "",
+      name: modify === "modify" ? name ?? "" : "",
+      progress: modify === "modify" ? progress ?? "" : "",
+      category: modify === "modify" ? category ?? "" : "",
+      recruitment: modify === "modify" ? recruitment ?? "" : "",
+      price: modify === "modify" ? price ?? "" : "",
+      manager: modify === "modify" ? manager ?? "" : "",
+      capacity: modify === "modify" ? capacity ?? "" : "",
+      call: modify === "modify" ? call ?? "" : "",
       img: [],
     },
     onSubmit: (values) => {
-      console.log("Values", values);
+      //console.log("Values", values);
       const formData = new FormData();
 
       formData.append("name", values.name);
@@ -130,7 +131,13 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
             headers: { "Content-Type": "multipart/form-data" },
           })
           .then((res) => {
-            console.log("등록 성공", res);
+            //console.log("등록 성공", res);
+            notification.success({
+              message: `등록 완료`,
+              description: `성공적으로 등록이 완료 되었습니다.`,
+            });
+
+            router.push("/program/manage");
           });
       }
     },
@@ -147,7 +154,7 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
       )}
 
       <form onSubmit={programformik.handleSubmit}>
-        {modify ? (
+        {modify === "modify" ? (
           <div className="ProgramWrite_submit">
             <Button htmlType="submit">수정하기</Button>
           </div>
@@ -164,7 +171,9 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
               style={{ width: 120 }}
               options={categorylist}
               value={programformik.values.category}
-              onChange={handleChange}
+              onChange={(value) =>
+                programformik.setFieldValue("category", value)
+              }
             />
           </div>
           <div className="ProgramWrite_row">

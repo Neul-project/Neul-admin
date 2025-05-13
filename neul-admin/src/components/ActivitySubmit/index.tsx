@@ -141,7 +141,6 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
       const userid = user?.id; //도우미 id
 
       const formData = new FormData();
-
       formData.append("title", values.title);
       formData.append("type", values.type);
       formData.append("note", values.note);
@@ -162,18 +161,8 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
         }
       });
 
-      //console.log("imgarr", imgarr);
-
       if (rowcontent) {
         //수정하기
-        // console.log("수정 ", activityformik.values);
-
-        // for (const [key, value] of formData.entries()) {
-        //   console.log(`${key}:`, value);
-        // }
-
-        //return;
-
         axiosInstance
           .patch(`/activity/update/${activityId}`, formData, {
             headers: {
@@ -195,7 +184,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
         //   console.log(`등록 ${key}:`, value);
         // }
         //console.log("ㄴ", formData.getAll("img"));
-        return;
+
         //백엔드 저장 요청
         axiosInstance
           .post(`/activity/write/${userid}`, formData, {

@@ -19,6 +19,7 @@ type TableRowSelection<T extends object = object> =
 interface DataType {
   key: number;
   name: string;
+  title: string;
   type: string;
   recorded: string;
   original?: any;
@@ -28,6 +29,7 @@ interface DataType {
 interface DataTableType {
   key: number;
   name: string;
+  title: string;
   type: string;
   recorded: string;
   original?: any;
@@ -48,6 +50,10 @@ const columns: TableColumnsType<DataType> = [
   {
     title: "활동 종류",
     dataIndex: "type",
+  },
+  {
+    title: "제목",
+    dataIndex: "title",
   },
   {
     title: "기록 시간",
@@ -87,6 +93,7 @@ const ActivityList = () => {
         const mappedData: DataType[] = data.map((item: any, index: number) => ({
           key: item.id,
           name: item.patient.name + "(" + item.patient.id + ")" ?? "",
+          title: item.title,
           type: getActivityLabel(item.type ?? ""),
           recorded: item.recorded_at ?? "",
           original: item,
@@ -122,7 +129,6 @@ const ActivityList = () => {
     //console.log("선택한 value:", option.value);
     //console.log("선택한 label:", option.label);
     const patientId = option.value;
-    //setPatientId(option.value); //피보호자 선택
 
     //전체 클릭 시
     if (option.value === 0) {
@@ -137,6 +143,7 @@ const ActivityList = () => {
             (item: any, index: number) => ({
               key: item.id ?? index,
               name: item.patient.name + "(" + item.patient.id + ")" ?? "",
+              title: item.title,
               type: getActivityLabel(item.type ?? ""),
               recorded: item.recorded_at ?? "",
               original: item,
@@ -151,8 +158,6 @@ const ActivityList = () => {
       //select 선택
       if (!user?.id) return;
       //피보호자 선택에 따른 리스트 가져오기 -> select 피보호자 선택 시
-
-      //console.log("ad", adminId, patientId);
       axiosInstance
         .get("/activity/selectlist", { params: { adminId, patientId } })
         .then((res) => {
@@ -163,6 +168,7 @@ const ActivityList = () => {
             (item: any, index: number) => ({
               key: item.id ?? index,
               name: item.patient.name + "(" + item.patient.id + ")" ?? "",
+              title: item.title,
               type: getActivityLabel(item.type ?? ""),
               recorded: item.recorded_at ?? "",
               original: item,
@@ -195,6 +201,10 @@ const ActivityList = () => {
         data: { ids: selectedRowKeys },
       });
 
+      setDataSource((prev) =>
+        prev?.filter((item) => !selectedRowKeys.includes(item.key))
+      );
+
       message.success("선택한 리스트를 삭제했습니다.");
       setSelectedRowKeys([]);
     } catch (e) {
@@ -219,6 +229,7 @@ const ActivityList = () => {
     setIsModalOpen(true);
   };
 
+  //모달 닫기
   const handleCancel = () => {
     setIsModalOpen(false);
   };
