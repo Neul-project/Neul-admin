@@ -5,6 +5,7 @@ import { Button, Table, TableProps, Modal } from "antd";
 import { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axios";
 import ProgramModal from "../ProgramModal";
+import ProgramWrite from "../ProgramWrite";
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>["rowSelection"];
@@ -118,7 +119,7 @@ const Programlist = () => {
           onCancel={handleCancel}
           footer={null}
         >
-          <ProgramModal list={originlist} />
+          <ProgramWrite modify={"modify"} list={originlist} />
         </Modal>
       </div>
     </ProgramlistStyled>

@@ -13,7 +13,8 @@ import axiosInstance from "@/lib/axios";
 import clsx from "clsx";
 
 //프로그램 등록 컴포넌트
-const ProgramWrite = () => {
+const ProgramWrite = (props: { modify: string; list: any }) => {
+  const { modify, list } = props;
   //useState
   //const [imgarr, setImgArr] = useState<any[]>();
 

@@ -37,12 +37,12 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
   //console.log("Res", rowcontent);
 
   //useState
-  const [imgarr, setImgarr] = useState<any[]>([]);
+  const [imgarr, setImgarr] = useState<any[]>([]); //원본 이미지 배열
   const [ward, setWard] = useState<any>(); //수정 - 피보호자 선택
   const [type, setType] = useState<string>(""); //수정 - 활동 종류 선택
   const [rehabilitation, setRehabilitation] = useState(); //수정 - 재활 치료 선택
   const [title, setTitle] = useState(""); //수정 - 제목
-  const [com_imgarr, setCom_imgarr] = useState<any[]>(); //수정 - 이미지
+  //const [com_imgarr, setCom_imgarr] = useState<any[]>(); //수정으로 들어온 - 이미지
   const [note, setNote] = useState(""); //수정 - 특이사항
   const [select_ward, setSelectWard] = useState<any[]>();
   const [adminId, setAdminId] = useState<number | null>(); //관리자id(===로그인한 userid)
@@ -88,17 +88,15 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
         : [];
 
       const fileList = imageUrls.map((url: string, index: number) => ({
-        uid: `init-${index}`, // 고유 ID
-        name: `img${url}`, // 파일명
-        status: "done", // 업로드 완료 상태
-        url: process.env.NEXT_PUBLIC_API_URL + "/uploads/" + url, // 실제 이미지 경로
+        uid: `uploaded-${index}`, // Upload 컴포넌트는 uid 필요
+        name: url,
+        status: "done",
+        url: process.env.NEXT_PUBLIC_API_URL + "/uploads/" + url,
       }));
 
       //console.log("file", fileList);
 
       setImgarr(fileList); // Upload에서 사용할 리스트
-
-      setCom_imgarr([...imageUrls]);
     }
   }, [rowcontent]);
 
@@ -130,13 +128,14 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
   const activityformik = useFormik({
     initialValues: {
       title: com_type === "modify" ? title : "",
-      type: com_type === "modify" ? type : "walk",
+      type: com_type === "modify" ? type : "",
       note: com_type === "modify" ? note : "",
       patient_id: com_type === "modify" ? ward : "",
       rehabilitation: com_type === "modify" ? rehabilitation : "",
-      imgarr: com_type === "modify" ? com_imgarr : [""],
+      imgarr: com_type === "modify" ? imgarr : [""],
     },
     enableReinitialize: true, // 외부 값으로 초기값으로 세팅하기 위해 사용
+
     onSubmit: (values) => {
       const userid = user?.id; //도우미 id
 
@@ -148,9 +147,17 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
       formData.append("patient_id", values.patient_id ?? "");
       formData.append("rehabilitation", values.rehabilitation ?? "");
 
+      console.log("imgarr", imgarr);
       imgarr.forEach((fileWrapper: any) => {
         if (fileWrapper.originFileObj) {
-          formData.append("img", fileWrapper.originFileObj);
+          // 새로 업로드된 이미지
+          formData.append("img", fileWrapper.originFileObj.name);
+        } else if (fileWrapper.url) {
+          // 수정 시 기존 이미지
+          const fileName = fileWrapper.url.split("/").pop(); //마지막 요소만 가져오기(파일명)
+          if (fileName) {
+            formData.append("img", fileName);
+          }
         }
       });
 
@@ -159,11 +166,12 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
       if (rowcontent) {
         //수정하기
         //console.log("수정 ", activityformik.values);
-        // for (const [key, value] of formData.entries()) {
-        //   console.log(`${key}:`, value);
-        // }
+        for (const [key, value] of formData.entries()) {
+          console.log(`${key}:`, value);
+        }
+
         // axiosInstance
-        //   .put(`/activity/update/${activityId}`, formData, {
+        //   .patch(`/activity/update/${activityId}`, formData, {
         //     headers: {
         //       "Content-Type": "multipart/form-data",
         //     },
@@ -250,16 +258,17 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
         )}
         {/* swiper */}
         <div className="activitySubmit_image">
-          <Upload
-            {...fileprops}
-            fileList={imgarr}
-            onPreview={(file) => window.open(file.url)} // 이미지 미리보기
-          >
-            <Button icon={<UploadOutlined />}></Button>
-          </Upload>
-          <div className="activitySubmit_swiper_div">
-            {com_type === "modify" ? (
-              com_imgarr && com_imgarr.length > 0 ? (
+          <div className="activitySubmit_image">
+            <Upload
+              {...fileprops}
+              fileList={imgarr}
+              onPreview={(file) => window.open(file.url)}
+            >
+              <Button icon={<UploadOutlined />} />
+            </Upload>
+
+            <div className="activitySubmit_swiper_div">
+              {imgarr && imgarr.length > 0 ? (
                 <Swiper
                   modules={[Pagination]}
                   className="activitySubmit_swiper"
@@ -267,19 +276,26 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
                   slidesPerView={1}
                   pagination={{ clickable: true }}
                 >
-                  {com_imgarr.map((element: any, index: number) => {
-                    const url = element.originFileObj
-                      ? URL.createObjectURL(element.originFileObj)
-                      : element.thumbUrl;
+                  {imgarr.map((element: any, index: number) => {
+                    let src = "";
+
+                    if (com_type === "modify" && element.url) {
+                      //  기존 이미지
+                      src = `${
+                        process.env.NEXT_PUBLIC_API_URL
+                      }/uploads/${element.url.split("/").pop()}`;
+                    } else if (element.originFileObj) {
+                      // 새로 업로드된 이미지
+                      src = URL.createObjectURL(element.originFileObj);
+                    } else if (element.thumbUrl) {
+                      // 드래그 등에서 썸네일 제공된 경우
+                      src = element.thumbUrl;
+                    }
 
                     return (
                       <SwiperSlide key={index}>
                         <img
-                          src={
-                            process.env.NEXT_PUBLIC_API_URL +
-                            "/uploads/" +
-                            element
-                          }
+                          src={src}
                           alt={`preview-${index}`}
                           className="swperimg"
                         />
@@ -289,33 +305,8 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
                 </Swiper>
               ) : (
                 <div className="activitySubmit_swiper_text">미리보기</div>
-              )
-            ) : imgarr && imgarr.length > 0 ? (
-              <Swiper
-                modules={[Pagination]}
-                className="activitySubmit_swiper"
-                spaceBetween={50}
-                slidesPerView={1}
-                pagination={{ clickable: true }}
-              >
-                {imgarr.map((element: any, index: number) => {
-                  const url = element.originFileObj
-                    ? URL.createObjectURL(element.originFileObj)
-                    : element.thumbUrl;
-                  return (
-                    <SwiperSlide key={index}>
-                      <img
-                        src={url}
-                        alt={`preview-${index}`}
-                        className="swperimg"
-                      />
-                    </SwiperSlide>
-                  );
-                })}
-              </Swiper>
-            ) : (
-              <div className="activitySubmit_swiper_text">미리보기</div>
-            )}
+              )}
+            </div>
           </div>
         </div>
 
