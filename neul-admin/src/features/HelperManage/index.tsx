@@ -23,10 +23,9 @@ const HelperManage = () => {
       const data = res.data;
       console.log(data);
 
+      // 보호자 id, 보호자 이메일, 보호자 이름, 보호자 전화번호, 피보호자 id, 피보호자 이름, 피보호자 성별, 피보호자 생일, 피보호자 특이사항, 가입 날짜 보내주기
       const mapped = data.map((x: any) => ({
         key: x.user_id,
-        admin_id: x.admin_id,
-        admin_name: x.admin_name,
         id: x.user_id,
         email: x.user_email,
         name: x.user_name,
