@@ -8,15 +8,59 @@ import type { UploadProps } from "antd";
 
 //categroylist
 import { categorylist } from "@/utill/programcategory";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axios";
 import clsx from "clsx";
 
 //프로그램 등록 컴포넌트
 const ProgramWrite = (props: { modify: string; list: any }) => {
+  //변수 선언
   const { modify, list } = props;
+
   //useState
-  //const [imgarr, setImgArr] = useState<any[]>();
+  const [programId, setProgramId] = useState();
+  const [call, setCall] = useState();
+  const [capacity, setCapacity] = useState();
+  const [category, setCategory] = useState();
+  const [img, setImg] = useState();
+  const [manager, setManager] = useState();
+  const [name, setName] = useState();
+  const [price, setPrice] = useState();
+  const [progress, setProgress] = useState();
+  const [recruitment, setRecruitment] = useState();
+  const [registation, setRegistation] = useState();
+
+  //useState
+  useEffect(() => {
+    console.log("list", list);
+
+    if (list) {
+      setProgramId(list.id);
+      setCall(list.call);
+      setCapacity(list.capacity);
+      setCategory(list.category);
+      setManager(list.manager);
+      setName(list.name);
+      setPrice(list.price);
+      setProgress(list.progress);
+      setRecruitment(list.recruitment);
+      setRegistation(list.registration_at);
+
+      //기존 이미지 배열에 있는 내용 가공하기
+      const imageUrls = list.img
+        ? list.img.split(",").map((img: any) => img.trim())
+        : [];
+
+      const fileList = imageUrls.map((url: string, index: number) => ({
+        uid: `uploaded-${index}`, // Upload 컴포넌트는 uid 필요
+        name: url,
+        status: "done",
+        url: process.env.NEXT_PUBLIC_API_URL + "/uploads/" + url,
+      }));
+
+      setImg(fileList);
+    }
+  }, [list]);
 
   //antd selects handleChange 함수
   const handleChange = (value: string) => {
@@ -79,26 +123,39 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
       });
 
       //프로그램 등록 요청
-      axiosInstance
-        .post(`/program/registration`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        })
-        .then((res) => {
-          console.log("등록 성공", res);
-        });
+      if (modify === "modify") {
+      } else {
+        axiosInstance
+          .post(`/program/registration`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          })
+          .then((res) => {
+            console.log("등록 성공", res);
+          });
+      }
     },
   });
 
   return (
     <ProgramWriteStyled className={clsx("ProgramWrite_main_wrap")}>
-      <div className="ProgramWrite_h3">
-        <h3>프로그램 등록 페이지</h3>
-      </div>
+      {modify ? (
+        <></>
+      ) : (
+        <div className="ProgramWrite_h3">
+          <h3>프로그램 등록 페이지</h3>
+        </div>
+      )}
 
       <form onSubmit={programformik.handleSubmit}>
-        <div className="ProgramWrite_submit">
-          <Button htmlType="submit">등록</Button>
-        </div>
+        {modify ? (
+          <div className="ProgramWrite_submit">
+            <Button htmlType="submit">수정하기</Button>
+          </div>
+        ) : (
+          <div className="ProgramWrite_submit">
+            <Button htmlType="submit">등록하기</Button>
+          </div>
+        )}
 
         <div className="ProgramWrite_form_content">
           <div className="ProgramWrite_row">

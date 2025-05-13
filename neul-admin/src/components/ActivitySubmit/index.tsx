@@ -9,7 +9,6 @@ import { activityOptions } from "@/utill/activityoptionlist";
 import {
   Input,
   Upload,
-  message,
   Button,
   Select,
   Radio,
@@ -42,7 +41,6 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
   const [type, setType] = useState<string>(""); //수정 - 활동 종류 선택
   const [rehabilitation, setRehabilitation] = useState(); //수정 - 재활 치료 선택
   const [title, setTitle] = useState(""); //수정 - 제목
-  //const [com_imgarr, setCom_imgarr] = useState<any[]>(); //수정으로 들어온 - 이미지
   const [note, setNote] = useState(""); //수정 - 특이사항
   const [select_ward, setSelectWard] = useState<any[]>();
   const [adminId, setAdminId] = useState<number | null>(); //관리자id(===로그인한 userid)
@@ -119,7 +117,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
 
   //해당 행 삭젝 클릭 함수
   const deleteRow = () => {
-    console.log("activityId", [activityId]);
+    //console.log("activityId", [activityId]);
     const deleteIds = [activityId];
     // const ids = rowcontent.map((item: any) => item.id); //배열로 보내기
     axiosInstance.delete("/activity/delete", {
@@ -135,7 +133,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
       note: com_type === "modify" ? note : "",
       patient_id: com_type === "modify" ? ward : "",
       rehabilitation: com_type === "modify" ? rehabilitation : "",
-      imgarr: com_type === "modify" ? imgarr : [""],
+      imgarr: com_type === "modify" ? imgarr : [],
     },
     enableReinitialize: true, // 외부 값으로 초기값으로 세팅하기 위해 사용
 
@@ -154,12 +152,12 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
       imgarr.forEach((fileWrapper: any) => {
         if (fileWrapper.originFileObj) {
           // 새로 업로드된 이미지
-          formData.append("img", fileWrapper.originFileObj);
+          formData.append("img[]", fileWrapper.originFileObj);
         } else if (fileWrapper.url) {
           // 수정 시 기존 이미지
           const fileName = fileWrapper.url.split("/").pop(); //마지막 요소만 가져오기(파일명)
           if (fileName) {
-            formData.append("img", fileName);
+            formData.append("img[]", fileName);
           }
         }
       });
@@ -168,10 +166,13 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
 
       if (rowcontent) {
         //수정하기
-        //console.log("수정 ", activityformik.values);
+        // console.log("수정 ", activityformik.values);
+
         // for (const [key, value] of formData.entries()) {
         //   console.log(`${key}:`, value);
         // }
+
+        //return;
 
         axiosInstance
           .patch(`/activity/update/${activityId}`, formData, {
@@ -189,11 +190,12 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
         //기록하기
 
         // console.log("등록 ", activityformik.values);
-
+        //console.log("imgarr", imgarr);
         // for (const [key, value] of formData.entries()) {
         //   console.log(`등록 ${key}:`, value);
         // }
-
+        //console.log("ㄴ", formData.getAll("img"));
+        return;
         //백엔드 저장 요청
         axiosInstance
           .post(`/activity/write/${userid}`, formData, {
