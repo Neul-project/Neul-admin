@@ -119,10 +119,11 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
 
   //해당 행 삭젝 클릭 함수
   const deleteRow = () => {
-    const ids = rowcontent.map((item: any) => item.id); //배열로 보내기
-
+    console.log("activityId", [activityId]);
+    const deleteIds = [activityId];
+    // const ids = rowcontent.map((item: any) => item.id); //배열로 보내기
     axiosInstance.delete("/activity/delete", {
-      data: { ids },
+      data: { ids: deleteIds },
     });
   };
 
