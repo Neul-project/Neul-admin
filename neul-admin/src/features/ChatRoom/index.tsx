@@ -34,12 +34,14 @@ interface ChatRoomPreview {
   lastMessage: string;
   lastTime: string; // "2025-04-29 17:09"
   unreadCount?: number;
+  isMatched?: boolean;
 }
 
 // 채팅 전체 화면
 const ChatRoom = () => {
   const [inputValue, setInputValue] = useState("");
   const [chatRoomList, setChatRoomList] = useState<ChatRoomPreview[]>([]);
+  const [currentRoom, setCurrentRoom] = useState<ChatRoomPreview>();
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [chattings, setChattings] = useState<Chatting[]>([]);
 
@@ -76,6 +78,10 @@ const ChatRoom = () => {
   const handleSelectUser = async (userId: number) => {
     setSelectedUserId(userId);
     selectedUserIdRef.current = userId;
+
+    // 선택된 방 정보
+    const selectedRoom = chatRoomList.find((room) => room.userId === userId);
+    setCurrentRoom(selectedRoom);
 
     try {
       const res = await axiosInstance.get(`/chat/list`, {
@@ -218,9 +224,9 @@ const ChatRoom = () => {
     e.preventDefault();
 
     Modal.confirm({
-      title: "해당 채팅방 내용을 삭제하시겠습니까?",
-      content: "삭제한 내용은 복구할 수 없습니다.",
-      okText: "삭제",
+      title: "채팅방을 나가겠습니까?",
+      content: "채팅방을 나가면 채팅내용을 복구할 수 없습니다.",
+      okText: "나가기",
       cancelText: "취소",
       okButtonProps: {
         style: { backgroundColor: "#5DA487" },
@@ -231,7 +237,7 @@ const ChatRoom = () => {
       async onOk() {
         if (userId == null) return;
         try {
-          await axiosInstance.delete(`/chat/alldelete`, {
+          await axiosInstance.delete(`/chat/exitRoom`, {
             params: { userId },
           });
           message.success("해당 채팅방 내용이 삭제되었습니다.");
@@ -260,7 +266,11 @@ const ChatRoom = () => {
                   selectedUserId === room.userId ? "selected" : ""
                 }`}
                 onClick={() => handleSelectUser(room.userId)}
-                onContextMenu={(e) => onClickDeleteChattingRoom(e, room.userId)}
+                onContextMenu={
+                  !room.isMatched
+                    ? undefined
+                    : (e) => onClickDeleteChattingRoom(e, room.userId)
+                }
               >
                 <div className="chatroom_name_box">
                   <div className="chatroom_name">
@@ -332,14 +342,17 @@ const ChatRoom = () => {
             <div className="chatroom_message">
               <input
                 type="text"
-                placeholder="메시지 입력"
+                placeholder={
+                  !currentRoom?.isMatched
+                    ? "메시지 입력"
+                    : "매칭이 끊겨 더 이상의 채팅은 불가능합니다."
+                }
                 value={inputValue}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") sendMessage();
-                }}
+                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                 onChange={(e) => {
                   setInputValue(e.target.value);
                 }}
+                readOnly={currentRoom?.isMatched}
               />
             </div>
             <SendOutlined

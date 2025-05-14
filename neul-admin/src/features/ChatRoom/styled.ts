@@ -49,6 +49,17 @@ export const ChatRoomStyled = styled.div`
           margin-top: 4px;
           display: flex;
           justify-content: space-between;
+
+          .chatroom_lastmessage {
+            width: 250px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            word-break: break-all;
+
+            display: -webkit-box;
+            -webkit-line-clamp: 1; // 원하는 라인수
+            -webkit-box-orient: vertical;
+          }
           .chatroom_unread {
             display: flex;
             align-items: center;
@@ -59,16 +70,6 @@ export const ChatRoomStyled = styled.div`
             height: 20px;
             border-radius: 50%;
             font-size: 12px;
-          }
-          .chatroom_lastmessage {
-            width: 250px;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            word-break: break-word;
-
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
           }
         }
       }
