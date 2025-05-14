@@ -45,12 +45,13 @@ const ChatRoom = () => {
 
   const socketRef = useRef<any>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const selectedUserIdRef = useRef<number | null>(null);
 
   dayjs.extend(localizedFormat);
   dayjs.locale("ko");
 
+  // 메모리 접근
   const adminId = useAuthStore((state) => state.user?.id);
-  console.log("관리자 id", adminId);
 
   // 무조건 아래에서 시작하도록
   const scrollToBottom = () => {
@@ -74,6 +75,7 @@ const ChatRoom = () => {
   // 채팅 목록 가져오기 요청
   const handleSelectUser = async (userId: number) => {
     setSelectedUserId(userId);
+    selectedUserIdRef.current = userId;
 
     try {
       const res = await axiosInstance.get(`/chat/list`, {
@@ -115,18 +117,20 @@ const ChatRoom = () => {
   };
 
   useEffect(() => {
+    // 채팅방 불러오기(자신의 담당 보호자-피보호자들)/새로고침시 가져오도록
+    fetchChatRoomList();
+  }, [adminId]);
+
+  useEffect(() => {
     if (!adminId) return;
 
     console.log("선택된 userID", selectedUserId);
-    // 채팅방 불러오기(자신의 담당 보호자-피보호자들)
-    fetchChatRoomList();
 
     // 소켓 연결
     socketRef.current = io(process.env.NEXT_PUBLIC_API_URL, {
       withCredentials: true,
     });
 
-    socketRef.current.off("receive_message"); // 기존 리스너 제거
     socketRef.current.on("receive_message", (message: Chatting) => {
       const date = dayjs(message.created_at).format("YYYY년 MM월 DD일");
       const time = dayjs(message.created_at).format("A h:mm");
@@ -142,7 +146,7 @@ const ChatRoom = () => {
 
       // 읽음 처리 요청
       axiosInstance.post("/chat/read", {
-        userId: selectedUserId,
+        userId: selectedUserIdRef.current,
         adminId,
       });
 
@@ -168,7 +172,7 @@ const ChatRoom = () => {
       socketRef.current?.off("receive_message");
       socketRef.current?.disconnect();
     };
-  }, [adminId, selectedUserId]);
+  }, [selectedUserId]);
 
   // 새로운 채팅이 추가될 때마다 자동으로 스크롤 맨 아래로
   useEffect(() => {
@@ -306,7 +310,7 @@ const ChatRoom = () => {
                       chat.sender !== nextSender || currentTime !== nextTime;
                     return (
                       <ChatMessage
-                        key={chat.id}
+                        key={i}
                         name={i === 0 || shouldShowTime ? chat.user.name : ""}
                         message={chat.message}
                         time={shouldShowTime ? chat.time : ""}
