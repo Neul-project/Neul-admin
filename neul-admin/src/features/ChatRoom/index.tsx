@@ -34,23 +34,26 @@ interface ChatRoomPreview {
   lastMessage: string;
   lastTime: string; // "2025-04-29 17:09"
   unreadCount?: number;
+  isMatched?: boolean;
 }
 
 // 채팅 전체 화면
 const ChatRoom = () => {
   const [inputValue, setInputValue] = useState("");
   const [chatRoomList, setChatRoomList] = useState<ChatRoomPreview[]>([]);
+  const [currentRoom, setCurrentRoom] = useState<ChatRoomPreview>();
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [chattings, setChattings] = useState<Chatting[]>([]);
 
   const socketRef = useRef<any>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const selectedUserIdRef = useRef<number | null>(null);
 
   dayjs.extend(localizedFormat);
   dayjs.locale("ko");
 
+  // 메모리 접근
   const adminId = useAuthStore((state) => state.user?.id);
-  console.log("관리자 id", adminId);
 
   // 무조건 아래에서 시작하도록
   const scrollToBottom = () => {
@@ -74,6 +77,11 @@ const ChatRoom = () => {
   // 채팅 목록 가져오기 요청
   const handleSelectUser = async (userId: number) => {
     setSelectedUserId(userId);
+    selectedUserIdRef.current = userId;
+
+    // 선택된 방 정보
+    const selectedRoom = chatRoomList.find((room) => room.userId === userId);
+    setCurrentRoom(selectedRoom);
 
     try {
       const res = await axiosInstance.get(`/chat/list`, {
@@ -115,18 +123,20 @@ const ChatRoom = () => {
   };
 
   useEffect(() => {
+    // 채팅방 불러오기(자신의 담당 보호자-피보호자들)/새로고침시 가져오도록
+    fetchChatRoomList();
+  }, [adminId]);
+
+  useEffect(() => {
     if (!adminId) return;
 
     console.log("선택된 userID", selectedUserId);
-    // 채팅방 불러오기(자신의 담당 보호자-피보호자들)
-    fetchChatRoomList();
 
     // 소켓 연결
     socketRef.current = io(process.env.NEXT_PUBLIC_API_URL, {
       withCredentials: true,
     });
 
-    socketRef.current.off("receive_message"); // 기존 리스너 제거
     socketRef.current.on("receive_message", (message: Chatting) => {
       const date = dayjs(message.created_at).format("YYYY년 MM월 DD일");
       const time = dayjs(message.created_at).format("A h:mm");
@@ -142,7 +152,7 @@ const ChatRoom = () => {
 
       // 읽음 처리 요청
       axiosInstance.post("/chat/read", {
-        userId: selectedUserId,
+        userId: selectedUserIdRef.current,
         adminId,
       });
 
@@ -168,7 +178,7 @@ const ChatRoom = () => {
       socketRef.current?.off("receive_message");
       socketRef.current?.disconnect();
     };
-  }, [adminId, selectedUserId]);
+  }, [selectedUserId]);
 
   // 새로운 채팅이 추가될 때마다 자동으로 스크롤 맨 아래로
   useEffect(() => {
@@ -214,9 +224,9 @@ const ChatRoom = () => {
     e.preventDefault();
 
     Modal.confirm({
-      title: "해당 채팅방 내용을 삭제하시겠습니까?",
-      content: "삭제한 내용은 복구할 수 없습니다.",
-      okText: "삭제",
+      title: "채팅방을 나가겠습니까?",
+      content: "채팅방을 나가면 채팅내용을 복구할 수 없습니다.",
+      okText: "나가기",
       cancelText: "취소",
       okButtonProps: {
         style: { backgroundColor: "#5DA487" },
@@ -227,7 +237,7 @@ const ChatRoom = () => {
       async onOk() {
         if (userId == null) return;
         try {
-          await axiosInstance.delete(`/chat/alldelete`, {
+          await axiosInstance.delete(`/chat/exitRoom`, {
             params: { userId },
           });
           message.success("해당 채팅방 내용이 삭제되었습니다.");
@@ -256,7 +266,11 @@ const ChatRoom = () => {
                   selectedUserId === room.userId ? "selected" : ""
                 }`}
                 onClick={() => handleSelectUser(room.userId)}
-                onContextMenu={(e) => onClickDeleteChattingRoom(e, room.userId)}
+                onContextMenu={
+                  !room.isMatched
+                    ? undefined
+                    : (e) => onClickDeleteChattingRoom(e, room.userId)
+                }
               >
                 <div className="chatroom_name_box">
                   <div className="chatroom_name">
@@ -306,7 +320,7 @@ const ChatRoom = () => {
                       chat.sender !== nextSender || currentTime !== nextTime;
                     return (
                       <ChatMessage
-                        key={chat.id}
+                        key={i}
                         name={i === 0 || shouldShowTime ? chat.user.name : ""}
                         message={chat.message}
                         time={shouldShowTime ? chat.time : ""}
@@ -328,14 +342,17 @@ const ChatRoom = () => {
             <div className="chatroom_message">
               <input
                 type="text"
-                placeholder="메시지 입력"
+                placeholder={
+                  !currentRoom?.isMatched
+                    ? "메시지 입력"
+                    : "매칭이 끊겨 더 이상의 채팅은 불가능합니다."
+                }
                 value={inputValue}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") sendMessage();
-                }}
+                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                 onChange={(e) => {
                   setInputValue(e.target.value);
                 }}
+                readOnly={currentRoom?.isMatched}
               />
             </div>
             <SendOutlined
