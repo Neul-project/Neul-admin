@@ -129,8 +129,10 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
       if (modify === "modify") {
         //프로그램 수정 요청
         //console.log("values", values);
+        //console.log("id", programId);
+
         axiosInstance
-          .patch(`prgram/update/${programId}`, formData, {
+          .patch(`program/update/${programId}`, formData, {
             headers: {
               "Content-Type": "multipart/form-data",
             },
