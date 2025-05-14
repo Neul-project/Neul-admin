@@ -128,8 +128,6 @@ const ActivityList = () => {
 
   //antd select handleChange
   const handleChange = (option: { value: number; label: string }) => {
-    //console.log("선택한 value:", option.value);
-    //console.log("선택한 label:", option.label);
     const patientId = option.value;
 
     //전체 클릭 시

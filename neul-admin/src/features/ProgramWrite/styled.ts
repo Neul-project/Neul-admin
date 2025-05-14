@@ -15,13 +15,13 @@ export const ProgramWriteStyled = styled.div`
     .ProgramWrite_form_content {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 20px;
 
       .ProgramWrite_row {
-        /* display: flex;
-        flex-direction: column; */
-        align-items: center;
-        gap: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: left;
+        gap: 7px;
       }
     }
   }

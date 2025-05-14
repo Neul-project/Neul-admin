@@ -7,7 +7,12 @@ import { UploadOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
 
 //categroylist
-import { categorylist } from "@/utill/programcategory";
+import {
+  categorylist,
+  getCategoryLabel,
+  targetlist,
+  getParticipationLabel,
+} from "@/utill/programcategory";
 import { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axios";
 import clsx from "clsx";
@@ -30,6 +35,8 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
   const [progress, setProgress] = useState("");
   const [recruitment, setRecruitment] = useState("");
   const [registation, setRegistation] = useState("");
+  const [target, setTarget] = useState("");
+  const [note, setNote] = useState("");
 
   //useState
   useEffect(() => {
@@ -83,7 +90,7 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
 
     multiple: true,
     listType: "picture-card",
-    maxCount: 5,
+    maxCount: 3,
   };
 
   const programformik = useFormik({
@@ -97,6 +104,8 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
       capacity: modify === "modify" ? capacity : "",
       call: modify === "modify" ? call : "",
       img: modify === "modify" ? img : [],
+      note: modify === "modify" ? note : "",
+      target: modify === "modify" ? target : "",
     },
     enableReinitialize: true,
     onSubmit: (values) => {
@@ -111,6 +120,8 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
       formData.append("capacity", String(values.capacity));
       formData.append("call", values.call);
       formData.append("category", values.category.toString());
+      formData.append("note", values.note);
+      formData.append("target", values.target.toString());
 
       // img 배열 처리
       img.forEach((fileWrapper: any) => {
@@ -144,6 +155,8 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
             });
           });
       } else {
+        console.log("values", values);
+
         //프로그램 등록 요청
         axiosInstance
           .post(`/program/registration`, formData, {
@@ -184,10 +197,22 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
         )}
 
         <div className="ProgramWrite_form_content">
+          {/* 이미지 */}
+          <div className="ProgramWrite_row">
+            <div>대표 이미지</div>
+            <Upload
+              {...imageprops}
+              fileList={img}
+              onPreview={(file) => window.open(file.url)}
+            >
+              <Button icon={<UploadOutlined />} />
+            </Upload>
+          </div>
+
+          {/* 카테고리 */}
           <div className="ProgramWrite_row">
             <div className="ProgramWrite_name">카테고리</div>
             <Select
-              style={{ width: 120 }}
               options={categorylist}
               value={
                 modify === "modify" ? category : programformik.values.category
@@ -198,19 +223,23 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
               }}
             />
           </div>
+
+          {/* 참여대상 */}
           <div className="ProgramWrite_row">
-            <div>이미지</div>
-            <Upload
-              {...imageprops}
-              fileList={img}
-              onPreview={(file) => window.open(file.url)}
-            >
-              <Button icon={<UploadOutlined />} />
-            </Upload>
+            <div className="ProgramWrite_name">참여대상</div>
+            <Select
+              options={targetlist}
+              value={modify === "modify" ? target : programformik.values.target}
+              onChange={(value) => {
+                setTarget(value);
+                programformik.setFieldValue("target", value);
+              }}
+            />
           </div>
 
+          {/* 프로그램명 */}
           <div className="ProgramWrite_row">
-            <div>프로그램 명</div>
+            <div>프로그램명</div>
             <Input
               type="text"
               name="name"
@@ -226,6 +255,7 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
             />
           </div>
 
+          {/* 진행기간 */}
           <div className="ProgramWrite_row">
             <div>진행기간</div>
             <Input
@@ -245,6 +275,7 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
             />
           </div>
 
+          {/* 모집기간 */}
           <div className="ProgramWrite_row">
             <div>모집기간</div>
             <Input
@@ -266,6 +297,7 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
             />
           </div>
 
+          {/* 수강료 */}
           <div className="ProgramWrite_row">
             <div>수강료</div>
             <Input
@@ -283,6 +315,7 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
             />
           </div>
 
+          {/* 담당자명 */}
           <div className="ProgramWrite_row">
             <div>담당자명</div>
             <Input
@@ -302,6 +335,7 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
             />
           </div>
 
+          {/* 모집인원 */}
           <div className="ProgramWrite_row">
             <div>모집인원</div>
             <Input
@@ -321,6 +355,7 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
             />
           </div>
 
+          {/* 문의전화 */}
           <div className="ProgramWrite_row">
             <div>문의전화</div>
             <Input
@@ -332,6 +367,24 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
                 const value = e.target.value;
                 if (modify === "modify") {
                   setCall(value);
+                }
+                programformik.handleChange(e);
+              }}
+            />
+          </div>
+
+          {/* 프로그램 내용 */}
+          <div className="ProgramWrite_row">
+            <div>프로그램 내용</div>
+            <Input
+              type="text"
+              name="note"
+              placeholder="프로그램 내용을 입력해 주세요."
+              value={modify === "modify" ? note : programformik.values.note}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (modify === "modify") {
+                  setNote(value);
                 }
                 programformik.handleChange(e);
               }}

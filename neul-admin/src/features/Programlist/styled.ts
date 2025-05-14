@@ -5,9 +5,8 @@ export const ProgramlistStyled = styled.div`
   &.Programlist_main_wrap {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
 
-    .Programlist_execl,
     .Programlist_btns {
       display: flex;
       width: 100%;

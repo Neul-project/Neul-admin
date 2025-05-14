@@ -131,12 +131,10 @@ const Programlist = () => {
 
   return (
     <ProgramlistStyled className={clsx("Programlist_main_wrap")}>
-      <div className="Programlist_execl">
-        <Button onClick={execelDowonload}>엑셀로 다운받기</Button>
-      </div>
       <div className="Programlist_btns">
         <Button onClick={ProgramPost}>등록하기</Button>
         <Button onClick={ProgramDelete}>삭제하기</Button>
+        <Button onClick={execelDowonload}>엑셀 다운받기</Button>
       </div>
       <div>
         <Table<DataType>
