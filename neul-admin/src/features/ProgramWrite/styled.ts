@@ -2,6 +2,8 @@ import styled from "styled-components";
 
 export const ProgramWriteStyled = styled.div`
   &.ProgramWrite_main_wrap {
+    display: flex;
+    flex-direction: column;
     width: 100%;
 
     .ProgramWrite_submit {

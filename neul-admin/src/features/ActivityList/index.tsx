@@ -104,12 +104,14 @@ const ActivityList = () => {
 
   useEffect(() => {
     if (!user?.id) return;
+    const adminId = user?.id;
 
-    //도우미 아이디 피보호자 전체 리스트 가지고 오기
+    //console.log("ad", adminId);
+    //도우미 아이디 따른 피보호자 전체 리스트 가지고 오기
     axiosInstance
       .get("/activity/targetlist", { params: { adminId } })
       .then((res) => {
-        //console.log("REs", res.data);
+        console.log("REs", res.data);
         const data = res.data;
         const mappedDate: UserType[] = data.map((item: any, index: number) => ({
           key: item.id,
@@ -269,7 +271,6 @@ const ActivityList = () => {
               const matchedRow = dataSource?.find(
                 (item) => item.key === record.key
               );
-              //console.log("tie", matchedRow);
               if (matchedRow?.original) {
                 setRowId(matchedRow.original);
               }

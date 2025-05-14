@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { ProgramlistStyled } from "./styled";
+import { ProgramlistStyled, StyledModal } from "./styled";
 import clsx from "clsx";
 import { Button, Table, TableProps, Modal } from "antd";
 import { useEffect, useState } from "react";
@@ -154,15 +154,18 @@ const Programlist = () => {
             };
           }}
         />
-        <Modal
+        <StyledModal
           title={`${title} 프로그램`}
+          width={600}
           open={isModalOpen}
           onOk={handleOk}
           onCancel={handleCancel}
           footer={null}
         >
-          <ProgramWrite modify={"modify"} list={originlist} />
-        </Modal>
+          <div className="ProgramWrite_Modal">
+            <ProgramWrite modify={"modify"} list={originlist} />
+          </div>
+        </StyledModal>
       </div>
     </ProgramlistStyled>
   );
