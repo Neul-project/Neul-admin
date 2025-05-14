@@ -56,8 +56,21 @@ const Programlist = () => {
     onChange: onSelectChange,
   };
 
+  //등록하기 버튼 클릭
   const ProgramPost = () => {
     router.push("/program/manage/write");
+  };
+
+  //삭제하기 버튼 클릭
+  const ProgramDelete = () => {
+    //console.log("select", selectedRowKeys);
+    axiosInstance.delete("/program/delete", {
+      data: { ids: selectedRowKeys },
+    });
+
+    setList((prev) =>
+      prev?.filter((item) => !selectedRowKeys.includes(item.key))
+    );
   };
 
   const showModal = () => {
@@ -93,7 +106,7 @@ const Programlist = () => {
       </div>
       <div className="Programlist_btns">
         <Button onClick={ProgramPost}>등록하기</Button>
-        <Button>삭제하기</Button>
+        <Button onClick={ProgramDelete}>삭제하기</Button>
       </div>
       <div>
         <Table<DataType>
