@@ -5,6 +5,8 @@ import { Button, Table, TableProps, Modal } from "antd";
 import { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axios";
 import ProgramWrite from "../ProgramWrite";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>["rowSelection"];
@@ -73,6 +75,34 @@ const Programlist = () => {
     );
   };
 
+  //엑셀로 다운받기 클릭
+  const execelDowonload = () => {
+    //console.log("re", list);
+    const excelData =
+      list?.map((item) => ({
+        프로그램명: item.origin.name,
+        카테고리: item.origin.category,
+        진행기간: item.origin.progress,
+        모집기간: item.origin.recruitment,
+        수강료: item.price,
+        담당자명: item.origin.manager,
+        문의전화: item.origin.call,
+        등록일자: item.origin.registration_at,
+      })) ?? [];
+
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "프로그램목록");
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    const file = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(file, "프로그램목록.xlsx");
+  };
+
   const showModal = () => {
     setIsModalOpen(true);
   };
@@ -102,7 +132,7 @@ const Programlist = () => {
   return (
     <ProgramlistStyled className={clsx("Programlist_main_wrap")}>
       <div className="Programlist_execl">
-        <Button>엑셀로 다운받기</Button>
+        <Button onClick={execelDowonload}>엑셀로 다운받기</Button>
       </div>
       <div className="Programlist_btns">
         <Button onClick={ProgramPost}>등록하기</Button>

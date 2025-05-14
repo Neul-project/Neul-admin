@@ -85,8 +85,4 @@ export const sidebarMenus = createSidebarMenus([
     key: "/chat",
     label: "채팅",
   },
-  {
-    key: "/userinfo",
-    label: "개인정보",
-  },
 ]);
