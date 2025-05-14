@@ -178,13 +178,6 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
       } else {
         //기록하기
 
-        // console.log("등록 ", activityformik.values);
-        //console.log("imgarr", imgarr);
-        // for (const [key, value] of formData.entries()) {
-        //   console.log(`등록 ${key}:`, value);
-        // }
-        //console.log("ㄴ", formData.getAll("img"));
-
         //백엔드 저장 요청
         axiosInstance
           .post(`/activity/write/${userid}`, formData, {

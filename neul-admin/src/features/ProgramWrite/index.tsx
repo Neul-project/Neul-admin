@@ -20,20 +20,20 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
   const router = useRouter();
   //useState
   const [programId, setProgramId] = useState();
-  const [call, setCall] = useState();
-  const [capacity, setCapacity] = useState();
-  const [category, setCategory] = useState();
-  const [img, setImg] = useState();
-  const [manager, setManager] = useState();
-  const [name, setName] = useState();
-  const [price, setPrice] = useState();
-  const [progress, setProgress] = useState();
-  const [recruitment, setRecruitment] = useState();
-  const [registation, setRegistation] = useState();
+  const [call, setCall] = useState("");
+  const [capacity, setCapacity] = useState<number>(0);
+  const [category, setCategory] = useState("");
+  const [img, setImg] = useState<any[]>([]);
+  const [manager, setManager] = useState("");
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState<number>(0);
+  const [progress, setProgress] = useState("");
+  const [recruitment, setRecruitment] = useState("");
+  const [registation, setRegistation] = useState("");
 
   //useState
   useEffect(() => {
-    console.log("list", list);
+    //console.log("list", list);
 
     if (list) {
       setProgramId(list.id ?? "");
@@ -72,39 +72,33 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
   const imageprops: UploadProps = {
     beforeUpload: (file) => {
       // 업로드를 막고, formik에만 넣기
-      programformik.setFieldValue("img", [...programformik.values.img, file]);
+      //programformik.setFieldValue("img", [file, file]);
       return false;
     },
 
-    onChange(info) {
-      console.log("info.fileList", info.fileList);
-      //setImgArr(info.fileList);
-      if (info.file.status !== "uploading") {
-        console.log(info.file, info.fileList);
-      }
-      if (info.file.status === "done") {
-        message.success(`${info.file.name} file uploaded successfully`);
-      } else if (info.file.status === "error") {
-        message.error(`${info.file.name} file upload failed.`);
-      }
+    onChange({ fileList }) {
+      setImg(fileList); // 파일 리스트 상태 업데이트
+      programformik.setFieldValue("img", fileList);
     },
 
     multiple: true,
+    listType: "picture-card",
     maxCount: 5,
   };
 
   const programformik = useFormik({
     initialValues: {
-      name: modify === "modify" ? name ?? "" : "",
-      progress: modify === "modify" ? progress ?? "" : "",
-      category: modify === "modify" ? category ?? "" : "",
-      recruitment: modify === "modify" ? recruitment ?? "" : "",
-      price: modify === "modify" ? price ?? "" : "",
-      manager: modify === "modify" ? manager ?? "" : "",
-      capacity: modify === "modify" ? capacity ?? "" : "",
-      call: modify === "modify" ? call ?? "" : "",
-      img: [],
+      name: modify === "modify" ? name : "",
+      progress: modify === "modify" ? progress : "",
+      category: modify === "modify" ? category : "",
+      recruitment: modify === "modify" ? recruitment : "",
+      price: modify === "modify" ? price : "",
+      manager: modify === "modify" ? manager : "",
+      capacity: modify === "modify" ? capacity : "",
+      call: modify === "modify" ? call : "",
+      img: modify === "modify" ? img : [],
     },
+    enableReinitialize: true,
     onSubmit: (values) => {
       //console.log("Values", values);
       const formData = new FormData();
@@ -112,20 +106,43 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
       formData.append("name", values.name);
       formData.append("progress", values.progress);
       formData.append("recruitment", values.recruitment);
-      formData.append("price", values.price);
+      formData.append("price", String(values.price));
       formData.append("manager", values.manager);
-      formData.append("capacity", values.capacity);
+      formData.append("capacity", String(values.capacity));
       formData.append("call", values.call);
       formData.append("category", values.category.toString());
 
       // img 배열 처리
-      values.img.forEach((file: File, index: number) => {
-        formData.append("img", file);
+      img.forEach((fileWrapper: any) => {
+        if (fileWrapper.originFileObj) {
+          // 새로 업로드된 이미지
+          formData.append("img", fileWrapper.originFileObj);
+        } else if (fileWrapper.url) {
+          // 수정 시 기존 이미지
+          const fileName = fileWrapper.url.split("/").pop(); //마지막 요소만 가져오기(파일명)
+          if (fileName) {
+            formData.append("img[]", fileName);
+          }
+        }
       });
 
-      //프로그램 등록 요청
       if (modify === "modify") {
+        //프로그램 수정 요청
+        //console.log("values", values);
+        axiosInstance
+          .patch(`prgram/update/${programId}`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((res) => {
+            notification.success({
+              message: `수정 완료`,
+              description: `성공적으로 수정이 완료 되었습니다.`,
+            });
+          });
       } else {
+        //프로그램 등록 요청
         axiosInstance
           .post(`/program/registration`, formData, {
             headers: { "Content-Type": "multipart/form-data" },
@@ -170,16 +187,23 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
             <Select
               style={{ width: 120 }}
               options={categorylist}
-              value={programformik.values.category}
-              onChange={(value) =>
-                programformik.setFieldValue("category", value)
+              value={
+                modify === "modify" ? category : programformik.values.category
               }
+              onChange={(value) => {
+                setCategory(value);
+                programformik.setFieldValue("category", value);
+              }}
             />
           </div>
           <div className="ProgramWrite_row">
             <div>이미지</div>
-            <Upload {...imageprops}>
-              <Button icon={<UploadOutlined />}>Click to Upload</Button>
+            <Upload
+              {...imageprops}
+              fileList={img}
+              onPreview={(file) => window.open(file.url)}
+            >
+              <Button icon={<UploadOutlined />} />
             </Upload>
           </div>
 
@@ -189,8 +213,14 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
               type="text"
               name="name"
               placeholder="프로그램명을 입력해 주세요."
-              value={programformik.values.name}
-              onChange={programformik.handleChange}
+              value={modify === "modify" ? name : programformik.values.name}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (modify === "modify") {
+                  setName(value);
+                }
+                programformik.handleChange(e);
+              }}
             />
           </div>
 
@@ -200,8 +230,16 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
               type="text"
               name="progress"
               placeholder="진행기간을 입력해 주세요."
-              value={programformik.values.progress}
-              onChange={programformik.handleChange}
+              value={
+                modify === "modify" ? progress : programformik.values.progress
+              }
+              onChange={(e) => {
+                const value = e.target.value;
+                if (modify === "modify") {
+                  setProgress(value);
+                }
+                programformik.handleChange(e);
+              }}
             />
           </div>
 
@@ -211,8 +249,18 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
               type="text"
               name="recruitment"
               placeholder="모집기간을 입력해 주세요."
-              value={programformik.values.recruitment}
-              onChange={programformik.handleChange}
+              value={
+                modify === "modify"
+                  ? recruitment
+                  : programformik.values.recruitment
+              }
+              onChange={(e) => {
+                const value = e.target.value;
+                if (modify === "modify") {
+                  setRecruitment(value);
+                }
+                programformik.handleChange(e);
+              }}
             />
           </div>
 
@@ -222,8 +270,14 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
               type="text"
               name="price"
               placeholder="수강료를 입력해 주세요."
-              value={Number(programformik.values.price)}
-              onChange={programformik.handleChange}
+              value={modify === "modify" ? price : programformik.values.price}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (modify === "modify") {
+                  setPrice(Number(value));
+                }
+                programformik.handleChange(e);
+              }}
             />
           </div>
 
@@ -233,8 +287,16 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
               type="text"
               name="manager"
               placeholder="담당자명을 입력해 주세요."
-              value={programformik.values.manager}
-              onChange={programformik.handleChange}
+              value={
+                modify === "modify" ? manager : programformik.values.manager
+              }
+              onChange={(e) => {
+                const value = e.target.value;
+                if (modify === "modify") {
+                  setManager(value);
+                }
+                programformik.handleChange(e);
+              }}
             />
           </div>
 
@@ -244,8 +306,16 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
               type="text"
               name="capacity"
               placeholder="모집인원을 입력해 주세요."
-              value={Number(programformik.values.capacity)}
-              onChange={programformik.handleChange}
+              value={
+                modify === "modify" ? capacity : programformik.values.capacity
+              }
+              onChange={(e) => {
+                const value = e.target.value;
+                if (modify === "modify") {
+                  setCapacity(Number(value));
+                }
+                programformik.handleChange(e);
+              }}
             />
           </div>
 
@@ -255,8 +325,14 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
               type="text"
               name="call"
               placeholder="문의 전화번호를 입력해 주세요."
-              value={programformik.values.call}
-              onChange={programformik.handleChange}
+              value={modify === "modify" ? call : programformik.values.call}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (modify === "modify") {
+                  setCall(value);
+                }
+                programformik.handleChange(e);
+              }}
             />
           </div>
         </div>
