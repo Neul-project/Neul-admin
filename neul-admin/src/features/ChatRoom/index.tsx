@@ -8,7 +8,7 @@ import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import axiosInstance from "@/lib/axios";
 import "dayjs/locale/ko"; // 한국어 로케일 불러오기
-import { message, Modal } from "antd";
+import { Modal, notification } from "antd";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 dayjs.locale("ko"); // 로케일 설정
@@ -242,14 +242,20 @@ const ChatRoom = () => {
           await axiosInstance.delete(`/chat/exitRoom`, {
             params: { userId },
           });
-          message.success("해당 채팅방 내용이 삭제되었습니다.");
+          notification.success({
+            message: `채팅방 삭제완료`,
+            description: `해당 채팅방이 삭제되었습니다.`,
+          });
           fetchChatRoomList();
           if (selectedUserId === userId) {
             setChattings([]);
           }
         } catch (e) {
           console.error("해당 채팅방 내용 삭제 실패: ", e);
-          message.error("해당 채팅방 내용 삭제에 실패했습니다.");
+          notification.success({
+            message: `채팅방 삭제실패`,
+            description: `해당 채팅방 삭제에 실패하였습니다.`,
+          });
         }
       },
     });
@@ -269,7 +275,7 @@ const ChatRoom = () => {
                 }`}
                 onClick={() => handleSelectUser(room.userId)}
                 onContextMenu={
-                  !room.isMatched
+                  room.isMatched
                     ? undefined
                     : (e) => onClickDeleteChattingRoom(e, room.userId)
                 }
@@ -345,7 +351,7 @@ const ChatRoom = () => {
               <input
                 type="text"
                 placeholder={
-                  !currentRoom?.isMatched
+                  currentRoom?.isMatched
                     ? "메시지 입력"
                     : "매칭이 끊겨 더 이상의 채팅은 불가능합니다."
                 }
@@ -354,7 +360,7 @@ const ChatRoom = () => {
                 onChange={(e) => {
                   setInputValue(e.target.value);
                 }}
-                readOnly={currentRoom?.isMatched}
+                readOnly={!currentRoom?.isMatched}
               />
             </div>
             <SendOutlined

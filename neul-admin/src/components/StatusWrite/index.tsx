@@ -7,7 +7,6 @@ import {
   ConfigProvider,
   notification,
   Input,
-  message,
 } from "antd";
 import { StatusTheme, StatusWriteStyled } from "./styled";
 import axiosInstance from "@/lib/axios";
@@ -121,15 +120,20 @@ const StatusWrite = ({ _data, getStatusList, setModalVisible }: DataProps) => {
   // 해당 리스트 삭제
   const WithdrawList = async () => {
     try {
-      console.log("삭제할 리스트 id:", _data.id);
       await axiosInstance.delete("/status/delete", {
         data: _data.id,
       });
-      message.success("선택한 리스트를 삭제했습니다.");
+      notification.success({
+        message: `삭제 완료`,
+        description: "선택한 리스트를 삭제했습니다.",
+      });
       setModalVisible(false); // 모달 닫기
       getStatusList(); //리스트 불러오기
     } catch (e) {
-      message.error("리스트 삭제에 실패했습니다.");
+      notification.error({
+        message: `삭제 실패`,
+        description: "리스트 삭제에 실패했습니다.",
+      });
       console.error("리스트 삭제 실패: ", e);
     }
   };

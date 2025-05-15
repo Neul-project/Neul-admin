@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
-import { Button, message, Modal, Select, Table, Input } from "antd";
+import {
+  Button,
+  message,
+  Modal,
+  Select,
+  Table,
+  Input,
+  notification,
+} from "antd";
 import clsx from "clsx";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -106,18 +114,22 @@ const UserManage = () => {
       message.warning("삭제할 회원을 선택해주세요.");
       return;
     }
-    console.log(selectedRowKeys);
     try {
       await axiosInstance.delete("/matching/userdelete", {
         data: { ids: selectedRowKeys },
       });
-
-      message.success("선택한 회원을 완전히 삭제했습니다.");
+      notification.success({
+        message: `선택한 회원 삭제 성공`,
+        description: `선택한 회원을 완전히 삭제했습니다.`,
+      });
       getUserList(); // 목록 다시 불러오기
       setSelectedRowKeys([]); // 선택 초기화
-    } catch (err) {
-      console.error("회원 삭제 실패:", err);
-      message.error("회원 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.");
+    } catch (e) {
+      console.error("회원 삭제 실패:", e);
+      notification.error({
+        message: `선택한 회원 삭제 실패`,
+        description: `선택한 회원 삭제에 실패했습니다.`,
+      });
     }
   };
 
@@ -199,11 +211,17 @@ const UserManage = () => {
                       userId: data.id,
                       patientId: data.patient_id,
                     });
-                    message.success("해당 유저와 매칭되었습니다.");
+                    notification.success({
+                      message: `매칭 성공`,
+                      description: `해당 유저와 매칭되었습니다.`,
+                    });
                     getUserList();
                   } catch (e) {
                     console.error("해당 유저와의 매칭 실패: ", e);
-                    message.error("해당 유저와의 매칭에 실패했습니다.");
+                    notification.error({
+                      message: `매칭 실패`,
+                      description: `해당 유저와의 매칭에 실패했습니다.`,
+                    });
                   }
                 },
               });
@@ -235,11 +253,17 @@ const UserManage = () => {
                       userId: data.id,
                       patientId: data.patient_id,
                     });
-                    message.success("해당 유저와의 매칭이 취소되었습니다.");
+                    notification.success({
+                      message: `매칭 취소 성공`,
+                      description: `해당 유저와의 매칭이 취소되었습니다.`,
+                    });
                     getUserList();
                   } catch (e) {
                     console.error("해당 유저와의 매칭 취소 실패: ", e);
-                    message.error("해당 유저와의 매칭 취소에 실패했습니다.");
+                    notification.error({
+                      message: `매칭 취소 실패`,
+                      description: `해당 유저와의 매칭 취소에 실패했습니다.`,
+                    });
                   }
                 },
               });
@@ -302,7 +326,10 @@ const UserManage = () => {
       setUsers(mapped);
     } catch (e) {
       console.error("검색 실패: ", e);
-      message.error("검색에 실패하였습니다.");
+      notification.error({
+        message: `검색 실패`,
+        description: `검색에 실패하였습니다.`,
+      });
     }
   };
 

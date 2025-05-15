@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react";
 import { StatusListStyled, StatusTheme, StyledModal } from "./styled";
 import { useRouter } from "next/router";
-import { Button, ConfigProvider, message, Select, Table } from "antd";
+import {
+  Button,
+  ConfigProvider,
+  message,
+  notification,
+  Select,
+  Table,
+} from "antd";
 import clsx from "clsx";
 import axiosInstance from "@/lib/axios";
 import StatusWrite from "../../components/StatusWrite";
@@ -88,8 +95,6 @@ const StatusList = () => {
         params: { adminId, patientId },
       });
       mapAndSetStatusList(res.data);
-
-      // mapAndSetStatusList(dummyStatusData);
     } catch (e) {
       console.error("특정 피보호자 리스트 실패", e);
     }
@@ -122,12 +127,18 @@ const StatusList = () => {
       await axiosInstance.delete("/status/delete", {
         data: selectedRowKeys,
       });
+      notification.success({
+        message: `선택한 상태리스트 삭제 성공`,
+        description: `선택한 상태리스트를 삭제했습니다.`,
+      });
 
-      message.success("선택한 리스트를 삭제했습니다.");
       setSelectedRowKeys([]);
       getStatusList();
     } catch (e) {
-      message.error("리스트 삭제에 실패했습니다:");
+      notification.error({
+        message: `선택한 상태리스트 삭제 실패`,
+        description: `선택한 상태리스트 삭제에 실패했습니다.`,
+      });
       console.error("리스트 삭제 실패: ", e);
     }
   };
