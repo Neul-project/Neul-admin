@@ -178,6 +178,7 @@ const StatusList = () => {
               // )?.fullData;
 
               // setModalData(original ? { ...original } : null);
+
               setModalData(data?.fullData);
               setModalVisible(true);
             }}

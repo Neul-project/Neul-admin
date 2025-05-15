@@ -41,26 +41,6 @@ interface UserType {
   label: string;
 }
 
-//table colums
-const columns: TableColumnsType<DataType> = [
-  {
-    title: "피보호자(ID)",
-    dataIndex: "name",
-  },
-  {
-    title: "활동 종류",
-    dataIndex: "type",
-  },
-  {
-    title: "제목",
-    dataIndex: "title",
-  },
-  {
-    title: "기록 시간",
-    dataIndex: "recorded",
-  },
-];
-
 //활동기록 > 활동기록 리스트 컴포넌트
 const ActivityList = () => {
   //변수 선언
@@ -75,6 +55,44 @@ const ActivityList = () => {
   const [userlist, setUserlist] = useState<UserType[]>();
   const [rowid, setRowId] = useState<any[]>(); //테이블 행 클릭 시 아이디(select요청 id와 비교할 때 사용)
   const [adminId, setAdminId] = useState<number | null>(); //관리자id(===로그인한 userid)
+
+  //table colums
+  const columns: TableColumnsType<DataType> = [
+    {
+      title: "피보호자(ID)",
+      dataIndex: "name",
+    },
+    {
+      title: "활동 종류",
+      dataIndex: "type",
+    },
+    {
+      title: "제목",
+      dataIndex: "title",
+    },
+    {
+      title: "기록 시간",
+      dataIndex: "recorded",
+    },
+    {
+      title: "상세",
+      dataIndex: "detail",
+      render: (_: any, record: any) => {
+        return (
+          <Button
+            onClick={() => {
+              //console.log("re", record);
+              setUserName(record.name);
+              setRowId(record.original);
+              setIsModalOpen(true);
+            }}
+          >
+            상세
+          </Button>
+        );
+      },
+    },
+  ];
 
   //userid useState넣기
   useEffect(() => {
@@ -111,7 +129,7 @@ const ActivityList = () => {
     axiosInstance
       .get("/activity/targetlist", { params: { adminId } })
       .then((res) => {
-        console.log("REs", res.data);
+        //console.log("REs", res.data);
         const data = res.data;
         const mappedDate: UserType[] = data.map((item: any, index: number) => ({
           key: item.id,
@@ -259,22 +277,22 @@ const ActivityList = () => {
         rowSelection={rowSelection}
         columns={columns}
         dataSource={dataSource}
-        onRow={(record, rowIndex) => {
-          return {
-            onClick: (event) => {
-              //console.log("table row", record, rowIndex);
-              setUserName(record.name);
-              showModal();
+        // onRow={(record, rowIndex) => {
+        //   return {
+        //     onClick: (event) => {
+        //       //console.log("table row", record, rowIndex);
+        //       setUserName(record.name);
+        //       showModal();
 
-              const matchedRow = dataSource?.find(
-                (item) => item.key === record.key
-              );
-              if (matchedRow?.original) {
-                setRowId(matchedRow.original);
-              }
-            },
-          };
-        }}
+        //       const matchedRow = dataSource?.find(
+        //         (item) => item.key === record.key
+        //       );
+        //       if (matchedRow?.original) {
+        //         setRowId(matchedRow.original);
+        //       }
+        //     },
+        //   };
+        // }}
       />
       <ConfigProvider theme={ActivityTheme}>
         <StyledModal
