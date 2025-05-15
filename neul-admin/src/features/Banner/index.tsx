@@ -28,16 +28,16 @@ const Banner = () => {
     initialValues: {
       leftimg: null as File | null,
       rightimg: null as File | null,
-      leftTitle: "",
-      rightTitle: "",
+      lefturl: "",
+      righturl: "",
     },
     onSubmit: async (values) => {
       //console.log("values", values);
       const formData = new FormData();
       if (values.leftimg) formData.append("img", values.leftimg || arr[0]);
       if (values.rightimg) formData.append("img", values.rightimg || arr[1]);
-      formData.append("leftTitle", values.leftTitle);
-      formData.append("rightTitle", values.rightTitle);
+      formData.append("lefturl", values.lefturl);
+      formData.append("righturl", values.righturl);
 
       //console.log("FormData 내용:", Array.from(formData.entries()));
       //return;
@@ -134,12 +134,12 @@ const Banner = () => {
 
         <div className="Banner_input">
           <Input
-            name="left-title"
+            name="lefturl"
             placeholder="링크를 입력하시오"
             className="Banner_title"
           />
           <Input
-            name="right-title"
+            name="righturl"
             placeholder="링크를 입력하시오"
             className="Banner_title"
           />
