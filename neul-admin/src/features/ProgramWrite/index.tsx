@@ -163,7 +163,7 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
             });
           });
       } else {
-        console.log("values", values);
+        //console.log("values", values);
 
         //프로그램 등록 요청
         axiosInstance
@@ -235,12 +235,17 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
           {/* 참여대상 */}
           <div className="ProgramWrite_row">
             <div className="ProgramWrite_name">참여대상</div>
-            <Select
-              options={targetlist}
+            <Input
+              type="text"
+              name="target"
+              placeholder="참여대상을 입력해 주세요"
               value={modify === "modify" ? target : programformik.values.target}
-              onChange={(value) => {
-                setTarget(value);
-                programformik.setFieldValue("target", value);
+              onChange={(e) => {
+                const value = e.target.value;
+                if (modify === "modify") {
+                  setTarget(value);
+                }
+                programformik.handleChange(e);
               }}
             />
           </div>
