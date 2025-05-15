@@ -19,24 +19,6 @@ interface DataType {
   origin: any;
 }
 
-const columns: TableProps<DataType>["columns"] = [
-  {
-    title: "프로그램명",
-    dataIndex: "title",
-    key: "title",
-  },
-  {
-    title: "담당자",
-    dataIndex: "manager",
-    key: "manager",
-  },
-  {
-    title: "가격",
-    dataIndex: "price",
-    key: "price",
-  },
-];
-
 //프로그램 리스트 컴포넌트
 const Programlist = () => {
   const router = useRouter();
@@ -47,6 +29,42 @@ const Programlist = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [originlist, setOriginList] = useState([]);
+
+  const columns: TableProps<DataType>["columns"] = [
+    {
+      title: "프로그램명",
+      dataIndex: "title",
+      key: "title",
+    },
+    {
+      title: "담당자",
+      dataIndex: "manager",
+      key: "manager",
+    },
+    {
+      title: "가격",
+      dataIndex: "price",
+      key: "price",
+    },
+    {
+      title: "상세",
+      dataIndex: "detail",
+      render: (_: any, record: any) => {
+        return (
+          <Button
+            onClick={() => {
+              //console.log("re", record);
+              setTitle(record.title);
+              setOriginList(record.origin);
+              setIsModalOpen(true);
+            }}
+          >
+            상세
+          </Button>
+        );
+      },
+    },
+  ];
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
     console.log("selectedRowKeys changed: ", newSelectedRowKeys);
@@ -141,16 +159,16 @@ const Programlist = () => {
           rowSelection={rowSelection}
           columns={columns}
           dataSource={list}
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (event) => {
-                //console.log("re", record);
-                showModal();
-                setTitle(record.title);
-                setOriginList(record.origin);
-              },
-            };
-          }}
+          // onRow={(record, rowIndex) => {
+          //   return {
+          //     onClick: (event) => {
+          //       //console.log("re", record);
+          //       showModal();
+          //       setTitle(record.title);
+          //       setOriginList(record.origin);
+          //     },
+          //   };
+          // }}
         />
         <StyledModal
           title={`${title} 프로그램`}
