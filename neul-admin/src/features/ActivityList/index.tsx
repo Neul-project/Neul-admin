@@ -102,6 +102,8 @@ const ActivityList = () => {
   }, [user]);
 
   useEffect(() => {
+    if (!user?.id) return;
+    const adminId = user?.id;
     //도우미 id에 따른 활동기록 전체 가져오기
     axiosInstance
       .get("/activity/selectlistall", { params: { adminId } })
@@ -118,7 +120,7 @@ const ActivityList = () => {
         }));
         setDataSource(mappedData);
       });
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -136,6 +138,7 @@ const ActivityList = () => {
           value: item.id,
           label: item.name + "(" + item.id + ")",
         }));
+
         const withAllOption: UserType[] = [
           { value: 0, label: "전체" },
           ...mappedDate,
@@ -167,6 +170,7 @@ const ActivityList = () => {
               original: item,
             })
           );
+
           setDataSource(mappedData);
         })
         .catch((error: string) => {
