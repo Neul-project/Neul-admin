@@ -172,14 +172,12 @@ const StatusList = () => {
         return (
           <Button
             onClick={() => {
-              // 나중에 요청 다 처리하면 수정할 내용(수정을 안 했을때 그 내용 유지하도록)
-              // const original = statusList.find(
-              //   (x) => x.id === data.id
-              // )?.fullData;
+              // 수정을 안 했을때 그 내용 유지하도록
+              const original = statusList.find(
+                (x) => x.id === data.id
+              )?.fullData;
 
-              // setModalData(original ? { ...original } : null);
-
-              setModalData(data?.fullData);
+              setModalData(original ? { ...original } : null);
               setModalVisible(true);
             }}
           >
@@ -203,18 +201,21 @@ const StatusList = () => {
     <StatusListStyled className={clsx("statuslist_wrap")}>
       <ConfigProvider theme={StatusTheme}>
         <div className="statuslist_box">
-          <Select
-            className="statuslist_select"
-            options={PatientOptions}
-            value={selectedPatient}
-            onChange={setSelectedPatient}
-          />
+          <div className="statuslist_UserSelect">
+            <div>피보호자(ID)</div>
+            <Select
+              className="statuslist_select"
+              options={PatientOptions}
+              value={selectedPatient}
+              onChange={setSelectedPatient}
+            />
+          </div>
           <div>
             <Button onClick={() => router.push("/statuswrite")}>
               기록하기
             </Button>
             <Button className="statuslist_delete_btn" onClick={WithdrawList}>
-              삭제
+              삭제하기
             </Button>
           </div>
         </div>

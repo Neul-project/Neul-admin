@@ -6,13 +6,18 @@ export const StatusListStyled = styled.div`
     .statuslist_box {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 5px;
+      margin-bottom: 13px;
       .statuslist_delete_btn {
-        margin-left: 3px;
+        margin-left: 5px;
       }
     }
-    .statuslist_select {
-      width: 150px;
+    .statuslist_UserSelect {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      .statuslist_select {
+        width: 150px;
+      }
     }
   }
 `;
