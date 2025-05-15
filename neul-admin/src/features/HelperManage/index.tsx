@@ -94,14 +94,6 @@ const HelperManage = () => {
     saveAs(file, "회원목록.xlsx");
   };
 
-  // 테이블 rowSelection 설정
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: (keys: React.Key[]) => {
-      setSelectedRowKeys(keys);
-    },
-  };
-
   const columns = [
     {
       key: "number",
@@ -162,6 +154,7 @@ const HelperManage = () => {
         <div className="helpermanage_sort_box">
           <div className="helpermanage_total_num">총 {users.length}명</div>
           <Select
+            className="helpermanage_order"
             value={userOrder}
             options={sortOption}
             onChange={(e) => {
@@ -172,7 +165,6 @@ const HelperManage = () => {
         </div>
       </div>
       <Table
-        rowSelection={rowSelection}
         columns={columns}
         dataSource={sortedUsers}
         rowKey="key"

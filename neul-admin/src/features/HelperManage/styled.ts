@@ -16,6 +16,9 @@ export const HelperManageStyled = styled.div`
       .helpermanage_sort_box {
         display: flex;
         align-items: center;
+        .helpermanage_order {
+          width: 95px;
+        }
         .helpermanage_total_num {
           font-weight: 600;
           margin-right: 10px;

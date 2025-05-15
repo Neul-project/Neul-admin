@@ -323,6 +323,7 @@ const UserManage = () => {
         <div className="usermanage_sort_box">
           <div className="usermanage_total_num">총 {users.length}명</div>
           <Select
+            className="usermanage_order"
             value={userOrder}
             options={sortOption}
             onChange={(e) => {
