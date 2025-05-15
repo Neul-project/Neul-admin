@@ -6,7 +6,7 @@ import { Button, Input, Select, Upload, message, notification } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
 
-//categroylist
+//list
 import {
   categorylist,
   getCategoryLabel,
@@ -27,7 +27,7 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
   const [programId, setProgramId] = useState();
   const [call, setCall] = useState("");
   const [capacity, setCapacity] = useState<number>(0);
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState<string>("");
   const [img, setImg] = useState<any[]>([]);
   const [manager, setManager] = useState("");
   const [name, setName] = useState("");
@@ -46,7 +46,7 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
       setProgramId(list.id ?? "");
       setCall(list.call ?? "");
       setCapacity(list.capacity ?? "");
-      setCategory(list.category ?? "");
+      setCategory(getCategoryLabel(list.category) ?? "");
       setManager(list.manager ?? "");
       setName(list.name ?? "");
       setPrice(list.price ?? "");
@@ -54,7 +54,7 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
       setRecruitment(list.recruitment ?? "");
       setRegistation(list.registration_at ?? "");
       setNote(list.note ?? "");
-      setTarget(list.target ?? "");
+      setTarget(getParticipationLabel(list.target) ?? "");
 
       //기존 이미지 배열에 있는 내용 가공하기
       const imageUrls = list.img
