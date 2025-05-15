@@ -1,7 +1,14 @@
 import { useRouter } from "next/router";
 import { ProgramlistStyled, StyledModal } from "./styled";
 import clsx from "clsx";
-import { Button, Table, TableProps, Modal, ConfigProvider } from "antd";
+import {
+  Button,
+  Table,
+  TableProps,
+  Modal,
+  ConfigProvider,
+  notification,
+} from "antd";
 import { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axios";
 import ProgramWrite from "../ProgramWrite";
@@ -28,6 +35,7 @@ const Programlist = () => {
   const [filterlst, setFilterlst] = useState();
   const [title, setTitle] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [originlist, setOriginList] = useState([]);
 
@@ -57,16 +65,18 @@ const Programlist = () => {
       dataIndex: "detail",
       render: (_: any, record: any) => {
         return (
-          <Button
-            onClick={() => {
-              //console.log("re", record);
-              setTitle(record.title);
-              setOriginList(record.origin);
-              setIsModalOpen(true);
-            }}
-          >
-            상세
-          </Button>
+          <ConfigProvider theme={AntdGlobalTheme}>
+            <Button
+              onClick={() => {
+                //console.log("re", record);
+                setTitle(record.title);
+                setOriginList(record.origin);
+                setIsModalOpen(true);
+              }}
+            >
+              상세
+            </Button>
+          </ConfigProvider>
         );
       },
     },
@@ -90,6 +100,17 @@ const Programlist = () => {
   //삭제하기 버튼 클릭
   const ProgramDelete = () => {
     //console.log("select", selectedRowKeys);
+
+    if (selectedRowKeys.length < 1) {
+      notification.info({
+        message: "삭제할 프로그램을 선택해 주세요",
+      });
+    } else {
+      setIsDeleteModalOpen(true);
+    }
+  };
+
+  const FooterDelete = () => {
     axiosInstance.delete("/program/delete", {
       data: { ids: selectedRowKeys },
     });
@@ -97,6 +118,10 @@ const Programlist = () => {
     setList((prev) =>
       prev?.filter((item) => !selectedRowKeys.includes(item.key))
     );
+    notification.success({
+      message: "삭제되었습니다.",
+    });
+    setIsDeleteModalOpen(false);
   };
 
   //엑셀로 다운받기 클릭
@@ -161,8 +186,25 @@ const Programlist = () => {
           <Button onClick={ProgramPost}>등록하기</Button>
         </ConfigProvider>
 
-        <Button onClick={ProgramDelete}>삭제하기</Button>
-        <Button onClick={execelDowonload}>엑셀 다운받기</Button>
+        <ConfigProvider theme={AntdGlobalTheme}>
+          <Button onClick={ProgramDelete}>삭제하기</Button>
+          <Modal
+            title="프로그램 삭제"
+            open={isDeleteModalOpen}
+            onCancel={() => setIsDeleteModalOpen(false)}
+            footer={
+              <Button key="back" onClick={FooterDelete}>
+                삭제하기
+              </Button>
+            }
+            className="Delete_Modal"
+          >
+            <div>정말로 삭제하시겠습니까?</div>
+          </Modal>
+        </ConfigProvider>
+        <ConfigProvider theme={AntdGlobalTheme}>
+          <Button onClick={execelDowonload}>엑셀 다운받기</Button>
+        </ConfigProvider>
       </div>
       <div>
         <Table<DataType>
@@ -179,7 +221,11 @@ const Programlist = () => {
           footer={null}
         >
           <div className="ProgramWrite_Modal">
-            <ProgramWrite modify={"modify"} list={originlist} />
+            <ProgramWrite
+              modify={"modify"}
+              list={originlist}
+              setIsModalOpen={setIsModalOpen}
+            />
           </div>
         </StyledModal>
       </div>

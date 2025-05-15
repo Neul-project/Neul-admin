@@ -2,7 +2,7 @@ import clsx from "clsx";
 import { BannerStyled } from "./styled";
 
 // antd
-import { Button, Upload, notification } from "antd";
+import { Button, Input, Upload, notification } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { UploadProps } from "antd";
 import { useFormik } from "formik";
@@ -15,7 +15,7 @@ const Banner = () => {
   const [arr, setArr] = useState([]);
 
   useEffect(() => {
-    if (arr) {
+    if (arr.length > 1) {
       axiosInstance.get("/banner/list").then((res) => {
         const datalist = res.data;
         const data = res.data[datalist.length - 1].img.split(",");
@@ -67,6 +67,35 @@ const Banner = () => {
   return (
     <form onSubmit={formik.handleSubmit}>
       <BannerStyled className={clsx("Banner_main_wrap")}>
+        {/* 저장 버튼 */}
+        <div className="Banner_save">
+          <Button htmlType="submit" className="Banner_save_btn">
+            저장하기
+          </Button>
+        </div>
+        <div>
+          <Input
+            name="left-title"
+            placeholder="링크를 입력하시오"
+            className="Banner_title"
+          />
+          <Input
+            name="right-title"
+            placeholder="링크를 입력하시오"
+            className="Banner_title"
+          />
+        </div>
+
+        {/* 업로드 버튼 */}
+        <div className="Banner_btns">
+          <Upload {...handleUpload("leftimg")} showUploadList={false}>
+            <Button icon={<UploadOutlined />}>좌측 이미지 업로드</Button>
+          </Upload>
+          <Upload {...handleUpload("rightimg")} showUploadList={false}>
+            <Button icon={<UploadOutlined />}>우측 이미지 업로드</Button>
+          </Upload>
+        </div>
+
         {/* 미리보기 */}
         <div className="Banner_imgs">
           <div className="Banner_left_img">
@@ -85,9 +114,10 @@ const Banner = () => {
                 />
               </div>
             ) : (
-              <div className="Banner_preview_text">미리보기 화면</div>
+              <div className="Banner_preview_text">대표 미리보기 화면</div>
             )}
           </div>
+
           <div className="Banner_right_img">
             {formik.values.rightimg ? (
               <img
@@ -104,24 +134,9 @@ const Banner = () => {
                 />
               </div>
             ) : (
-              <div className="Banner_preview_text">미리보기 화면</div>
+              <div className="Banner_preview_text">대표 미리보기 화면</div>
             )}
           </div>
-        </div>
-
-        {/* 업로드 버튼 */}
-        <div className="Banner_btns">
-          <Upload {...handleUpload("leftimg")} showUploadList={false}>
-            <Button icon={<UploadOutlined />}>좌측 이미지 업로드</Button>
-          </Upload>
-          <Upload {...handleUpload("rightimg")} showUploadList={false}>
-            <Button icon={<UploadOutlined />}>우측 이미지 업로드</Button>
-          </Upload>
-        </div>
-
-        {/* 저장 버튼 */}
-        <div className="Banner_save">
-          <Button htmlType="submit">저장하기</Button>
         </div>
       </BannerStyled>
     </form>

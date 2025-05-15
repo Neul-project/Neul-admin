@@ -3,8 +3,8 @@ import styled from "styled-components";
 export const BannerStyled = styled.div`
   &.Banner_main_wrap {
     .Banner_title {
-      font-size: 24px;
-      margin-bottom: 15px;
+      //font-size: 24px;
+      //margin-bottom: 15px;
     }
 
     .Banner_imgs {
@@ -37,15 +37,16 @@ export const BannerStyled = styled.div`
     }
     .Banner_btns {
       display: flex;
-      justify-content: space-between;
-      padding: 0px 150px;
-      padding-top: 20px;
+      //justify-content: space-between;
+      //padding: 0px 150px;
     }
+
     .Banner_save {
-      width: 100%;
       display: flex;
-      justify-content: center;
-      margin-top: 25px;
+      width: 100%;
+
+      .Banner_save_btn {
+      }
     }
   }
 `;

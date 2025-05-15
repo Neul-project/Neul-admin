@@ -19,9 +19,13 @@ import clsx from "clsx";
 import { useRouter } from "next/router";
 
 //프로그램 등록 컴포넌트
-const ProgramWrite = (props: { modify: string; list: any }) => {
+const ProgramWrite = (props: {
+  modify: string;
+  list: any;
+  setIsModalOpen: (open: boolean) => void;
+}) => {
   //변수 선언
-  const { modify, list } = props;
+  const { modify, list, setIsModalOpen } = props;
   const router = useRouter();
   //useState
   const [programId, setProgramId] = useState();
@@ -113,7 +117,7 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
     onSubmit: (values) => {
       //console.log("Values", values);
       const formData = new FormData();
-
+      //console.log("폼 제출 값 확인:", values.recruitment);
       formData.append("name", values.name);
       formData.append("progress", values.progress);
       formData.append("recruitment", values.recruitment);
@@ -124,7 +128,6 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
       formData.append("category", values.category.toString());
       formData.append("note", values.note);
       formData.append("target", values.target.toString());
-
       // img 배열 처리
       img.forEach((fileWrapper: any) => {
         if (fileWrapper.originFileObj) {
@@ -161,6 +164,8 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
               message: `수정 완료`,
               description: `성공적으로 수정이 완료 되었습니다.`,
             });
+
+            setIsModalOpen(false);
           });
       } else {
         //console.log("values", values);
@@ -302,6 +307,7 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
               }
               onChange={(e) => {
                 const value = e.target.value;
+
                 if (modify === "modify") {
                   setRecruitment(value);
                 }
