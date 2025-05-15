@@ -23,3 +23,5 @@ export const AntdGlobalTheme = {
     },
   },
 };
+
+export const GreenTheme = { token: { colorPrimary: "#5da487" } };

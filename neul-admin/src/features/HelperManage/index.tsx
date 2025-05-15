@@ -1,11 +1,12 @@
 import { HelperManageStyled } from "./styled";
 import { useEffect, useState } from "react";
-import { Button, Modal, Select, Table } from "antd";
+import { Button, ConfigProvider, Modal, Select, Table } from "antd";
 import clsx from "clsx";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import TitleCompo from "@/components/TitleCompo";
 import axiosInstance from "@/lib/axios";
+import { GreenTheme } from "@/utill/antdtheme";
 
 const HelperManage = () => {
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -153,15 +154,17 @@ const HelperManage = () => {
       <div className="helpermanage_info">
         <div className="helpermanage_sort_box">
           <div className="helpermanage_total_num">총 {users.length}명</div>
-          <Select
-            className="helpermanage_order"
-            value={userOrder}
-            options={sortOption}
-            onChange={(e) => {
-              setUserOrder(e);
-              setSortKey("created_at"); // 최신순/오래된순 정렬 기준을 가입일로 변경
-            }}
-          />
+          <ConfigProvider theme={GreenTheme}>
+            <Select
+              className="helpermanage_order"
+              value={userOrder}
+              options={sortOption}
+              onChange={(e) => {
+                setUserOrder(e);
+                setSortKey("created_at"); // 최신순/오래된순 정렬 기준을 가입일로 변경
+              }}
+            />
+          </ConfigProvider>
         </div>
       </div>
       <Table
