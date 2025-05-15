@@ -1,12 +1,13 @@
 import { useRouter } from "next/router";
 import { ProgramlistStyled, StyledModal } from "./styled";
 import clsx from "clsx";
-import { Button, Table, TableProps, Modal } from "antd";
+import { Button, Table, TableProps, Modal, ConfigProvider } from "antd";
 import { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axios";
 import ProgramWrite from "../ProgramWrite";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { AntdGlobalTheme } from "@/utill/antdtheme";
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>["rowSelection"];
@@ -31,6 +32,11 @@ const Programlist = () => {
   const [originlist, setOriginList] = useState([]);
 
   const columns: TableProps<DataType>["columns"] = [
+    {
+      title: "번호",
+      dataIndex: "num",
+      key: "num",
+    },
     {
       title: "프로그램명",
       dataIndex: "title",
@@ -136,6 +142,7 @@ const Programlist = () => {
   useEffect(() => {
     axiosInstance.get("/program/list").then((res) => {
       const programList = res.data.map((item: any, index: number) => ({
+        num: index + 1,
         key: item.id,
         title: item.name,
         manager: item.manager,
@@ -150,7 +157,10 @@ const Programlist = () => {
   return (
     <ProgramlistStyled className={clsx("Programlist_main_wrap")}>
       <div className="Programlist_btns">
-        <Button onClick={ProgramPost}>등록하기</Button>
+        <ConfigProvider theme={AntdGlobalTheme}>
+          <Button onClick={ProgramPost}>등록하기</Button>
+        </ConfigProvider>
+
         <Button onClick={ProgramDelete}>삭제하기</Button>
         <Button onClick={execelDowonload}>엑셀 다운받기</Button>
       </div>
@@ -159,16 +169,6 @@ const Programlist = () => {
           rowSelection={rowSelection}
           columns={columns}
           dataSource={list}
-          // onRow={(record, rowIndex) => {
-          //   return {
-          //     onClick: (event) => {
-          //       //console.log("re", record);
-          //       showModal();
-          //       setTitle(record.title);
-          //       setOriginList(record.origin);
-          //     },
-          //   };
-          // }}
         />
         <StyledModal
           title={`${title} 프로그램`}

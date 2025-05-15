@@ -6,7 +6,7 @@ export const ActivityListStyled = styled.div`
     .ActivitiyList_status {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 15px;
+      margin-bottom: 13px;
 
       .ActivityList_UserSelect {
         display: flex;
@@ -19,7 +19,7 @@ export const ActivityListStyled = styled.div`
       }
       .ActivityList_btns {
         display: flex;
-        gap: 10px;
+        gap: 5px;
       }
     }
   }

@@ -277,22 +277,6 @@ const ActivityList = () => {
         rowSelection={rowSelection}
         columns={columns}
         dataSource={dataSource}
-        // onRow={(record, rowIndex) => {
-        //   return {
-        //     onClick: (event) => {
-        //       //console.log("table row", record, rowIndex);
-        //       setUserName(record.name);
-        //       showModal();
-
-        //       const matchedRow = dataSource?.find(
-        //         (item) => item.key === record.key
-        //       );
-        //       if (matchedRow?.original) {
-        //         setRowId(matchedRow.original);
-        //       }
-        //     },
-        //   };
-        // }}
       />
       <ConfigProvider theme={ActivityTheme}>
         <StyledModal

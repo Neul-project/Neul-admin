@@ -5,7 +5,7 @@ export const ProgramlistStyled = styled.div`
   &.Programlist_main_wrap {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 13px;
 
     .Programlist_btns {
       display: flex;
@@ -14,7 +14,7 @@ export const ProgramlistStyled = styled.div`
     }
 
     .Programlist_btns {
-      gap: 10px;
+      gap: 5px;
     }
   }
 `;
