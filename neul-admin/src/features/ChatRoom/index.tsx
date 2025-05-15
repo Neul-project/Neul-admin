@@ -137,6 +137,7 @@ const ChatRoom = () => {
       withCredentials: true,
     });
 
+    socketRef.current.off("receive_message");
     socketRef.current.on("receive_message", (message: Chatting) => {
       const date = dayjs(message.created_at).format("YYYY년 MM월 DD일");
       const time = dayjs(message.created_at).format("A h:mm");
@@ -220,7 +221,6 @@ const ChatRoom = () => {
     e: React.MouseEvent<HTMLDivElement>,
     userId: number
   ) => {
-    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!유저 id", userId);
     e.preventDefault();
 
     Modal.confirm({
