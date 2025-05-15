@@ -28,14 +28,19 @@ const Banner = () => {
     initialValues: {
       leftimg: null as File | null,
       rightimg: null as File | null,
+      leftTitle: "",
+      rightTitle: "",
     },
     onSubmit: async (values) => {
       //console.log("values", values);
       const formData = new FormData();
       if (values.leftimg) formData.append("img", values.leftimg || arr[0]);
       if (values.rightimg) formData.append("img", values.rightimg || arr[1]);
+      formData.append("leftTitle", values.leftTitle);
+      formData.append("rightTitle", values.rightTitle);
 
       //console.log("FormData 내용:", Array.from(formData.entries()));
+      //return;
 
       try {
         await axiosInstance.post("/banner/registration", formData, {
@@ -59,7 +64,7 @@ const Banner = () => {
   const handleUpload = (side: "leftimg" | "rightimg"): UploadProps => ({
     beforeUpload: (file) => {
       formik.setFieldValue(side, file);
-      return false; // 자동 업로드 방지
+      return false;
     },
     maxCount: 1,
   });
@@ -72,28 +77,6 @@ const Banner = () => {
           <Button htmlType="submit" className="Banner_save_btn">
             저장하기
           </Button>
-        </div>
-        <div>
-          <Input
-            name="left-title"
-            placeholder="링크를 입력하시오"
-            className="Banner_title"
-          />
-          <Input
-            name="right-title"
-            placeholder="링크를 입력하시오"
-            className="Banner_title"
-          />
-        </div>
-
-        {/* 업로드 버튼 */}
-        <div className="Banner_btns">
-          <Upload {...handleUpload("leftimg")} showUploadList={false}>
-            <Button icon={<UploadOutlined />}>좌측 이미지 업로드</Button>
-          </Upload>
-          <Upload {...handleUpload("rightimg")} showUploadList={false}>
-            <Button icon={<UploadOutlined />}>우측 이미지 업로드</Button>
-          </Upload>
         </div>
 
         {/* 미리보기 */}
@@ -114,7 +97,7 @@ const Banner = () => {
                 />
               </div>
             ) : (
-              <div className="Banner_preview_text">대표 미리보기 화면</div>
+              <div className="Banner_preview_text">미리보기 화면</div>
             )}
           </div>
 
@@ -134,9 +117,32 @@ const Banner = () => {
                 />
               </div>
             ) : (
-              <div className="Banner_preview_text">대표 미리보기 화면</div>
+              <div className="Banner_preview_text">미리보기 화면</div>
             )}
           </div>
+        </div>
+
+        {/* 업로드 버튼 */}
+        <div className="Banner_btns">
+          <Upload {...handleUpload("leftimg")} showUploadList={false}>
+            <Button icon={<UploadOutlined />}>좌측 이미지 업로드</Button>
+          </Upload>
+          <Upload {...handleUpload("rightimg")} showUploadList={false}>
+            <Button icon={<UploadOutlined />}>우측 이미지 업로드</Button>
+          </Upload>
+        </div>
+
+        <div className="Banner_input">
+          <Input
+            name="left-title"
+            placeholder="링크를 입력하시오"
+            className="Banner_title"
+          />
+          <Input
+            name="right-title"
+            placeholder="링크를 입력하시오"
+            className="Banner_title"
+          />
         </div>
       </BannerStyled>
     </form>

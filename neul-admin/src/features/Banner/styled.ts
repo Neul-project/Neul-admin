@@ -4,7 +4,7 @@ export const BannerStyled = styled.div`
   &.Banner_main_wrap {
     .Banner_title {
       //font-size: 24px;
-      //margin-bottom: 15px;
+      //margin-bottom: 13px;
     }
 
     .Banner_imgs {
@@ -16,7 +16,7 @@ export const BannerStyled = styled.div`
       .Banner_left_img,
       .Banner_right_img {
         width: 50%;
-        height: 400px;
+        height: 350px;
         border: 1px solid #ccc;
         border-radius: 15px;
         overflow: hidden;
@@ -37,16 +37,20 @@ export const BannerStyled = styled.div`
     }
     .Banner_btns {
       display: flex;
-      //justify-content: space-between;
-      //padding: 0px 150px;
+      justify-content: space-around;
+      padding: 8px 0px;
     }
 
     .Banner_save {
       display: flex;
       width: 100%;
+      justify-content: right;
+      margin-bottom: 13px;
+    }
 
-      .Banner_save_btn {
-      }
+    .Banner_input {
+      display: flex;
+      gap: 20px;
     }
   }
 `;

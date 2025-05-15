@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import { FeedbackStyled } from "./styled";
+import { FeedbackStyled, StyledModal } from "./styled";
 import axiosInstance from "@/lib/axios";
-import { Table, TableProps, Select, Modal } from "antd";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { Table, TableProps, Select, Modal, Button } from "antd";
 
 interface DataType {
   key: number;
@@ -17,12 +16,6 @@ interface AdminType {
   label: string;
 }
 
-const columns: TableProps<DataType>["columns"] = [
-  { title: "번호", dataIndex: "key", key: "key" },
-  { title: "내용", dataIndex: "content", key: "content" },
-  { title: "날짜", dataIndex: "date", key: "date" },
-];
-
 //피드백 리스트 컴포넌트
 const Feedback = () => {
   //변수 선언
@@ -30,6 +23,31 @@ const Feedback = () => {
   const [adminlist, setAdminlist] = useState<AdminType[]>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<DataType | null>(null);
+
+  const columns: TableProps<DataType>["columns"] = [
+    { title: "번호", dataIndex: "key", key: "key" },
+    { title: "내용", dataIndex: "content", key: "content" },
+    { title: "날짜", dataIndex: "date", key: "date" },
+    {
+      key: "typeBtn",
+      title: "상세",
+      render: (_: any, record: any) => {
+        return (
+          <Button
+            onClick={() => {
+              //console.log("re", record);
+              //setUserName(record.name);
+              //setRowId(record.original);
+              setSelectedRecord(record);
+              setIsModalOpen(true);
+            }}
+          >
+            상세
+          </Button>
+        );
+      },
+    },
+  ];
 
   useEffect(() => {
     axiosInstance.get(`/user/adminlist`).then((res) => {
@@ -100,37 +118,25 @@ const Feedback = () => {
           labelInValue
         />
       </div>
-      <Table<DataType>
-        columns={columns}
-        dataSource={list}
-        onRow={(record) => ({
-          onClick: () => {
-            setSelectedRecord(record);
-            setIsModalOpen(true);
-          },
-        })}
-      />
-      <Modal
+      <Table<DataType> columns={columns} dataSource={list} />
+      <StyledModal
         title="피드백 상세"
+        width={600}
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={null}
-        className="Feedback_Modal"
       >
         {selectedRecord && (
           <div className="Feedback_content">
-            <div>
-              <strong>번호:</strong> {selectedRecord.key}
+            <div className="Feedback_content_row">
+              <strong>내용 :</strong> {selectedRecord.content}
             </div>
-            <div>
-              <strong>내용:</strong> {selectedRecord.content}
-            </div>
-            <div>
-              <strong>날짜:</strong> {selectedRecord.date}
+            <div className="Feedback_content_row">
+              <strong>날짜 :</strong> {selectedRecord.date}
             </div>
           </div>
         )}
-      </Modal>
+      </StyledModal>
     </FeedbackStyled>
   );
 };
