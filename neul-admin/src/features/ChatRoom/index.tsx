@@ -124,6 +124,7 @@ const ChatRoom = () => {
 
   useEffect(() => {
     // 채팅방 불러오기(자신의 담당 보호자-피보호자들)/새로고침시 가져오도록
+    if (!adminId) return;
     fetchChatRoomList();
   }, [adminId]);
 
