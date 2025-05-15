@@ -53,6 +53,8 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
       setProgress(list.progress ?? "");
       setRecruitment(list.recruitment ?? "");
       setRegistation(list.registration_at ?? "");
+      setNote(list.note ?? "");
+      setTarget(list.target ?? "");
 
       //기존 이미지 배열에 있는 내용 가공하기
       const imageUrls = list.img
@@ -141,6 +143,12 @@ const ProgramWrite = (props: { modify: string; list: any }) => {
         //프로그램 수정 요청
         //console.log("values", values);
         //console.log("id", programId);
+
+        // for (let [key, value] of formData.entries()) {
+        //   console.log(`${key}: ${value}`);
+        // }
+
+        // return;
 
         axiosInstance
           .patch(`program/update/${programId}`, formData, {
