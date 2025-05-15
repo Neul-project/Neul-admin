@@ -148,14 +148,16 @@ const ChatRoom = () => {
         time,
       };
 
-      // 현재 보고 있는 방이면 그냥 append
-      setChattings((prev) => [...prev, parsedMessage]);
+      // 현재 보고 있는 유저의 방일 때만 메시지 추가
+      if (message.user.id === selectedUserIdRef.current) {
+        setChattings((prev) => [...prev, parsedMessage]);
 
-      // 읽음 처리 요청
-      axiosInstance.post("/chat/read", {
-        userId: selectedUserIdRef.current,
-        adminId,
-      });
+        // 읽음 처리 요청
+        axiosInstance.post("/chat/read", {
+          userId: selectedUserIdRef.current,
+          adminId,
+        });
+      }
 
       setChatRoomList((prevRooms) =>
         prevRooms.map((room) =>

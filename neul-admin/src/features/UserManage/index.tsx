@@ -7,7 +7,6 @@ import TitleCompo from "@/components/TitleCompo";
 import axiosInstance from "@/lib/axios";
 import { UserManageStyled } from "./styled";
 import { useAuthStore } from "@/stores/useAuthStore";
-
 import type { SearchProps } from "antd/es/input";
 const { Search } = Input;
 
