@@ -4,7 +4,7 @@ export const ContentStyled = styled.div`
   flex: 1;
   overflow-y: auto;
   background: #f5f5f5;
-  padding: 1.5rem 1.5rem;
+  padding: 0.5rem 0.5rem;
 
   .header {
     padding: 1.5rem 3rem;
