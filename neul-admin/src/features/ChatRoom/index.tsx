@@ -10,7 +10,6 @@ import axiosInstance from "@/lib/axios";
 import "dayjs/locale/ko"; // 한국어 로케일 불러오기
 import { Modal, notification } from "antd";
 import { useAuthStore } from "@/stores/useAuthStore";
-import useTopInfiniteScroll from "@/hooks/useTopInfiniteScroll";
 import useInfiniteScroll from "@/hooks/useInfiniteScroll";
 
 dayjs.extend(localizedFormat);
