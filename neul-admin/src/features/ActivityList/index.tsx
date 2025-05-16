@@ -285,6 +285,7 @@ const ActivityList = () => {
       <ConfigProvider theme={ActivityTheme}>
         <StyledModal
           width={600}
+          key={isModalOpen ? rowid?.[0]?.id : "closed"}
           title={`${userName}님 활동 기록`}
           open={isModalOpen}
           onCancel={handleCancel}

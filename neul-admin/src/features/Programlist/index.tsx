@@ -38,7 +38,7 @@ const Programlist = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [originlist, setOriginList] = useState([]);
-
+  const [id, setId] = useState();
   const columns: TableProps<DataType>["columns"] = [
     {
       title: "번호",
@@ -68,10 +68,11 @@ const Programlist = () => {
           <ConfigProvider theme={AntdGlobalTheme}>
             <Button
               onClick={() => {
-                //console.log("re", record);
+                //console.log("re", record.origin);
                 setTitle(record.title);
                 setOriginList(record.origin);
                 setIsModalOpen(true);
+                setId(record.id);
               }}
             >
               상세
@@ -214,6 +215,7 @@ const Programlist = () => {
         />
         <StyledModal
           title={`${title} 프로그램`}
+          key={isModalOpen ? id : "closed"}
           width={600}
           open={isModalOpen}
           onOk={handleOk}
