@@ -5,6 +5,7 @@ export const ChatRoomStyled = styled.div`
     display: flex;
 
     .chatroom_select {
+      overflow-y: scroll;
       width: 35%;
       height: 82vh;
       border-top: 1.5px solid #ccc;
@@ -31,7 +32,23 @@ export const ChatRoomStyled = styled.div`
           justify-content: space-between;
           align-items: center;
           .chatroom_name {
+            display: flex;
             font-weight: bold;
+            width: 180px;
+            .chatroom_stick {
+              margin: 0 5px;
+            }
+            .chatroom_patientname,
+            .chatroom_username {
+              text-overflow: ellipsis;
+              overflow: hidden;
+              word-break: break-all;
+
+              display: -webkit-box;
+              -webkit-line-clamp: 1; // 원하는 라인수
+              -webkit-box-orient: vertical;
+            }
+
             span {
               font-size: 14px;
             }
@@ -76,74 +93,87 @@ export const ChatRoomStyled = styled.div`
     }
 
     /* 채팅 내용 */
-    .chatroom_content_box {
+    .chatroom_content_wrap {
       width: 65%;
-      height: 82vh;
-      display: flex;
-      flex-direction: column;
-      border: 1.5px solid #ccc;
-      .chatroom_content {
-        flex: 1;
-        overflow-y: scroll;
-
-        /* Firefox */
-        scrollbar-width: none;
-        /* IE 10+ */
-        -ms-overflow-style: none;
-
-        padding: 10px;
-        box-sizing: border-box;
-        .chatroom_date {
-          text-align: center;
-          color: #ccc;
-          margin-top: 20px;
-        }
-        .chatroom_uncontent {
-          color: #999;
-          height: 100%;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-      }
-
-      .chatroom_content::-webkit-scrollbar {
-        /* Chrome, Safari, Edge */
-        display: none;
-      }
-
-      /* 메시지 보내는 부분 */
-      .chatroom_message_box {
+      border: 0.7px solid #ccc;
+      .chatroom_content_box {
+        height: 81.81vh;
         display: flex;
-        align-items: center;
-        padding: 10px;
-        border-top: 1px solid #ccc;
-        .chatroom_message {
-          width: 100%;
-          input {
+        flex-direction: column;
+        border: 0.7px solid #ccc;
+
+        .chatroom_content {
+          opacity: 0;
+          flex: 1;
+          overflow-y: scroll;
+          transform: translateX(700px);
+          transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+          /* Firefox */
+          /* scrollbar-width: none; */
+          /* IE 10+ */
+          /* -ms-overflow-style: none; */
+
+          padding: 10px;
+          box-sizing: border-box;
+          .chatroom_date {
+            text-align: center;
+            color: #ccc;
+            margin-top: 20px;
+          }
+          .chatroom_uncontent {
+            color: #999;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
+
+          &.active {
+            opacity: 1;
+            transform: translateX(0);
+            transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+          }
+        }
+
+        .chatroom_content::-webkit-scrollbar {
+          /* Chrome, Safari, Edge */
+          /* display: none; */
+        }
+
+        /* 메시지 보내는 부분 */
+        .chatroom_message_box {
+          display: flex;
+          align-items: center;
+          padding: 10px;
+          border-top: 1px solid #ccc;
+          .chatroom_message {
             width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            outline: none;
-            border-radius: 20px;
-            border: none;
-            background-color: #eee;
+            input {
+              width: 100%;
+              padding: 12px;
+              font-size: 16px;
+              outline: none;
+              border-radius: 20px;
+              border: none;
+              background-color: #eee;
+            }
           }
-        }
-        .chatroom_sendbtn {
-          margin-left: 8px;
-          font-size: 20px;
-          padding: 8px;
-          border-radius: 50%;
-          background-color: ${(props) => props.theme.colors.pointGreen};
-          color: white;
-          &:hover {
-            cursor: pointer;
+          .chatroom_sendbtn {
+            margin-left: 8px;
+            font-size: 20px;
+            padding: 8px;
+            border-radius: 50%;
+            background-color: ${(props) => props.theme.colors.pointGreen};
+            color: white;
+            &:hover {
+              cursor: pointer;
+            }
           }
-        }
-        .chatroom_disabled {
-          opacity: 0.4;
-          pointer-events: none;
+          .chatroom_disabled {
+            opacity: 0.4;
+            pointer-events: none;
+          }
         }
       }
     }
