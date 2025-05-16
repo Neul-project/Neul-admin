@@ -15,6 +15,7 @@ import ProgramWrite from "../ProgramWrite";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { AntdGlobalTheme } from "@/utill/antdtheme";
+import { formatPrice } from "@/utill/programcategory";
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>["rowSelection"];
@@ -32,13 +33,14 @@ const Programlist = () => {
   const router = useRouter();
 
   const [list, setList] = useState<DataType[]>();
-  const [filterlst, setFilterlst] = useState();
+  //const [filterlst, setFilterlst] = useState();
   const [title, setTitle] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [originlist, setOriginList] = useState([]);
   const [id, setId] = useState();
+
   const columns: TableProps<DataType>["columns"] = [
     {
       title: "번호",
@@ -84,7 +86,7 @@ const Programlist = () => {
   ];
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
+    //console.log("selectedRowKeys changed: ", newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
   };
 
@@ -153,9 +155,9 @@ const Programlist = () => {
     saveAs(file, "프로그램목록.xlsx");
   };
 
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
+  // const showModal = () => {
+  //   setIsModalOpen(true);
+  // };
 
   const handleOk = () => {
     setIsModalOpen(false);
@@ -165,19 +167,23 @@ const Programlist = () => {
     setIsModalOpen(false);
   };
 
-  useEffect(() => {
+  const getprogramlist = () => {
     axiosInstance.get("/program/list").then((res) => {
       const programList = res.data.map((item: any, index: number) => ({
         num: index + 1,
         key: item.id,
         title: item.name,
         manager: item.manager,
-        price: item.price,
+        price: formatPrice(item.price),
         origin: item,
       }));
 
       setList(programList);
     });
+  };
+
+  useEffect(() => {
+    getprogramlist();
   }, []);
 
   return (
@@ -227,6 +233,7 @@ const Programlist = () => {
               modify={"modify"}
               list={originlist}
               setIsModalOpen={setIsModalOpen}
+              getprogramlist={getprogramlist}
             />
           </div>
         </StyledModal>

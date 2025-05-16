@@ -22,10 +22,12 @@ import { useRouter } from "next/router";
 const ProgramWrite = (props: {
   modify: string;
   list: any;
+  getprogramlist: any;
+
   setIsModalOpen: (open: boolean) => void;
 }) => {
   //변수 선언
-  const { modify, list, setIsModalOpen } = props;
+  const { modify, list, setIsModalOpen, getprogramlist } = props;
   const router = useRouter();
   //useState
   const [programId, setProgramId] = useState();
@@ -77,10 +79,10 @@ const ProgramWrite = (props: {
   }, [list]);
 
   //antd selects handleChange 함수
-  const handleChange = (value: string) => {
-    console.log(`selected ${value}`);
-    programformik.setFieldValue("category", value);
-  };
+  // const handleChange = (value: string) => {
+  //   console.log(`selected ${value}`);
+  //   programformik.setFieldValue("category", value);
+  // };
 
   const imageprops: UploadProps = {
     beforeUpload: (file) => {
@@ -164,7 +166,7 @@ const ProgramWrite = (props: {
               message: `수정 완료`,
               description: `성공적으로 수정이 완료 되었습니다.`,
             });
-
+            getprogramlist();
             setIsModalOpen(false);
           });
       } else {

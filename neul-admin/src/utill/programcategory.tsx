@@ -21,3 +21,7 @@ export const getParticipationLabel = (value: string) => {
   const match = targetlist.find((opt) => opt.value === value);
   return match ? match.label : value;
 };
+
+export const formatPrice = (price: string) => {
+  return new Intl.NumberFormat("ko-KR").format(Number(price)) + "원";
+};

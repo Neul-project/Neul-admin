@@ -11,7 +11,7 @@ import type { TableColumnsType, TableProps } from "antd";
 //component
 import ActivitySubmit from "@/components/ActivitySubmit";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { getActivityLabel } from "@/utill/activityoptionlist";
+import { formatDate, getActivityLabel } from "@/utill/activityoptionlist";
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>["rowSelection"];
@@ -115,7 +115,7 @@ const ActivityList = () => {
           name: item.patient.name + "(" + item.patient.id + ")" ?? "",
           title: item.title,
           type: getActivityLabel(item.type ?? ""),
-          recorded: item.recorded_at ?? "",
+          recorded: formatDate(item.recorded_at) ?? "",
           original: item,
         }));
         setDataSource(mappedData);
@@ -166,7 +166,7 @@ const ActivityList = () => {
               name: item.patient.name + "(" + item.patient.id + ")" ?? "",
               title: item.title,
               type: getActivityLabel(item.type ?? ""),
-              recorded: item.recorded_at ?? "",
+              recorded: formatDate(item.recorded_at) ?? "",
               original: item,
             })
           );
@@ -192,7 +192,7 @@ const ActivityList = () => {
               name: item.patient.name + "(" + item.patient.id + ")" ?? "",
               title: item.title,
               type: getActivityLabel(item.type ?? ""),
-              recorded: item.recorded_at ?? "",
+              recorded: formatDate(item.recorded_at) ?? "",
               original: item,
             })
           );

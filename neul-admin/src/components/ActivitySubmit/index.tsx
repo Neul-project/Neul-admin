@@ -94,7 +94,7 @@ const ActivitySubmit = (props: {
         uid: `uploaded-${index}`, // Upload 컴포넌트는 uid 필요
         name: url,
         status: "done",
-        url: process.env.NEXT_PUBLIC_API_URL + "/uploads/" + url,
+        url: process.env.NEXT_PUBLIC_API_URL + "/uploads/image/" + url,
       }));
 
       //console.log("file", fileList);
@@ -280,7 +280,7 @@ const ActivitySubmit = (props: {
                       //  기존 이미지
                       src = `${
                         process.env.NEXT_PUBLIC_API_URL
-                      }/uploads/${element.url.split("/").pop()}`;
+                      }/uploads/image/${element.url.split("/").pop()}`;
                     } else if (element.originFileObj) {
                       // 새로 업로드된 이미지
                       src = URL.createObjectURL(element.originFileObj);
