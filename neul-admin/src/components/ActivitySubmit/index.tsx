@@ -115,7 +115,7 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
     maxCount: 5,
   };
 
-  //해당 행 삭젝 클릭 함수
+  //해당 행 삭제 클릭 함수
   const deleteRow = () => {
     //console.log("activityId", [activityId]);
     const deleteIds = [activityId];

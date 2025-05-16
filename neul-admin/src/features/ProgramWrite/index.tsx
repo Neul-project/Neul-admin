@@ -69,7 +69,7 @@ const ProgramWrite = (props: {
         uid: `uploaded-${index}`, // Upload 컴포넌트는 uid 필요
         name: url,
         status: "done",
-        url: process.env.NEXT_PUBLIC_API_URL + "/uploads/" + url,
+        url: process.env.NEXT_PUBLIC_API_URL + "/uploads/image/" + url,
       }));
 
       setImg(fileList);

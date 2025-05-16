@@ -28,6 +28,7 @@ const Feedback = () => {
     { title: "번호", dataIndex: "key", key: "key" },
     { title: "내용", dataIndex: "content", key: "content" },
     { title: "날짜", dataIndex: "date", key: "date" },
+
     {
       key: "typeBtn",
       title: "상세",
@@ -58,6 +59,7 @@ const Feedback = () => {
     //피드백 내용 전체 불러오기
     axiosInstance.get(`/activity/feedback/views`).then((res) => {
       const data = res.data;
+      console.log("data", data);
       const mappedList: DataType[] = data.map((item: any) => ({
         key: item.id,
         content: item.message,
