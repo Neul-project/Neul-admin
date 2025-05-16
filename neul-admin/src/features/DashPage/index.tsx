@@ -1,19 +1,96 @@
 import TitleCompo from "@/components/TitleCompo";
 import { DashStyled } from "./styled";
 import axiosInstance from "@/lib/axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Pie } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
+import {
+  getGenderChartData,
+  getAgeChartData,
+  ageChartOptions,
+  countByAgeGroup,
+} from "@/utill/chartdata";
+
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+} from "chart.js";
+ChartJS.register(
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title
+);
 
 const DashBoard = () => {
-  const [patientgender, setPatientGender] = useState("");
+  const [patientGenderData, setPatientGenderData] = useState<number[]>([]); // [남자 수, 여자 수]
+  const [PatientAgeData, setPatientAgeData] = useState<number[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  axiosInstance.get("/activity/targetlist").then((res) => {
-    console.log("전체 admin당 피보호자 리스트", res.data);
-  });
+  //오늘 날짜 표시하기
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0"); // 월은 0부터 시작
+  const day = String(today.getDate()).padStart(2, "0");
+  const formattedDate = `${year}년 ${month}월 ${day}일`;
+
+  useEffect(() => {
+    axiosInstance.get("/activity/targetlist").then((res) => {
+      console.log("전체 admin당 피보호자 리스트", res.data);
+
+      //성비 - 남성
+      const male = res.data.filter(
+        (item: any) => item.gender === "male"
+      ).length;
+
+      //성비 - 여성
+      const female = res.data.filter(
+        (item: any) => item.gender === "female"
+      ).length;
+
+      setPatientGenderData([male, female]);
+      const ageCounts = countByAgeGroup(res.data);
+      setPatientAgeData(ageCounts);
+      setIsLoading(false);
+    });
+  }, []);
+
+  //연령별 데이터
+  const ageChartData = getAgeChartData(
+    PatientAgeData.length > 0 ? PatientAgeData : [0, 0, 0, 0, 0, 0, 0]
+  );
+
+  //성별 데이터
+  const genderdata = getGenderChartData(
+    patientGenderData[0] || 0,
+    patientGenderData[1] || 0
+  );
 
   return (
     <DashStyled>
-      <TitleCompo title="대시보드" />
-      <div></div>
+      <div className="DashPage_top">
+        <TitleCompo title="대시보드" />
+        <div className="DashPage_today">오늘 일자 : {formattedDate}</div>
+      </div>
+      <div className="DashPage_content">
+        <div className="DashPage_age">
+          <p className="DashPage_title">피보호자 연령</p>
+          <Bar data={ageChartData} options={ageChartOptions} />
+        </div>
+        <div className="DashPage_gender">
+          <p className="DashPage_title">피보호자 성비</p>
+          <Pie data={genderdata} />
+        </div>
+      </div>
     </DashStyled>
   );
 };

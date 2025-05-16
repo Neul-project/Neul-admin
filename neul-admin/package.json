@@ -13,6 +13,7 @@
     "@types/styled-components": "^5.1.34",
     "antd": "^5.17.4",
     "axios": "^1.6.8",
+    "chart.js": "^4.4.9",
     "clsx": "^2.1.1",
     "file-saver": "^2.0.5",
     "formik": "^2.4.6",
@@ -22,13 +23,14 @@
     "next-translate": "^2.6.2",
     "next-transpile-modules": "^10.0.1",
     "react": "18.3.1",
+    "react-chartjs-2": "^5.3.0",
     "react-dom": "18.3.1",
     "socket.io-client": "^4.8.1",
     "styled-components": "^6.1.17",
     "swiper": "^11.2.6",
+    "xlsx": "^0.18.5",
     "yup": "^1.6.1",
-    "zustand": "^5.0.4",
-    "xlsx": "^0.18.5"
+    "zustand": "^5.0.4"
   },
   "devDependencies": {
     "@types/file-saver": "^2.0.7",

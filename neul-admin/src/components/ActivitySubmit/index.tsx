@@ -27,9 +27,13 @@ import { Pagination, A11y } from "swiper/modules";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 //활동 기록 등록 컴포넌트 - formik 작성
-const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
+const ActivitySubmit = (props: {
+  com_type: string;
+  rowcontent: any;
+  setIsModalOpen: (open: boolean) => void;
+}) => {
   //변수 선언
-  const { com_type, rowcontent } = props;
+  const { com_type, rowcontent, setIsModalOpen } = props;
   const router = useRouter();
   const { user } = useAuthStore();
 
@@ -174,6 +178,8 @@ const ActivitySubmit = (props: { com_type: string; rowcontent: any }) => {
               message: `수정 완료`,
               description: `성공적으로 수정이 완료 되었습니다.`,
             });
+
+            setIsModalOpen(false);
           });
       } else {
         //기록하기

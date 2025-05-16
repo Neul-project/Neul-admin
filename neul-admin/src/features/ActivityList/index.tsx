@@ -292,7 +292,11 @@ const ActivityList = () => {
           footer={null}
         >
           <div className="ActivityList_Modal">
-            <ActivitySubmit com_type={"modify"} rowcontent={rowid} />
+            <ActivitySubmit
+              com_type={"modify"}
+              rowcontent={rowid}
+              setIsModalOpen={setIsModalOpen}
+            />
           </div>
         </StyledModal>
       </ConfigProvider>
