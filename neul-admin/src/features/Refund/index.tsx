@@ -7,6 +7,7 @@ import axiosInstance from "@/lib/axios";
 interface RefundItem {
   // key: number;
   id: number;
+  programId: number;
   requester: string;
   bank: string;
   account: string;
@@ -21,6 +22,7 @@ const RefundPage = () => {
   const [dataSource, setDataSource] = useState<RefundItem[]>([
     {
       id: 1,
+      programId: 4,
       requester: "홍길동",
       bank: "국민은행",
       account: "12345678910111",
@@ -32,6 +34,7 @@ const RefundPage = () => {
     },
     {
       id: 2,
+      programId: 5,
       requester: "김영희",
       bank: "신한은행",
       account: "98765432101112",
@@ -70,16 +73,39 @@ const RefundPage = () => {
     setIsModalVisible(true);
   };
 
-  // 완료 상태로 변경 (예: 상태 업데이트 or API 호출)
-  const handleComplete = () => {
-    notification.success({
-      message: "환불 완료",
-      description: `${selectedRecord?.requester}님의 환불 상태가 완료로 변경되었습니다.`,
-    });
+  // 완료 상태로 변경요청
+  const handleComplete = async () => {
+    if (!selectedRecord) return;
 
-    // 여기에서 완료 상태 처리 로직 수행
+    try {
+      const res = await axiosInstance.post("/program/refund-complete", {
+        id: selectedRecord.programId,
+      });
 
-    setIsModalVisible(false); // 모달 닫기
+      console.log("환불 완료 응답", res.data);
+
+      if (res.data.ok === true) {
+        notification.success({
+          message: "환불 완료",
+          description: `${selectedRecord.requester}님의 환불 상태가 '완료'로 변경되었습니다.`,
+        });
+
+        // 상태 갱신(완료된 항목은 리스트에서 제외)
+        setDataSource((prev) =>
+          prev.filter((item) => item.programId !== selectedRecord.programId)
+        );
+      } else {
+        throw new Error("서버 응답 실패");
+      }
+    } catch (error) {
+      notification.error({
+        message: "환불 처리 실패",
+        description: "서버에 요청 중 문제가 발생했습니다.",
+      });
+      console.error("환불 완료 요청 실패:", error);
+    } finally {
+      setIsModalVisible(false); // 모달 닫기
+    }
   };
 
   // 환불 완료 요청
