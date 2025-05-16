@@ -52,9 +52,15 @@ const ChatRoom = () => {
   const [chattings, setChattings] = useState<Chatting[]>([]);
 
   // 무한스크롤에 필요한 것들
+  // 채팅창
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+
+  // 채팅방
+  const [pageRoom, setPageRoom] = useState(1);
+  const [loadingRoom, setLoadingRoom] = useState(false);
+  const [hasMoreRoom, setHasMoreRoom] = useState(true);
 
   // 소켓
   const socketRef = useRef<any>(null);
@@ -68,24 +74,21 @@ const ChatRoom = () => {
   // 메모리 접근
   const adminId = useAuthStore((state) => state.user?.id);
 
-  // 스크롤 위치 보존
-  const messagesContainerRef = useRef<HTMLDivElement>(null);
-
   // 채팅방
-  const chatRoomLimit = 14;
+  const chatRoomLimit = 10;
 
   // 채팅창
   const chatLimit = 20;
 
-  const chatRoomsRef = useRef<HTMLDivElement>(null);
-
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isFetching = useRef(false);
+
+  const scrollContainerRefRoom = useRef<HTMLDivElement>(null);
+  const isFetchingRoom = useRef(false);
 
   // 채팅창 위쪽 감지해서 요청
   const fetchNextPage = async () => {
     if (loading || !hasMore || isFetching.current) return;
-    // if (page === 1 && chattings.length === 0) return; // 첫 페이지 로딩 완료 전엔 호출 막기
     if (selectedUserIdRef.current === null) return;
     console.log("실행하자");
     isFetching.current = true;
@@ -101,20 +104,57 @@ const ChatRoom = () => {
     onIntersect: fetchNextPage,
   });
 
+  // 채팅방 아래쪽 감지해서 요청
+  const fetchNextRoomPage = async () => {
+    if (loadingRoom || !hasMoreRoom || isFetchingRoom.current) return;
+    if (pageRoom === 1) return; // 첫 페이지 로딩 완료 전엔 호출 막기
+    console.log("실행하자Room");
+    isFetchingRoom.current = true;
+    const nextPageRoom = pageRoom + 1;
+
+    await fetchChatRoomList(nextPageRoom);
+    setPage(nextPageRoom);
+    isFetchingRoom.current = false;
+  };
+  const targetRoomRef = useInfiniteScroll({
+    hasMore: hasMoreRoom,
+    loading: loadingRoom,
+    onIntersect: fetchNextRoomPage,
+  });
+
   // 무조건 아래에서 시작하도록
   const scrollToBottom = () => {
     bottomRef.current?.scrollIntoView({ behavior: "auto" });
   };
 
   // 채팅방 목록 불러오기
-  const fetchChatRoomList = async () => {
+  const fetchChatRoomList = async (pageToFetch = 1) => {
+    const containerRoom = scrollContainerRefRoom.current;
+    const prevScrollHeightRoom = containerRoom?.scrollHeight ?? 0;
     try {
       const res = await axiosInstance.get("/chat/rooms", {
-        params: { adminId },
+        params: { adminId, page: pageToFetch, limit: chatRoomLimit },
       });
 
-      // console.log("채팅방 목록 ", res.data);
-      setChatRoomList(res.data);
+      console.log("채팅방 목록 ", res.data);
+      setChatRoomList((prev) =>
+        pageToFetch === 1 ? res.data : [...res.data, ...prev]
+      );
+
+      // hasMore는 데이터 개수가 limit보다 작으면 false
+      setHasMoreRoom(res.data.length === chatRoomLimit);
+      setPageRoom(pageToFetch);
+
+      // 렌더링이 끝난 뒤 scrollTop 조절
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          if (containerRoom) {
+            const newScrollHeightRoom = containerRoom.scrollHeight;
+            containerRoom.scrollTop =
+              newScrollHeightRoom - prevScrollHeightRoom;
+          }
+        }, 0);
+      });
     } catch (e) {
       console.error("채팅방 목록 불러오기 실패: ", e);
     }
@@ -198,7 +238,7 @@ const ChatRoom = () => {
   useEffect(() => {
     // 채팅방 불러오기(자신의 담당 보호자-피보호자들)/새로고침시 가져오도록
     if (!adminId) return;
-    fetchChatRoomList();
+    fetchChatRoomList(1);
   }, [adminId]);
 
   useEffect(() => {
@@ -393,7 +433,7 @@ const ChatRoom = () => {
                 </div>
               </div>
             ))}
-            <div ref={chatRoomsRef}></div>
+            <div ref={targetRoomRef}></div>
           </>
         ) : (
           <div className="chatroom_unpeople">
