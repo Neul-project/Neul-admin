@@ -105,7 +105,7 @@ const StatusList = () => {
     getStatusList();
   }, []);
 
-  useEffect(() => {
+  const refetchListBySelectedPatient = () => {
     // 전체 선택시
     if (selectedPatient === "all") {
       getStatusList();
@@ -113,6 +113,10 @@ const StatusList = () => {
       // 각 피보호자 선택시
       getPatientStatusList(Number(selectedPatient));
     }
+  };
+
+  useEffect(() => {
+    refetchListBySelectedPatient();
   }, [selectedPatient]);
 
   // 리스트 삭제
@@ -250,7 +254,7 @@ const StatusList = () => {
           <div className="statuslist_modalbox">
             <StatusWrite
               _data={modalData}
-              getStatusList={getStatusList}
+              getStatusList={refetchListBySelectedPatient}
               setModalVisible={setModalVisible}
             />
           </div>
