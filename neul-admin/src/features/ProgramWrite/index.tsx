@@ -28,7 +28,6 @@ import axiosInstance from "@/lib/axios";
 import clsx from "clsx";
 import { useRouter } from "next/router";
 import { AntdGlobalTheme, GreenTheme } from "@/utill/antdtheme";
-import { StatusTheme } from "@/components/StatusWrite/styled";
 
 //프로그램 등록 컴포넌트
 const ProgramWrite = (props: {
@@ -218,7 +217,7 @@ const ProgramWrite = (props: {
           {/* 이미지 */}
           <div className="ProgramWrite_row">
             <div>대표 이미지</div>
-            <ConfigProvider theme={StatusTheme}>
+            <ConfigProvider theme={GreenTheme}>
               <Upload
                 {...imageprops}
                 fileList={img}
@@ -496,7 +495,7 @@ const ProgramWrite = (props: {
 
           {modify === "modify" ? (
             <div className="ProgramWrite_submit">
-              <ConfigProvider theme={StatusTheme}>
+              <ConfigProvider theme={GreenTheme}>
                 <Button htmlType="submit" type="primary">
                   수정하기
                 </Button>
@@ -504,7 +503,7 @@ const ProgramWrite = (props: {
             </div>
           ) : (
             <div className="ProgramWrite_submit">
-              <ConfigProvider theme={StatusTheme}>
+              <ConfigProvider theme={GreenTheme}>
                 <Button htmlType="submit" type="primary">
                   등록하기
                 </Button>

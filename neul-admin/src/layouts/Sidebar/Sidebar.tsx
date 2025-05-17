@@ -5,8 +5,6 @@ import { SidebarStyled } from "./styled";
 import { Layout, Menu, ConfigProvider } from "antd";
 import clsx from "clsx";
 import { sidebarMenus } from "@/utill/createSideMenu";
-//import { StatusTheme } from "@/components/StatusWrite/styled";
-import { AntdGlobalTheme } from "@/utill/antdtheme";
 import { GreenTheme } from "@/utill/antdtheme";
 
 export interface SidebarProps {

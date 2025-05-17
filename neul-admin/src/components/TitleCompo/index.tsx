@@ -1,7 +1,6 @@
 import clsx from "clsx";
 import { Button, ConfigProvider } from "antd";
 import { TitleCompoStyled } from "./styled";
-import { StatusTheme } from "@/features/StatusList/styled";
 
 interface TitleProps {
   title: string;
