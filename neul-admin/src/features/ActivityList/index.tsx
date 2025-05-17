@@ -56,6 +56,7 @@ const ActivityList = () => {
   const [userlist, setUserlist] = useState<UserType[]>();
   const [rowid, setRowId] = useState<any[]>(); //테이블 행 클릭 시 아이디(select요청 id와 비교할 때 사용)
   const [adminId, setAdminId] = useState<number | null>(); //관리자id(===로그인한 userid)
+  const [patientId, setPatientId] = useState<number>();
 
   //table colums
   const columns: TableColumnsType<DataType> = [
@@ -104,7 +105,7 @@ const ActivityList = () => {
     }
   }, [user]);
 
-  useEffect(() => {
+  const getUserlist = () => {
     if (!user?.id) return;
     const adminId = user?.id;
     //도우미 id에 따른 활동기록 전체 가져오기
@@ -123,12 +124,10 @@ const ActivityList = () => {
         }));
         setDataSource(mappedData);
       });
-  }, [user]);
+  };
 
-  useEffect(() => {
-    if (!user?.id) return;
-    const adminId = user?.id;
-
+  //타켓 리스트
+  const getTargetlist = (adminId: number) => {
     //console.log("ad", adminId);
     //도우미 아이디 따른 피보호자 전체 리스트 가지고 오기
     axiosInstance
@@ -148,60 +147,50 @@ const ActivityList = () => {
         ];
         setUserlist(withAllOption);
       });
+  };
+
+  //피보호자아이디에 따른 리스트
+  const selectlist = (patientId: number) => {
+    axiosInstance
+      .get("/activity/selectlist", { params: { adminId, patientId } })
+      .then((res) => {
+        //console.log("activity selectlist res", res.data);
+        const data = res.data;
+
+        const mappedData: DataType[] = data.map((item: any, index: number) => ({
+          key: item.id ?? index,
+          name: item.patient.name + "(" + item.patient.id + ")" ?? "",
+          title: item.title,
+          type: getActivityLabel(item.type ?? ""),
+          recorded: formatDate(item.recorded_at) ?? "",
+          original: item,
+        }));
+
+        setDataSource(mappedData);
+      });
+  };
+  useEffect(() => {
+    if (!user?.id) return;
+    const adminId = user?.id;
+
+    getUserlist();
+    getTargetlist(adminId);
   }, [user]);
 
   //antd select handleChange
   const handleChange = (option: { value: number; label: string }) => {
+    //console.log("handle", option.value);
+    setPatientId(option.value);
     const patientId = option.value;
 
     //전체 클릭 시
     if (option.value === 0) {
-      if (!user?.id) return;
-      //피보호자  전체 리스트 ->select 전체 선택 시
-      axiosInstance
-        .get("/activity/selectlistall", { params: { adminId } })
-        .then((res) => {
-          //console.log("activity targetlist res", res.data);
-          const data = res.data;
-          const mappedData: DataType[] = data.map(
-            (item: any, index: number) => ({
-              key: item.id ?? index,
-              name: item.patient.name + "(" + item.patient.id + ")" ?? "",
-              title: item.title,
-              type: getActivityLabel(item.type ?? ""),
-              recorded: formatDate(item.recorded_at) ?? "",
-              original: item,
-            })
-          );
-
-          setDataSource(mappedData);
-        })
-        .catch((error: string) => {
-          //console.log("error", error);
-        });
+      getUserlist();
     } else {
       //select 선택
       if (!user?.id) return;
       //피보호자 선택에 따른 리스트 가져오기 -> select 피보호자 선택 시
-      axiosInstance
-        .get("/activity/selectlist", { params: { adminId, patientId } })
-        .then((res) => {
-          //console.log("activity selectlist res", res.data);
-          const data = res.data;
-
-          const mappedData: DataType[] = data.map(
-            (item: any, index: number) => ({
-              key: item.id ?? index,
-              name: item.patient.name + "(" + item.patient.id + ")" ?? "",
-              title: item.title,
-              type: getActivityLabel(item.type ?? ""),
-              recorded: formatDate(item.recorded_at) ?? "",
-              original: item,
-            })
-          );
-
-          setDataSource(mappedData);
-        });
+      selectlist(patientId);
     }
   };
 
@@ -304,6 +293,10 @@ const ActivityList = () => {
             com_type={"modify"}
             rowcontent={rowid}
             setIsModalOpen={setIsModalOpen}
+            getUserlist={getUserlist}
+            getTargetlist={getTargetlist}
+            selectlist={selectlist}
+            patientId={patientId}
           />
         </div>
       </StyledModal>

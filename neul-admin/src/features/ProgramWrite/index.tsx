@@ -14,6 +14,7 @@ import {
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
+const { TextArea } = Input;
 
 //list
 import {
@@ -26,7 +27,8 @@ import { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axios";
 import clsx from "clsx";
 import { useRouter } from "next/router";
-import { AntdGlobalTheme } from "@/utill/antdtheme";
+import { AntdGlobalTheme, GreenTheme } from "@/utill/antdtheme";
+import { StatusTheme } from "@/components/StatusWrite/styled";
 
 //프로그램 등록 컴포넌트
 const ProgramWrite = (props: {
@@ -212,31 +214,19 @@ const ProgramWrite = (props: {
       )}
 
       <form onSubmit={programformik.handleSubmit}>
-        {modify === "modify" ? (
-          <div className="ProgramWrite_submit">
-            <ConfigProvider theme={AntdGlobalTheme}>
-              <Button htmlType="submit">수정하기</Button>
-            </ConfigProvider>
-          </div>
-        ) : (
-          <div className="ProgramWrite_submit">
-            <ConfigProvider theme={AntdGlobalTheme}>
-              <Button htmlType="submit">등록하기</Button>
-            </ConfigProvider>
-          </div>
-        )}
-
         <div className="ProgramWrite_form_content">
           {/* 이미지 */}
           <div className="ProgramWrite_row">
             <div>대표 이미지</div>
-            <Upload
-              {...imageprops}
-              fileList={img}
-              onPreview={(file) => window.open(file.url)}
-            >
-              <Button icon={<UploadOutlined />} />
-            </Upload>
+            <ConfigProvider theme={StatusTheme}>
+              <Upload
+                {...imageprops}
+                fileList={img}
+                onPreview={(file) => window.open(file.url)}
+              >
+                <Button icon={<UploadOutlined />} />
+              </Upload>
+            </ConfigProvider>
           </div>
 
           {/* 카테고리 */}
@@ -483,8 +473,7 @@ const ProgramWrite = (props: {
           <div className="ProgramWrite_row">
             <div>프로그램 내용</div>
             <ConfigProvider theme={AntdGlobalTheme}>
-              <Input
-                type="text"
+              <TextArea
                 name="note"
                 placeholder="프로그램 내용을 입력해 주세요."
                 value={modify === "modify" ? note : programformik.values.note}
@@ -495,6 +484,7 @@ const ProgramWrite = (props: {
                   }
                   programformik.handleChange(e);
                 }}
+                rows={8}
               />
               {programformik.touched.note && programformik.errors.note && (
                 <div className="ProgramWrite_error_message">
@@ -503,6 +493,24 @@ const ProgramWrite = (props: {
               )}
             </ConfigProvider>
           </div>
+
+          {modify === "modify" ? (
+            <div className="ProgramWrite_submit">
+              <ConfigProvider theme={StatusTheme}>
+                <Button htmlType="submit" type="primary">
+                  수정하기
+                </Button>
+              </ConfigProvider>
+            </div>
+          ) : (
+            <div className="ProgramWrite_submit">
+              <ConfigProvider theme={StatusTheme}>
+                <Button htmlType="submit" type="primary">
+                  등록하기
+                </Button>
+              </ConfigProvider>
+            </div>
+          )}
         </div>
       </form>
     </ProgramWriteStyled>

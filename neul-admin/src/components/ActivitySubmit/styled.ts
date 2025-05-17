@@ -104,13 +104,14 @@ export const ActivityStyled = styled.div`
 
     .activitySubmit_record_div {
       display: flex;
+      flex-direction: column;
       justify-content: center;
       width: 100%;
       margin-top: 50px;
-      gap: 10px;
+      gap: 5px;
 
       .activitySubmit_record {
-        width: 120px;
+        width: 100%;
       }
     }
   }

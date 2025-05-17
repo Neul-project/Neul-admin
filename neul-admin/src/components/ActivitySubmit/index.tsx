@@ -1,4 +1,5 @@
 import { ActivityStyled, ActivityTheme } from "./styled";
+import { StatusTheme } from "@/features/StatusList/styled";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useRouter } from "next/router";
@@ -32,12 +33,23 @@ const ActivitySubmit = (props: {
   com_type: string;
   rowcontent: any;
   setIsModalOpen: (open: boolean) => void;
+  getUserlist: any;
+  getTargetlist: any;
+  selectlist: any;
+  patientId?: number;
 }) => {
   //변수 선언
-  const { com_type, rowcontent, setIsModalOpen } = props;
+  const {
+    com_type,
+    rowcontent,
+    setIsModalOpen,
+    getUserlist,
+    getTargetlist,
+    selectlist,
+    patientId,
+  } = props;
   const router = useRouter();
   const { user } = useAuthStore();
-
   //console.log("Res", rowcontent);
 
   //useState
@@ -179,7 +191,14 @@ const ActivitySubmit = (props: {
               message: `수정 완료`,
               description: `성공적으로 수정이 완료 되었습니다.`,
             });
+            //getUserlist();
 
+            if (patientId) {
+              //select로 선택해서 들어온 경우 처리
+              selectlist(patientId);
+            } else {
+              getUserlist();
+            }
             setIsModalOpen(false);
           });
       } else {
@@ -257,13 +276,15 @@ const ActivitySubmit = (props: {
         {/* swiper */}
         <div className="activitySubmit_image">
           <div className="activitySubmit_image">
-            <Upload
-              {...fileprops}
-              fileList={imgarr}
-              onPreview={(file) => window.open(file.url)}
-            >
-              <Button icon={<UploadOutlined />} />
-            </Upload>
+            <ConfigProvider theme={StatusTheme}>
+              <Upload
+                {...fileprops}
+                fileList={imgarr}
+                onPreview={(file) => window.open(file.url)}
+              >
+                <Button icon={<UploadOutlined />} />
+              </Upload>
+            </ConfigProvider>
 
             <div className="activitySubmit_swiper_div">
               {imgarr && imgarr.length > 0 ? (
@@ -317,7 +338,7 @@ const ActivitySubmit = (props: {
           {/* 활동종류 */}
           <div>
             <div className="activitySubmit_text">활동 종류</div>
-            <ConfigProvider theme={ActivityTheme}>
+            <ConfigProvider theme={StatusTheme}>
               <Select
                 className="activitySubmit_select"
                 value={
@@ -336,8 +357,9 @@ const ActivitySubmit = (props: {
           <div>
             <div className="activitySubmit_text">재활 치료</div>
 
-            <ConfigProvider theme={ActivityTheme}>
+            <ConfigProvider theme={StatusTheme}>
               <Radio.Group
+                buttonStyle="solid"
                 value={activityformik.values.rehabilitation}
                 onChange={(e) =>
                   activityformik.setFieldValue("rehabilitation", e.target.value)
@@ -377,8 +399,9 @@ const ActivitySubmit = (props: {
         </div>
 
         <div className="activitySubmit_record_div">
-          <ConfigProvider theme={ActivityTheme}>
+          <ConfigProvider theme={StatusTheme}>
             <Button
+              type="primary"
               htmlType="submit"
               className="activitySubmit_record"
               disabled={!activityformik.isValid && activityformik.dirty}

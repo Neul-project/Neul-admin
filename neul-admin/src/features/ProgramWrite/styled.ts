@@ -8,8 +8,6 @@ export const ProgramWriteStyled = styled.div`
 
     .ProgramWrite_submit {
       width: 100%;
-      display: flex;
-      justify-content: end;
     }
 
     .ProgramWrite_form_content {
