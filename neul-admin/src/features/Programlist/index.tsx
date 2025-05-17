@@ -220,7 +220,7 @@ const Programlist = () => {
           dataSource={list}
         />
         <StyledModal
-          title={`${title} 프로그램`}
+          title={`${title}`}
           key={isModalOpen ? id : "closed"}
           width={600}
           open={isModalOpen}

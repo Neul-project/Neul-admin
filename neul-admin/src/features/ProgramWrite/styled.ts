@@ -22,6 +22,11 @@ export const ProgramWriteStyled = styled.div`
         flex-direction: column;
         align-items: left;
         gap: 7px;
+
+        .ProgramWrite_error_message {
+          color: red;
+          font-size: 12px;
+        }
       }
     }
   }

@@ -1,8 +1,17 @@
 import { ProgramWriteStyled } from "./styled";
 import { useFormik } from "formik";
+import { programValidationSchema } from "./programValidation";
 
 //antd
-import { Button, Input, Select, Upload, message, notification } from "antd";
+import {
+  Button,
+  ConfigProvider,
+  Input,
+  Select,
+  Upload,
+  message,
+  notification,
+} from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
 
@@ -17,6 +26,7 @@ import { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axios";
 import clsx from "clsx";
 import { useRouter } from "next/router";
+import { AntdGlobalTheme } from "@/utill/antdtheme";
 
 //프로그램 등록 컴포넌트
 const ProgramWrite = (props: {
@@ -116,6 +126,7 @@ const ProgramWrite = (props: {
       target: modify === "modify" ? target : "",
     },
     enableReinitialize: true,
+    validationSchema: programValidationSchema,
     onSubmit: (values) => {
       //console.log("Values", values);
       const formData = new FormData();
@@ -203,11 +214,15 @@ const ProgramWrite = (props: {
       <form onSubmit={programformik.handleSubmit}>
         {modify === "modify" ? (
           <div className="ProgramWrite_submit">
-            <Button htmlType="submit">수정하기</Button>
+            <ConfigProvider theme={AntdGlobalTheme}>
+              <Button htmlType="submit">수정하기</Button>
+            </ConfigProvider>
           </div>
         ) : (
           <div className="ProgramWrite_submit">
-            <Button htmlType="submit">등록하기</Button>
+            <ConfigProvider theme={AntdGlobalTheme}>
+              <Button htmlType="submit">등록하기</Button>
+            </ConfigProvider>
           </div>
         )}
 
@@ -227,189 +242,266 @@ const ProgramWrite = (props: {
           {/* 카테고리 */}
           <div className="ProgramWrite_row">
             <div className="ProgramWrite_name">카테고리</div>
-            <Select
-              options={categorylist}
-              value={
-                modify === "modify" ? category : programformik.values.category
-              }
-              onChange={(value) => {
-                setCategory(value);
-                programformik.setFieldValue("category", value);
-              }}
-            />
+            <ConfigProvider theme={AntdGlobalTheme}>
+              <Select
+                options={categorylist}
+                value={
+                  modify === "modify" ? category : programformik.values.category
+                }
+                onChange={(value) => {
+                  setCategory(value);
+                  programformik.setFieldValue("category", value);
+                }}
+              />
+              {programformik.touched.category &&
+                programformik.errors.category && (
+                  <div className="ProgramWrite_error_message">
+                    {programformik.errors.category}
+                  </div>
+                )}
+            </ConfigProvider>
           </div>
 
           {/* 참여대상 */}
           <div className="ProgramWrite_row">
             <div className="ProgramWrite_name">참여대상</div>
-            <Input
-              type="text"
-              name="target"
-              placeholder="참여대상을 입력해 주세요"
-              value={modify === "modify" ? target : programformik.values.target}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (modify === "modify") {
-                  setTarget(value);
+            <ConfigProvider theme={AntdGlobalTheme}>
+              <Input
+                type="text"
+                name="target"
+                placeholder="참여대상을 입력해 주세요"
+                value={
+                  modify === "modify" ? target : programformik.values.target
                 }
-                programformik.handleChange(e);
-              }}
-            />
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (modify === "modify") {
+                    setTarget(value);
+                  }
+                  programformik.handleChange(e);
+                }}
+              />
+              {programformik.touched.target && programformik.errors.target && (
+                <div className="ProgramWrite_error_message">
+                  {programformik.errors.target}
+                </div>
+              )}
+            </ConfigProvider>
           </div>
 
           {/* 프로그램명 */}
           <div className="ProgramWrite_row">
             <div>프로그램명</div>
-            <Input
-              type="text"
-              name="name"
-              placeholder="프로그램명을 입력해 주세요."
-              value={modify === "modify" ? name : programformik.values.name}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (modify === "modify") {
-                  setName(value);
-                }
-                programformik.handleChange(e);
-              }}
-            />
+            <ConfigProvider theme={AntdGlobalTheme}>
+              <Input
+                type="text"
+                name="name"
+                placeholder="프로그램명을 입력해 주세요."
+                value={modify === "modify" ? name : programformik.values.name}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (modify === "modify") {
+                    setName(value);
+                  }
+                  programformik.handleChange(e);
+                }}
+              />
+              {programformik.touched.name && programformik.errors.name && (
+                <div className="ProgramWrite_error_message">
+                  {programformik.errors.name}
+                </div>
+              )}
+            </ConfigProvider>
           </div>
 
           {/* 진행기간 */}
           <div className="ProgramWrite_row">
             <div>진행기간</div>
-            <Input
-              type="text"
-              name="progress"
-              placeholder="진행기간을 입력해 주세요."
-              value={
-                modify === "modify" ? progress : programformik.values.progress
-              }
-              onChange={(e) => {
-                const value = e.target.value;
-                if (modify === "modify") {
-                  setProgress(value);
+            <ConfigProvider theme={AntdGlobalTheme}>
+              <Input
+                type="text"
+                name="progress"
+                placeholder="진행기간을 입력해 주세요."
+                value={
+                  modify === "modify" ? progress : programformik.values.progress
                 }
-                programformik.handleChange(e);
-              }}
-            />
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (modify === "modify") {
+                    setProgress(value);
+                  }
+                  programformik.handleChange(e);
+                }}
+              />
+              {programformik.touched.progress &&
+                programformik.errors.progress && (
+                  <div className="ProgramWrite_error_message">
+                    {programformik.errors.progress}
+                  </div>
+                )}
+            </ConfigProvider>
           </div>
 
           {/* 모집기간 */}
           <div className="ProgramWrite_row">
             <div>모집기간</div>
-            <Input
-              type="text"
-              name="recruitment"
-              placeholder="모집기간을 입력해 주세요."
-              value={
-                modify === "modify"
-                  ? recruitment
-                  : programformik.values.recruitment
-              }
-              onChange={(e) => {
-                const value = e.target.value;
-
-                if (modify === "modify") {
-                  setRecruitment(value);
+            <ConfigProvider theme={AntdGlobalTheme}>
+              <Input
+                type="text"
+                name="recruitment"
+                placeholder="모집기간을 입력해 주세요."
+                value={
+                  modify === "modify"
+                    ? recruitment
+                    : programformik.values.recruitment
                 }
-                programformik.handleChange(e);
-              }}
-            />
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  if (modify === "modify") {
+                    setRecruitment(value);
+                  }
+                  programformik.handleChange(e);
+                }}
+              />
+              {programformik.touched.recruitment &&
+                programformik.errors.recruitment && (
+                  <div className="ProgramWrite_error_message">
+                    {programformik.errors.recruitment}
+                  </div>
+                )}
+            </ConfigProvider>
           </div>
 
           {/* 수강료 */}
           <div className="ProgramWrite_row">
             <div>수강료</div>
-            <Input
-              type="text"
-              name="price"
-              placeholder="수강료를 입력해 주세요."
-              value={modify === "modify" ? price : programformik.values.price}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (modify === "modify") {
-                  setPrice(Number(value));
-                }
-                programformik.handleChange(e);
-              }}
-            />
+            <ConfigProvider theme={AntdGlobalTheme}>
+              <Input
+                type="text"
+                name="price"
+                placeholder="수강료를 입력해 주세요."
+                value={modify === "modify" ? price : programformik.values.price}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (modify === "modify") {
+                    setPrice(Number(value));
+                  }
+                  programformik.handleChange(e);
+                }}
+              />
+              {programformik.touched.price && programformik.errors.price && (
+                <div className="ProgramWrite_error_message">
+                  {programformik.errors.price}
+                </div>
+              )}
+            </ConfigProvider>
           </div>
 
           {/* 담당자명 */}
           <div className="ProgramWrite_row">
             <div>담당자명</div>
-            <Input
-              type="text"
-              name="manager"
-              placeholder="담당자명을 입력해 주세요."
-              value={
-                modify === "modify" ? manager : programformik.values.manager
-              }
-              onChange={(e) => {
-                const value = e.target.value;
-                if (modify === "modify") {
-                  setManager(value);
+            <ConfigProvider theme={AntdGlobalTheme}>
+              <Input
+                type="text"
+                name="manager"
+                placeholder="담당자명을 입력해 주세요."
+                value={
+                  modify === "modify" ? manager : programformik.values.manager
                 }
-                programformik.handleChange(e);
-              }}
-            />
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (modify === "modify") {
+                    setManager(value);
+                  }
+                  programformik.handleChange(e);
+                }}
+              />
+              {programformik.touched.manager &&
+                programformik.errors.manager && (
+                  <div className="ProgramWrite_error_message">
+                    {programformik.errors.manager}
+                  </div>
+                )}
+            </ConfigProvider>
           </div>
 
           {/* 모집인원 */}
           <div className="ProgramWrite_row">
             <div>모집인원</div>
-            <Input
-              type="text"
-              name="capacity"
-              placeholder="모집인원을 입력해 주세요."
-              value={
-                modify === "modify" ? capacity : programformik.values.capacity
-              }
-              onChange={(e) => {
-                const value = e.target.value;
-                if (modify === "modify") {
-                  setCapacity(Number(value));
+            <ConfigProvider theme={AntdGlobalTheme}>
+              <Input
+                type="text"
+                name="capacity"
+                placeholder="모집인원을 입력해 주세요."
+                value={
+                  modify === "modify" ? capacity : programformik.values.capacity
                 }
-                programformik.handleChange(e);
-              }}
-            />
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (modify === "modify") {
+                    setCapacity(Number(value));
+                  }
+                  programformik.handleChange(e);
+                }}
+              />
+              {programformik.touched.capacity &&
+                programformik.errors.capacity && (
+                  <div className="ProgramWrite_error_message">
+                    {programformik.errors.capacity}
+                  </div>
+                )}
+            </ConfigProvider>
           </div>
 
           {/* 문의전화 */}
           <div className="ProgramWrite_row">
             <div>문의전화</div>
-            <Input
-              type="text"
-              name="call"
-              placeholder="문의 전화번호를 입력해 주세요."
-              value={modify === "modify" ? call : programformik.values.call}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (modify === "modify") {
-                  setCall(value);
-                }
-                programformik.handleChange(e);
-              }}
-            />
+            <ConfigProvider theme={AntdGlobalTheme}>
+              <Input
+                type="text"
+                name="call"
+                placeholder="문의 전화번호를 입력해 주세요."
+                value={modify === "modify" ? call : programformik.values.call}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (modify === "modify") {
+                    setCall(value);
+                  }
+                  programformik.handleChange(e);
+                }}
+              />
+              {programformik.touched.call && programformik.errors.call && (
+                <div className="ProgramWrite_error_message">
+                  {programformik.errors.call}
+                </div>
+              )}
+            </ConfigProvider>
           </div>
 
           {/* 프로그램 내용 */}
           <div className="ProgramWrite_row">
             <div>프로그램 내용</div>
-            <Input
-              type="text"
-              name="note"
-              placeholder="프로그램 내용을 입력해 주세요."
-              value={modify === "modify" ? note : programformik.values.note}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (modify === "modify") {
-                  setNote(value);
-                }
-                programformik.handleChange(e);
-              }}
-            />
+            <ConfigProvider theme={AntdGlobalTheme}>
+              <Input
+                type="text"
+                name="note"
+                placeholder="프로그램 내용을 입력해 주세요."
+                value={modify === "modify" ? note : programformik.values.note}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (modify === "modify") {
+                    setNote(value);
+                  }
+                  programformik.handleChange(e);
+                }}
+              />
+              {programformik.touched.note && programformik.errors.note && (
+                <div className="ProgramWrite_error_message">
+                  {programformik.errors.note}
+                </div>
+              )}
+            </ConfigProvider>
           </div>
         </div>
       </form>

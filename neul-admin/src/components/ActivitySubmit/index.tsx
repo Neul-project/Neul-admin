@@ -25,6 +25,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import { Pagination, A11y } from "swiper/modules";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { AntdGlobalTheme } from "@/utill/antdtheme";
 
 //활동 기록 등록 컴포넌트 - formik 작성
 const ActivitySubmit = (props: {
@@ -386,9 +387,11 @@ const ActivitySubmit = (props: {
             </Button>
           </ConfigProvider>
           {com_type === "modify" ? (
-            <Button className="activitySubmit_record" onClick={deleteRow}>
-              삭제하기
-            </Button>
+            <ConfigProvider theme={AntdGlobalTheme}>
+              <Button className="activitySubmit_record" onClick={deleteRow}>
+                삭제하기
+              </Button>
+            </ConfigProvider>
           ) : (
             ""
           )}

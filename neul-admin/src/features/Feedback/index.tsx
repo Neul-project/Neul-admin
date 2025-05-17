@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { FeedbackStyled, StyledModal } from "./styled";
 import axiosInstance from "@/lib/axios";
-import { Table, TableProps, Select, Modal, Button } from "antd";
+import { Table, TableProps, Select, Modal, Button, ConfigProvider } from "antd";
+import { AntdGlobalTheme, paginationstyle } from "@/utill/antdtheme";
 
 interface DataType {
   key: number;
@@ -112,15 +113,19 @@ const Feedback = () => {
     <FeedbackStyled>
       <div className="Feedback_admin_select">
         <div>관리자</div>
-        <Select
-          defaultValue={{ value: 0, label: "전체" }}
-          style={{ width: 120 }}
-          onChange={handleChange}
-          options={adminlist}
-          labelInValue
-        />
+        <ConfigProvider theme={AntdGlobalTheme}>
+          <Select
+            defaultValue={{ value: 0, label: "전체" }}
+            style={{ width: 120 }}
+            onChange={handleChange}
+            options={adminlist}
+            labelInValue
+          />
+        </ConfigProvider>
       </div>
-      <Table<DataType> columns={columns} dataSource={list} />
+      <ConfigProvider theme={AntdGlobalTheme}>
+        <Table<DataType> columns={columns} dataSource={list} />
+      </ConfigProvider>
       <StyledModal
         title="피드백 상세"
         width={600}

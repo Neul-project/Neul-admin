@@ -2,12 +2,13 @@ import clsx from "clsx";
 import { BannerStyled } from "./styled";
 
 // antd
-import { Button, Input, Upload, notification } from "antd";
+import { Button, Input, Upload, notification, ConfigProvider } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { UploadProps } from "antd";
 import { useFormik } from "formik";
 import axiosInstance from "@/lib/axios";
 import { useEffect, useState } from "react";
+import { AntdGlobalTheme } from "@/utill/antdtheme";
 
 //배너 등록 컴포넌트
 const Banner = () => {
@@ -74,9 +75,11 @@ const Banner = () => {
       <BannerStyled className={clsx("Banner_main_wrap")}>
         {/* 저장 버튼 */}
         <div className="Banner_save">
-          <Button htmlType="submit" className="Banner_save_btn">
-            저장하기
-          </Button>
+          <ConfigProvider theme={AntdGlobalTheme}>
+            <Button htmlType="submit" className="Banner_save_btn">
+              저장하기
+            </Button>
+          </ConfigProvider>
         </div>
 
         {/* 미리보기 */}
@@ -124,25 +127,29 @@ const Banner = () => {
 
         {/* 업로드 버튼 */}
         <div className="Banner_btns">
-          <Upload {...handleUpload("leftimg")} showUploadList={false}>
-            <Button icon={<UploadOutlined />}>좌측 이미지 업로드</Button>
-          </Upload>
-          <Upload {...handleUpload("rightimg")} showUploadList={false}>
-            <Button icon={<UploadOutlined />}>우측 이미지 업로드</Button>
-          </Upload>
+          <ConfigProvider theme={AntdGlobalTheme}>
+            <Upload {...handleUpload("leftimg")} showUploadList={false}>
+              <Button icon={<UploadOutlined />}>좌측 이미지 업로드</Button>
+            </Upload>
+            <Upload {...handleUpload("rightimg")} showUploadList={false}>
+              <Button icon={<UploadOutlined />}>우측 이미지 업로드</Button>
+            </Upload>
+          </ConfigProvider>
         </div>
 
         <div className="Banner_input">
-          <Input
-            name="lefturl"
-            placeholder="링크를 입력하시오"
-            className="Banner_title"
-          />
-          <Input
-            name="righturl"
-            placeholder="링크를 입력하시오"
-            className="Banner_title"
-          />
+          <ConfigProvider theme={AntdGlobalTheme}>
+            <Input
+              name="lefturl"
+              placeholder="링크를 입력하시오"
+              className="Banner_title"
+            />
+            <Input
+              name="righturl"
+              placeholder="링크를 입력하시오"
+              className="Banner_title"
+            />
+          </ConfigProvider>
         </div>
       </BannerStyled>
     </form>

@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { ActivityListStyled, ActivityTheme, StyledModal } from "./styled";
+import { ActivityListStyled, StyledModal } from "./styled";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axios";
@@ -12,6 +12,7 @@ import type { TableColumnsType, TableProps } from "antd";
 import ActivitySubmit from "@/components/ActivitySubmit";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { formatDate, getActivityLabel } from "@/utill/activityoptionlist";
+import { AntdGlobalTheme } from "@/utill/antdtheme";
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>["rowSelection"];
@@ -79,16 +80,18 @@ const ActivityList = () => {
       dataIndex: "detail",
       render: (_: any, record: any) => {
         return (
-          <Button
-            onClick={() => {
-              //console.log("re", record);
-              setUserName(record.name);
-              setRowId(record.original);
-              setIsModalOpen(true);
-            }}
-          >
-            상세
-          </Button>
+          <ConfigProvider theme={AntdGlobalTheme}>
+            <Button
+              onClick={() => {
+                //console.log("re", record);
+                setUserName(record.name);
+                setRowId(record.original);
+                setIsModalOpen(true);
+              }}
+            >
+              상세
+            </Button>
+          </ConfigProvider>
         );
       },
     },
@@ -262,44 +265,48 @@ const ActivityList = () => {
       <div className="ActivitiyList_status">
         <div className="ActivityList_UserSelect">
           <div>피보호자(ID)</div>
-          <Select
-            className="ActivityList_select"
-            defaultValue={{ value: 0, label: "전체" }}
-            onChange={handleChange}
-            options={userlist}
-            labelInValue
-          />
+          <ConfigProvider theme={AntdGlobalTheme}>
+            <Select
+              className="ActivityList_select"
+              defaultValue={{ value: 0, label: "전체" }}
+              onChange={handleChange}
+              options={userlist}
+              labelInValue
+            />
+          </ConfigProvider>
         </div>
         <div className="ActivityList_btns">
-          <Button onClick={ActivityWrite}>기록하기</Button>
-          <Button onClick={DeleteRows}>삭제하기</Button>
+          <ConfigProvider theme={AntdGlobalTheme}>
+            <Button onClick={ActivityWrite}>기록하기</Button>
+            <Button onClick={DeleteRows}>삭제하기</Button>
+          </ConfigProvider>
         </div>
       </div>
 
       {/* 테이블 */}
-      <Table<DataType>
-        rowSelection={rowSelection}
-        columns={columns}
-        dataSource={dataSource}
-      />
-      <ConfigProvider theme={ActivityTheme}>
-        <StyledModal
-          width={600}
-          key={isModalOpen ? rowid?.[0]?.id : "closed"}
-          title={`${userName}님 활동 기록`}
-          open={isModalOpen}
-          onCancel={handleCancel}
-          footer={null}
-        >
-          <div className="ActivityList_Modal">
-            <ActivitySubmit
-              com_type={"modify"}
-              rowcontent={rowid}
-              setIsModalOpen={setIsModalOpen}
-            />
-          </div>
-        </StyledModal>
+      <ConfigProvider theme={AntdGlobalTheme}>
+        <Table<DataType>
+          rowSelection={rowSelection}
+          columns={columns}
+          dataSource={dataSource}
+        />
       </ConfigProvider>
+      <StyledModal
+        width={600}
+        key={isModalOpen ? rowid?.[0]?.id : "closed"}
+        title={`${userName}님 활동 기록`}
+        open={isModalOpen}
+        onCancel={handleCancel}
+        footer={null}
+      >
+        <div className="ActivityList_Modal">
+          <ActivitySubmit
+            com_type={"modify"}
+            rowcontent={rowid}
+            setIsModalOpen={setIsModalOpen}
+          />
+        </div>
+      </StyledModal>
     </ActivityListStyled>
   );
 };

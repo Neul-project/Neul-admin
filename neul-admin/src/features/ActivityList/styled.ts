@@ -38,12 +38,3 @@ export const StyledModal = styled(Modal)`
     }
   }
 `;
-
-export const ActivityTheme = {
-  token: {
-    // global token
-  },
-  components: {
-    // component token
-  },
-};

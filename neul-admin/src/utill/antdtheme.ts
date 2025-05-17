@@ -1,3 +1,4 @@
+import styled from "styled-components";
 export const AntdGlobalTheme = {
   token: {
     // global token
@@ -14,6 +15,7 @@ export const AntdGlobalTheme = {
       activeShadow: "none",
       hoverBorderColor: "none",
       activeOutlineColor: "none",
+      optionSelectedBg: "#d5E3DB",
     },
     Button: {
       defaultHoverBorderColor: "none",
@@ -21,7 +23,38 @@ export const AntdGlobalTheme = {
       defaultActiveColor: "none",
       defaultActiveBorderColor: "none",
     },
+    Pagination: {
+      //itemBg: "#f0f0f0", // 비활성 페이지 배경색
+      itemActiveBg: "#fff", // 활성 페이지 배경색
+      itemActiveColor: "#ffffff", // 활성 페이지 텍스트 색
+      colorText: "#333", // 비활성 텍스트 색
+      itemBorder: "#5da487",
+    },
   },
 };
 
 export const GreenTheme = { token: { colorPrimary: "#5da487" } };
+
+export const paginationstyle = styled.div`
+  .ant-pagination-item {
+    border-color: #5da487 !important;
+    color: #5da487 !important;
+  }
+
+  .ant-pagination-item-active {
+    border-color: #5da487 !important;
+    //box-shadow: 0 0 0 0px #5da487 !important;
+    color: #5da487 !important;
+  }
+
+  .ant-pagination-item-active a {
+    border-color: #5da487 !important;
+    //box-shadow: 0 0 0 0px #5da487 !important;
+    color: #5da487 !important;
+  }
+
+  .ant-select-item-option-selected {
+    background-color: #5da487 !important;
+    color: #fff !important;
+  }
+`;
