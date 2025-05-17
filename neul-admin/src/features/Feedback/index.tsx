@@ -3,6 +3,7 @@ import { FeedbackStyled, StyledModal } from "./styled";
 import axiosInstance from "@/lib/axios";
 import { Table, TableProps, Select, Modal, Button, ConfigProvider } from "antd";
 import { AntdGlobalTheme, paginationstyle } from "@/utill/antdtheme";
+import { formatDate } from "@/utill/activityoptionlist";
 
 interface DataType {
   key: number;
@@ -26,7 +27,7 @@ const Feedback = () => {
   const [selectedRecord, setSelectedRecord] = useState<DataType | null>(null);
 
   const columns: TableProps<DataType>["columns"] = [
-    { title: "번호", dataIndex: "key", key: "key" },
+    { title: "번호", dataIndex: "number", key: "number" },
     { title: "내용", dataIndex: "content", key: "content" },
     { title: "날짜", dataIndex: "date", key: "date" },
 
@@ -61,10 +62,11 @@ const Feedback = () => {
     axiosInstance.get(`/activity/feedback/views`).then((res) => {
       const data = res.data;
       console.log("data", data);
-      const mappedList: DataType[] = data.map((item: any) => ({
+      const mappedList: DataType[] = data.map((item: any, index: number) => ({
         key: item.id,
+        number: index + 1,
         content: item.message,
-        date: item.recorded_at,
+        date: formatDate(item.recorded_at),
         admin: item.activity.id,
         origin: item,
       }));
@@ -82,7 +84,7 @@ const Feedback = () => {
         const mappedList: DataType[] = data.map((item: any) => ({
           key: item.id,
           content: item.message,
-          date: item.recorded_at,
+          date: formatDate(item.recorded_at),
           admin: item.activity.id,
           origin: item,
         }));
@@ -100,7 +102,7 @@ const Feedback = () => {
           const mappedList: DataType[] = data.map((item: any) => ({
             key: item.id,
             content: item.message,
-            date: item.recorded_at,
+            date: formatDate(item.recorded_at),
             admin: item.activity.id,
             origin: item,
           }));

@@ -30,6 +30,17 @@ export const AntdGlobalTheme = {
       colorText: "#333", // 비활성 텍스트 색
       itemBorder: "#5da487",
     },
+    Menu: {
+      colorItemBg: "#fff", // 전체 배경색
+      colorItemText: "#333", // 일반 텍스트 색
+      colorItemBgSelected: "#5da487", // 선택된 항목 배경색
+      colorItemTextSelected: "#fff", // 선택된 항목 텍스트 색
+      //colorItemBgHover: "#e6f7ff", // hover 시 배경
+      //itemSelectedColor: "#5da487",
+    },
+    Layout: {
+      //siderBg: "#f0f2f5", // Sider 배경
+    },
   },
 };
 
