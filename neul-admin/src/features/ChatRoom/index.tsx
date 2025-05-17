@@ -10,7 +10,9 @@ import axiosInstance from "@/lib/axios";
 import "dayjs/locale/ko"; // 한국어 로케일 불러오기
 import { Modal, notification } from "antd";
 import { useAuthStore } from "@/stores/useAuthStore";
+import useInfiniteScroll from "@/hooks/useInfiniteScroll";
 
+dayjs.extend(localizedFormat);
 dayjs.locale("ko"); // 로케일 설정
 
 //Chatting 인터페이스 정의
@@ -39,21 +41,85 @@ interface ChatRoomPreview {
 
 // 채팅 전체 화면
 const ChatRoom = () => {
+  // 입력한 채팅
   const [inputValue, setInputValue] = useState("");
   const [chatRoomList, setChatRoomList] = useState<ChatRoomPreview[]>([]);
+
+  // 무한스크롤에 필요한 것들
   const [currentRoom, setCurrentRoom] = useState<ChatRoomPreview>();
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [chattings, setChattings] = useState<Chatting[]>([]);
 
-  const socketRef = useRef<any>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
-  const selectedUserIdRef = useRef<number | null>(null);
+  // 무한스크롤에 필요한 것들
+  // 채팅창
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
-  dayjs.extend(localizedFormat);
-  dayjs.locale("ko");
+  // 채팅방
+  const [pageRoom, setPageRoom] = useState(1);
+  const [loadingRoom, setLoadingRoom] = useState(false);
+  const [hasMoreRoom, setHasMoreRoom] = useState(true);
+
+  // 소켓
+  const socketRef = useRef<any>(null);
+
+  // 맨 밑 감지
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  // 선택한 방의 userid
+  const selectedUserIdRef = useRef<number | null>(null);
 
   // 메모리 접근
   const adminId = useAuthStore((state) => state.user?.id);
+
+  // 채팅방
+  const chatRoomLimit = 10;
+
+  // 채팅창
+  const chatLimit = 20;
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const isFetching = useRef(false);
+
+  const scrollContainerRefRoom = useRef<HTMLDivElement>(null);
+  const isFetchingRoom = useRef(false);
+
+  // 채팅창 위쪽 감지해서 요청
+  const fetchNextPage = async () => {
+    if (loading || !hasMore || isFetching.current) return;
+    if (selectedUserIdRef.current === null) return;
+    console.log("실행하자");
+    isFetching.current = true;
+    const nextPage = page + 1;
+
+    await handleSelectUser(nextPage, selectedUserIdRef.current);
+    setPage(nextPage);
+    isFetching.current = false;
+  };
+  const targetRef = useInfiniteScroll({
+    hasMore,
+    loading,
+    onIntersect: fetchNextPage,
+  });
+
+  // 채팅방 아래쪽 감지해서 요청
+  const fetchNextRoomPage = async () => {
+    if (loadingRoom || !hasMoreRoom || isFetchingRoom.current) return;
+    if (pageRoom === 1) return; // 첫 페이지 로딩 완료 전엔 호출 막기
+    console.log("실행하자Room");
+    isFetchingRoom.current = true;
+    const nextPageRoom = pageRoom + 1;
+
+    await fetchChatRoomList(nextPageRoom);
+    setPage(nextPageRoom);
+    isFetchingRoom.current = false;
+  };
+  const targetRoomRef = useInfiniteScroll({
+    hasMore: hasMoreRoom,
+    loading: loadingRoom,
+    onIntersect: fetchNextRoomPage,
+  });
 
   // 무조건 아래에서 시작하도록
   const scrollToBottom = () => {
@@ -61,23 +127,48 @@ const ChatRoom = () => {
   };
 
   // 채팅방 목록 불러오기
-  const fetchChatRoomList = async () => {
+  const fetchChatRoomList = async (pageToFetch = 1) => {
+    const containerRoom = scrollContainerRefRoom.current;
+    const prevScrollHeightRoom = containerRoom?.scrollHeight ?? 0;
     try {
       const res = await axiosInstance.get("/chat/rooms", {
-        params: { adminId },
+        params: { adminId, page: pageToFetch, limit: chatRoomLimit },
       });
 
       console.log("채팅방 목록 ", res.data);
-      setChatRoomList(res.data);
+      setChatRoomList((prev) =>
+        pageToFetch === 1 ? res.data : [...res.data, ...prev]
+      );
+
+      // hasMore는 데이터 개수가 limit보다 작으면 false
+      setHasMoreRoom(res.data.length === chatRoomLimit);
+      setPageRoom(pageToFetch);
+
+      // 렌더링이 끝난 뒤 scrollTop 조절
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          if (containerRoom) {
+            const newScrollHeightRoom = containerRoom.scrollHeight;
+            containerRoom.scrollTop =
+              newScrollHeightRoom - prevScrollHeightRoom;
+          }
+        }, 0);
+      });
     } catch (e) {
       console.error("채팅방 목록 불러오기 실패: ", e);
     }
   };
 
   // 채팅 목록 가져오기 요청
-  const handleSelectUser = async (userId: number) => {
+  const handleSelectUser = async (pageToFetch = 1, userId: number) => {
     setSelectedUserId(userId);
     selectedUserIdRef.current = userId;
+
+    console.log("fetchChatMessages 호출, page:", pageToFetch);
+    const container = scrollContainerRef.current;
+    const prevScrollHeight = container?.scrollHeight ?? 0;
+
+    setLoading(true);
 
     // 선택된 방 정보
     const selectedRoom = chatRoomList.find((room) => room.userId === userId);
@@ -85,10 +176,8 @@ const ChatRoom = () => {
 
     try {
       const res = await axiosInstance.get(`/chat/list`, {
-        params: { userId },
+        params: { userId, page: pageToFetch, limit: chatLimit },
       });
-
-      console.log("목록 왔다", res.data);
 
       // 데이터 가공
       const parsedChats: Chatting[] = res.data.map((chat: any) => {
@@ -103,7 +192,11 @@ const ChatRoom = () => {
         };
       });
 
-      setChattings(parsedChats);
+      console.log("목록 왔다", parsedChats);
+
+      setChattings((prev) =>
+        pageToFetch === 1 ? parsedChats : [...parsedChats, ...prev]
+      );
 
       // 읽음 처리 요청
       axiosInstance.post("/chat/read", {
@@ -117,65 +210,86 @@ const ChatRoom = () => {
           room.userId === userId ? { ...room, unreadCount: 0 } : room
         )
       );
+
+      // hasMore는 데이터 개수가 limit보다 작으면 false
+      setHasMore(parsedChats.length === chatLimit);
+      setPage(pageToFetch);
+
+      // 렌더링이 끝난 뒤 scrollTop 조절
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          if (container) {
+            const newScrollHeight = container.scrollHeight;
+            container.scrollTop = newScrollHeight - prevScrollHeight;
+
+            // 최초 로딩 시 맨 아래로
+            if (pageToFetch === 1) scrollToBottom();
+          }
+        }, 0);
+      });
     } catch (e) {
       console.error("선택한 유저의 채팅 불러오기 실패:", e);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     // 채팅방 불러오기(자신의 담당 보호자-피보호자들)/새로고침시 가져오도록
     if (!adminId) return;
-    fetchChatRoomList();
+    fetchChatRoomList(1);
   }, [adminId]);
 
   useEffect(() => {
     if (!adminId) return;
 
-    console.log("선택된 userID", selectedUserId);
+    // console.log("선택된 userID", selectedUserId);
 
     // 소켓 연결
     socketRef.current = io(process.env.NEXT_PUBLIC_API_URL, {
       withCredentials: true,
     });
 
-    socketRef.current.off("receive_message");
-    socketRef.current.on("receive_message", (message: Chatting) => {
-      const date = dayjs(message.created_at).format("YYYY년 MM월 DD일");
-      const time = dayjs(message.created_at).format("A h:mm");
+    if (socketRef.current) {
+      socketRef.current.off("receive_message");
+      socketRef.current.on("receive_message", (message: Chatting) => {
+        const date = dayjs(message.created_at).format("YYYY년 MM월 DD일");
+        const time = dayjs(message.created_at).format("A h:mm");
 
-      const parsedMessage = {
-        ...message,
-        date,
-        time,
-      };
+        const parsedMessage = {
+          ...message,
+          date,
+          time,
+        };
 
-      // 현재 보고 있는 유저의 방일 때만 메시지 추가
-      if (message.user.id === selectedUserIdRef.current) {
-        setChattings((prev) => [...prev, parsedMessage]);
+        // 현재 보고 있는 유저의 방일 때만 메시지 추가
+        if (message.user.id === selectedUserIdRef.current) {
+          setChattings((prev) => [...prev, parsedMessage]);
 
-        // 읽음 처리 요청
-        axiosInstance.post("/chat/read", {
-          userId: selectedUserIdRef.current,
-          adminId,
-        });
-      }
+          // 읽음 처리 요청
+          axiosInstance.post("/chat/read", {
+            userId: selectedUserIdRef.current,
+            adminId,
+          });
+        }
 
-      setChatRoomList((prevRooms) =>
-        prevRooms.map((room) =>
-          room.userId === message.user.id
-            ? {
-                ...room,
-                lastMessage: message.message,
-                lastTime: message.created_at,
-                unreadCount:
-                  message.user.id === selectedUserId
-                    ? 0
-                    : (room.unreadCount || 0) + 1,
-              }
-            : room
-        )
-      );
-    });
+        setChatRoomList((prevRooms) =>
+          prevRooms.map((room) =>
+            room.userId === message.user.id
+              ? {
+                  ...room,
+                  lastMessage: message.message,
+                  lastTime: message.created_at,
+                  unreadCount:
+                    message.user.id === selectedUserId
+                      ? 0
+                      : (room.unreadCount || 0) + 1,
+                }
+              : room
+          )
+        );
+      });
+    }
 
     return () => {
       // 컴포넌트가 언마운트될 때 소켓 연결 종료
@@ -211,7 +325,16 @@ const ChatRoom = () => {
 
     try {
       // 소켓 실시간 메시지 전송
-      socketRef.current.emit("send_message", messageToSend);
+      socketRef.current.emit("send_message", messageToSend, (response: any) => {
+        if (response.status === "ok") {
+          setInputValue("");
+        } else {
+          notification.error({
+            message: "전송 실패",
+            description: response.error,
+          });
+        }
+      });
 
       // 입력창 초기화
       setInputValue("");
@@ -274,7 +397,7 @@ const ChatRoom = () => {
                 className={`chatroom_item ${
                   selectedUserId === room.userId ? "selected" : ""
                 }`}
-                onClick={() => handleSelectUser(room.userId)}
+                onClick={() => handleSelectUser(1, room.userId)}
                 onContextMenu={
                   room.isMatched
                     ? undefined
@@ -309,6 +432,7 @@ const ChatRoom = () => {
                 </div>
               </div>
             ))}
+            <div ref={targetRoomRef}></div>
           </>
         ) : (
           <div className="chatroom_unpeople">
@@ -325,7 +449,16 @@ const ChatRoom = () => {
             }`}
           >
             {selectedUserId ? (
-              <>
+              <div className="chat-scroll-wrapper" ref={scrollContainerRef}>
+                {/* 채팅창 위쪽 감지 */}
+                {hasMore && (
+                  <div
+                    ref={targetRef}
+                    style={{
+                      height: 1,
+                    }}
+                  />
+                )}
                 {Object.entries(groupDate).map(([date, messages]) => (
                   <div key={date}>
                     <div className="chatroom_date">{date}</div>
@@ -348,7 +481,7 @@ const ChatRoom = () => {
                   </div>
                 ))}
                 <div ref={bottomRef} />
-              </>
+              </div>
             ) : (
               <div className="chatroom_uncontent">채팅방을 선택해주세요.</div>
             )}
