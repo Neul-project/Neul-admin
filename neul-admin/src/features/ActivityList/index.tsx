@@ -108,6 +108,8 @@ const ActivityList = () => {
   const getUserlist = () => {
     if (!user?.id) return;
     const adminId = user?.id;
+
+    //console.log("adminId", adminId);
     //도우미 id에 따른 활동기록 전체 가져오기
     axiosInstance
       .get("/activity/selectlistall", { params: { adminId } })
@@ -158,7 +160,7 @@ const ActivityList = () => {
         const data = res.data;
 
         const mappedData: DataType[] = data.map((item: any, index: number) => ({
-          key: item.id ?? index,
+          key: item.id,
           name: item.patient.name + "(" + item.patient.id + ")" ?? "",
           title: item.title,
           type: getActivityLabel(item.type ?? ""),
@@ -172,9 +174,13 @@ const ActivityList = () => {
   useEffect(() => {
     if (!user?.id) return;
     const adminId = user?.id;
-
-    getUserlist();
     getTargetlist(adminId);
+    //console.log("d", patientId);
+    if (patientId) {
+      selectlist(patientId);
+    } else {
+      getUserlist();
+    }
   }, [user]);
 
   //antd select handleChange

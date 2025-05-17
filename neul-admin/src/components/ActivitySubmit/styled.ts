@@ -1,6 +1,17 @@
 import styled from "styled-components";
 
 export const ActivityStyled = styled.div`
+  .activitySubmit_error_message {
+    color: red;
+    font-size: 12px;
+  }
+  .activitySubmit_error_title {
+    text-align: end;
+  }
+  .activitySubmit_content {
+    margin-bottom: 20px;
+  }
+
   .activitySubmit_form {
     display: flex;
     flex-direction: column;
