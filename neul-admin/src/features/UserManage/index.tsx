@@ -7,6 +7,7 @@ import {
   Table,
   Input,
   notification,
+  ConfigProvider,
 } from "antd";
 import clsx from "clsx";
 import * as XLSX from "xlsx";
@@ -16,6 +17,7 @@ import axiosInstance from "@/lib/axios";
 import { UserManageStyled } from "./styled";
 import { useAuthStore } from "@/stores/useAuthStore";
 import type { SearchProps } from "antd/es/input";
+import { GreenTheme } from "@/utill/antdtheme";
 const { Search } = Input;
 
 const UserManage = () => {
@@ -334,71 +336,73 @@ const UserManage = () => {
   };
 
   return (
-    <UserManageStyled className={clsx("usermanage_wrap")}>
-      <div className="usermanage_title_box">
-        <TitleCompo title="회원 관리" />
-        <div>
-          <Button className="usermanage_delete_button" onClick={WithdrawUser}>
-            회원삭제
-          </Button>
-          <Button onClick={handleDownloadExcel}>엑셀 다운</Button>
-        </div>
-      </div>
-
-      <div className="usermanage_info">
-        <div className="usermanage_sort_box">
-          <div className="usermanage_total_num">총 {users.length}명</div>
-          <Select
-            className="usermanage_order"
-            value={userOrder}
-            options={sortOption}
-            onChange={(e) => {
-              setUserOrder(e);
-              setSortKey("created_at"); // 최신순/오래된순 정렬 기준을 가입일로 변경
-            }}
-          />
-        </div>
-        <div>
-          <Select
-            className="usermanage_search_select"
-            value={selectSearch}
-            options={searchOption}
-            onChange={handleChange}
-          />
-          <Search
-            placeholder="선택한 기준으로 검색"
-            allowClear
-            onSearch={onSearch}
-            style={{ width: 200 }}
-          />
-        </div>
-      </div>
-      <Table
-        rowSelection={rowSelection}
-        columns={columns}
-        dataSource={sortedUsers}
-        rowKey="key"
-        onRow={(record) => ({
-          onClick: () => {
-            setSelectedUser(record); // 클릭한 유저 데이터
-            setModalOpen(true); // 모달 열기
-          },
-        })}
-      />
-      <Modal
-        title="특이사항"
-        open={modalOpen}
-        onCancel={() => setModalOpen(false)}
-        footer={null}
-        centered
-      >
-        {selectedUser && (
+    <ConfigProvider theme={GreenTheme}>
+      <UserManageStyled className={clsx("usermanage_wrap")}>
+        <div className="usermanage_title_box">
+          <TitleCompo title="회원 관리" />
           <div>
-            <p>{selectedUser.patient_note}</p>
+            <Button className="usermanage_delete_button" onClick={WithdrawUser}>
+              회원삭제
+            </Button>
+            <Button onClick={handleDownloadExcel}>엑셀 다운</Button>
           </div>
-        )}
-      </Modal>
-    </UserManageStyled>
+        </div>
+
+        <div className="usermanage_info">
+          <div className="usermanage_sort_box">
+            <div className="usermanage_total_num">총 {users.length}명</div>
+            <Select
+              className="usermanage_order"
+              value={userOrder}
+              options={sortOption}
+              onChange={(e) => {
+                setUserOrder(e);
+                setSortKey("created_at"); // 최신순/오래된순 정렬 기준을 가입일로 변경
+              }}
+            />
+          </div>
+          <div>
+            <Select
+              className="usermanage_search_select"
+              value={selectSearch}
+              options={searchOption}
+              onChange={handleChange}
+            />
+            <Search
+              placeholder="선택한 기준으로 검색"
+              allowClear
+              onSearch={onSearch}
+              style={{ width: 200 }}
+            />
+          </div>
+        </div>
+        <Table
+          rowSelection={rowSelection}
+          columns={columns}
+          dataSource={sortedUsers}
+          rowKey="key"
+          onRow={(record) => ({
+            onClick: () => {
+              setSelectedUser(record); // 클릭한 유저 데이터
+              setModalOpen(true); // 모달 열기
+            },
+          })}
+        />
+        <Modal
+          title="특이사항"
+          open={modalOpen}
+          onCancel={() => setModalOpen(false)}
+          footer={null}
+          centered
+        >
+          {selectedUser && (
+            <div>
+              <p>{selectedUser.patient_note}</p>
+            </div>
+          )}
+        </Modal>
+      </UserManageStyled>
+    </ConfigProvider>
   );
 };
 

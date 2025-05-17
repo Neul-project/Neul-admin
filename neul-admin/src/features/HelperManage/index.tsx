@@ -145,16 +145,16 @@ const HelperManage = () => {
   ];
 
   return (
-    <HelperManageStyled className={clsx("helpermanage_wrap")}>
-      <div className="helpermanage_title_box">
-        <TitleCompo title="담당 회원" />
-        <Button onClick={handleDownloadExcel}>엑셀 다운</Button>
-      </div>
+    <ConfigProvider theme={GreenTheme}>
+      <HelperManageStyled className={clsx("helpermanage_wrap")}>
+        <div className="helpermanage_title_box">
+          <TitleCompo title="담당 회원" />
+          <Button onClick={handleDownloadExcel}>엑셀 다운</Button>
+        </div>
 
-      <div className="helpermanage_info">
-        <div className="helpermanage_sort_box">
-          <div className="helpermanage_total_num">총 {users.length}명</div>
-          <ConfigProvider theme={GreenTheme}>
+        <div className="helpermanage_info">
+          <div className="helpermanage_sort_box">
+            <div className="helpermanage_total_num">총 {users.length}명</div>
             <Select
               className="helpermanage_order"
               value={userOrder}
@@ -164,34 +164,34 @@ const HelperManage = () => {
                 setSortKey("created_at"); // 최신순/오래된순 정렬 기준을 가입일로 변경
               }}
             />
-          </ConfigProvider>
-        </div>
-      </div>
-      <Table
-        columns={columns}
-        dataSource={sortedUsers}
-        rowKey="key"
-        onRow={(record) => ({
-          onClick: () => {
-            setSelectedUser(record); // 클릭한 유저 데이터
-            setModalOpen(true); // 모달 열기
-          },
-        })}
-      />
-      <Modal
-        title="특이사항"
-        open={modalOpen}
-        onCancel={() => setModalOpen(false)}
-        footer={null}
-        centered
-      >
-        {selectedUser && (
-          <div>
-            <p>{selectedUser.patient_note}</p>
           </div>
-        )}
-      </Modal>
-    </HelperManageStyled>
+        </div>
+        <Table
+          columns={columns}
+          dataSource={sortedUsers}
+          rowKey="key"
+          onRow={(record) => ({
+            onClick: () => {
+              setSelectedUser(record); // 클릭한 유저 데이터
+              setModalOpen(true); // 모달 열기
+            },
+          })}
+        />
+        <Modal
+          title="특이사항"
+          open={modalOpen}
+          onCancel={() => setModalOpen(false)}
+          footer={null}
+          centered
+        >
+          {selectedUser && (
+            <div>
+              <p>{selectedUser.patient_note}</p>
+            </div>
+          )}
+        </Modal>
+      </HelperManageStyled>
+    </ConfigProvider>
   );
 };
 

@@ -5,8 +5,9 @@ import { SidebarStyled } from "./styled";
 import { Layout, Menu, ConfigProvider } from "antd";
 import clsx from "clsx";
 import { sidebarMenus } from "@/utill/createSideMenu";
-import { StatusTheme } from "@/components/StatusWrite/styled";
+//import { StatusTheme } from "@/components/StatusWrite/styled";
 import { AntdGlobalTheme } from "@/utill/antdtheme";
+import { GreenTheme } from "@/utill/antdtheme";
 
 export interface SidebarProps {
   className?: string;
@@ -17,8 +18,8 @@ const Sidebar = ({ className, children }: SidebarProps) => {
   const router = useRouter();
 
   return (
-    <SidebarStyled className={clsx("Sidebar", className)}>
-      <ConfigProvider theme={StatusTheme}>
+    <ConfigProvider theme={GreenTheme}>
+      <SidebarStyled className={clsx("Sidebar", className)}>
         <div>
           {/*
         // @ts-ignore */}
@@ -46,8 +47,8 @@ const Sidebar = ({ className, children }: SidebarProps) => {
             </Layout>
           </Layout>
         </div>
-      </ConfigProvider>
-    </SidebarStyled>
+      </SidebarStyled>
+    </ConfigProvider>
   );
 };
 

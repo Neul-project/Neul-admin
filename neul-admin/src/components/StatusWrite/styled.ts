@@ -12,5 +12,3 @@ export const StatusWriteStyled = styled.div`
     }
   }
 `;
-
-export const StatusTheme = { token: { colorPrimary: "#5da487" } };
