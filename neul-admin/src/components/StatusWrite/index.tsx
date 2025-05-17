@@ -8,12 +8,13 @@ import {
   notification,
   Input,
 } from "antd";
-import { StatusTheme, StatusWriteStyled } from "./styled";
+import { StatusWriteStyled } from "./styled";
 import axiosInstance from "@/lib/axios";
 import clsx from "clsx";
 import TitleCompo from "@/components/TitleCompo";
 import { useRouter } from "next/router";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { GreenTheme } from "@/utill/antdtheme";
 const { TextArea } = Input;
 
 interface PatientType {
@@ -169,7 +170,7 @@ const StatusWrite = ({ _data, getStatusList, setModalVisible }: DataProps) => {
           title={_data ? `${_data?.patient.name}님의 상태 상세` : "상태 기록"}
         />
         <br />
-        <ConfigProvider theme={StatusTheme}>
+        <ConfigProvider theme={GreenTheme}>
           <Form.Item
             name="patient_id"
             label="피보호자"
@@ -184,7 +185,7 @@ const StatusWrite = ({ _data, getStatusList, setModalVisible }: DataProps) => {
         </ConfigProvider>
 
         {/* 컨디션 */}
-        <ConfigProvider theme={StatusTheme}>
+        <ConfigProvider theme={GreenTheme}>
           <Form.Item
             name="condition"
             label="컨디션"
@@ -198,7 +199,7 @@ const StatusWrite = ({ _data, getStatusList, setModalVisible }: DataProps) => {
         </ConfigProvider>
 
         {/* 식사량 */}
-        <ConfigProvider theme={StatusTheme}>
+        <ConfigProvider theme={GreenTheme}>
           {["아침 식사량", "점심 식사량", "저녁 식사량"].map((meal, i) => (
             <Form.Item
               key={i}
@@ -220,7 +221,7 @@ const StatusWrite = ({ _data, getStatusList, setModalVisible }: DataProps) => {
         </ConfigProvider>
 
         {/* 약 복용 여부 */}
-        <ConfigProvider theme={StatusTheme}>
+        <ConfigProvider theme={GreenTheme}>
           <Form.Item
             name="medication"
             label="약 복용 여부"
@@ -235,7 +236,7 @@ const StatusWrite = ({ _data, getStatusList, setModalVisible }: DataProps) => {
         </ConfigProvider>
 
         {/* 수면시간 */}
-        <ConfigProvider theme={StatusTheme}>
+        <ConfigProvider theme={GreenTheme}>
           <Form.Item
             name="sleep"
             label="수면 시간"
@@ -246,7 +247,7 @@ const StatusWrite = ({ _data, getStatusList, setModalVisible }: DataProps) => {
         </ConfigProvider>
 
         {/* 통증여부 */}
-        <ConfigProvider theme={StatusTheme}>
+        <ConfigProvider theme={GreenTheme}>
           <Form.Item
             name="pain"
             label="통증 여부"
@@ -257,14 +258,14 @@ const StatusWrite = ({ _data, getStatusList, setModalVisible }: DataProps) => {
         </ConfigProvider>
 
         {/* 특이사항 */}
-        <ConfigProvider theme={StatusTheme}>
+        <ConfigProvider theme={GreenTheme}>
           <Form.Item name="note" label="특이사항">
             <TextArea placeholder="특이사항을 입력해주세요" autoSize />
           </Form.Item>
         </ConfigProvider>
 
         {/* 등록 버튼 */}
-        <ConfigProvider theme={StatusTheme}>
+        <ConfigProvider theme={GreenTheme}>
           <Form.Item>
             <Button type="primary" htmlType="submit" block>
               {_data ? "수정" : "등록"}
