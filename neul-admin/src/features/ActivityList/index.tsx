@@ -115,7 +115,7 @@ const ActivityList = () => {
       .get("/activity/selectlistall", { params: { adminId } })
       .then((res) => {
         //console.log("activity targetlist res", res.data);
-        const data = res.data;
+        const data = res.data.reverse();
         const mappedData: DataType[] = data.map((item: any, index: number) => ({
           key: item.id,
           name: item.patient.name + "(" + item.patient.id + ")" ?? "",
@@ -157,7 +157,7 @@ const ActivityList = () => {
       .get("/activity/selectlist", { params: { adminId, patientId } })
       .then((res) => {
         //console.log("activity selectlist res", res.data);
-        const data = res.data;
+        const data = res.data.reverse();
 
         const mappedData: DataType[] = data.map((item: any, index: number) => ({
           key: item.id,

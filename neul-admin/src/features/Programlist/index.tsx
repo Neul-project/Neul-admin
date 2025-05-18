@@ -169,14 +169,16 @@ const Programlist = () => {
 
   const getprogramlist = () => {
     axiosInstance.get("/program/list").then((res) => {
-      const programList = res.data.map((item: any, index: number) => ({
-        num: index + 1,
-        key: item.id,
-        title: item.name,
-        manager: item.manager,
-        price: formatPrice(item.price),
-        origin: item,
-      }));
+      const programList = res.data
+        .reverse()
+        .map((item: any, index: number) => ({
+          num: index + 1,
+          key: item.id,
+          title: item.name,
+          manager: item.manager,
+          price: formatPrice(item.price),
+          origin: item,
+        }));
 
       setList(programList);
     });
