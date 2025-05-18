@@ -25,9 +25,7 @@ export default function useInfiniteScroll({
 
     observerRef.current = new IntersectionObserver(
       ([entry]) => {
-        // console.log("IntersectionObserver callback:", entry.isIntersecting);
         if (entry.isIntersecting && hasMore && !loading) {
-          console.log("무한 스크롤 타겟이 화면에 보임! onIntersect 호출");
           onIntersect();
         }
       },

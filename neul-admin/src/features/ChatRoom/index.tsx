@@ -74,7 +74,7 @@ const ChatRoom = () => {
   const adminId = useAuthStore((state) => state.user?.id);
 
   // 채팅방
-  const chatRoomLimit = 11;
+  const chatRoomLimit = 12;
 
   // 채팅창
   const chatLimit = 20;
@@ -423,9 +423,9 @@ const ChatRoom = () => {
                     <span className="chatroom_unread">{room.unreadCount}</span>
                   ) : null}
                 </div>
+                <div ref={targetRoomRef}></div>
               </div>
             ))}
-            <div ref={targetRoomRef}></div>
           </>
         ) : (
           <div className="chatroom_unpeople">
@@ -434,79 +434,73 @@ const ChatRoom = () => {
         )}
       </div>
       {/* 채팅 내용 */}
-      <div className="chatroom_content_wrap">
-        <div className="chatroom_content_box">
-          <div
-            className={`chatroom_content ${
-              selectedUserId !== null ? "active" : ""
-            }`}
-          >
-            {selectedUserId ? (
-              <div className="chat-scroll-wrapper" ref={scrollContainerRef}>
-                {/* 채팅창 위쪽 감지 */}
-                {hasMore && (
-                  <div
-                    ref={targetRef}
-                    style={{
-                      height: 1,
-                    }}
-                  />
-                )}
-                {Object.entries(groupDate).map(([date, messages]) => (
-                  <div key={date}>
-                    <div className="chatroom_date">{date}</div>
-                    {messages.map((chat, i) => {
-                      const currentTime = chat.time;
-                      const nextTime = messages[i + 1]?.time;
-                      const nextSender = messages[i + 1]?.sender;
-                      const shouldShowTime =
-                        chat.sender !== nextSender || currentTime !== nextTime;
-                      return (
-                        <ChatMessage
-                          key={i}
-                          name={i === 0 || shouldShowTime ? chat.user.name : ""}
-                          message={chat.message}
-                          time={shouldShowTime ? chat.time : ""}
-                          sender={chat.sender}
-                        />
-                      );
-                    })}
-                  </div>
-                ))}
-                <div ref={bottomRef} />
-              </div>
-            ) : (
-              <div className="chatroom_uncontent">채팅방을 선택해주세요.</div>
-            )}
-          </div>
-          {/* 보내는 메시지 */}
-          {selectedUserId && (
-            <div className="chatroom_message_box">
-              <div className="chatroom_message">
-                <input
-                  type="text"
-                  placeholder={
-                    currentRoom?.isMatched
-                      ? "메시지 입력"
-                      : "매칭이 끊겨 더 이상의 채팅은 불가능합니다."
-                  }
-                  value={inputValue}
-                  onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                  onChange={(e) => {
-                    setInputValue(e.target.value);
+      <div className="chatroom_content_box">
+        <div className="chatroom_content">
+          {selectedUserId ? (
+            <div className="chat-scroll-wrapper" ref={scrollContainerRef}>
+              {/* 채팅창 위쪽 감지 */}
+              {hasMore && (
+                <div
+                  ref={targetRef}
+                  style={{
+                    height: 1,
                   }}
-                  readOnly={!currentRoom?.isMatched}
                 />
-              </div>
-              <SendOutlined
-                className={`chatroom_sendbtn ${
-                  inputValue.trim() === "" ? "chatroom_disabled" : ""
-                }`}
-                onClick={sendMessage}
-              />
+              )}
+              {Object.entries(groupDate).map(([date, messages]) => (
+                <div key={date}>
+                  <div className="chatroom_date">{date}</div>
+                  {messages.map((chat, i) => {
+                    const currentTime = chat.time;
+                    const nextTime = messages[i + 1]?.time;
+                    const nextSender = messages[i + 1]?.sender;
+                    const shouldShowTime =
+                      chat.sender !== nextSender || currentTime !== nextTime;
+                    return (
+                      <ChatMessage
+                        key={i}
+                        name={i === 0 || shouldShowTime ? chat.user.name : ""}
+                        message={chat.message}
+                        time={shouldShowTime ? chat.time : ""}
+                        sender={chat.sender}
+                      />
+                    );
+                  })}
+                </div>
+              ))}
+              <div ref={bottomRef} />
             </div>
+          ) : (
+            <div className="chatroom_uncontent">채팅방을 선택해주세요.</div>
           )}
         </div>
+        {/* 보내는 메시지 */}
+        {selectedUserId && (
+          <div className="chatroom_message_box">
+            <div className="chatroom_message">
+              <input
+                type="text"
+                placeholder={
+                  currentRoom?.isMatched
+                    ? "메시지 입력"
+                    : "매칭이 끊겨 더 이상의 채팅은 불가능합니다."
+                }
+                value={inputValue}
+                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                onChange={(e) => {
+                  setInputValue(e.target.value);
+                }}
+                readOnly={!currentRoom?.isMatched}
+              />
+            </div>
+            <SendOutlined
+              className={`chatroom_sendbtn ${
+                inputValue.trim() === "" ? "chatroom_disabled" : ""
+              }`}
+              onClick={sendMessage}
+            />
+          </div>
+        )}
       </div>
     </ChatRoomStyled>
   );
