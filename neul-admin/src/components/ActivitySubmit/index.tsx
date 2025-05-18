@@ -1,7 +1,7 @@
 import { ActivityStyled, ActivityTheme } from "./styled";
 import { StatusTheme } from "@/features/StatusList/styled";
 import { useFormik } from "formik";
-import * as Yup from "yup";
+
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axios";
@@ -27,6 +27,7 @@ import "swiper/css/pagination";
 import { Pagination, A11y } from "swiper/modules";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { AntdGlobalTheme } from "@/utill/antdtheme";
+import { activityValidationSchema } from "./activityValidation";
 
 //활동 기록 등록 컴포넌트 - formik 작성
 const ActivitySubmit = (props: {
@@ -221,9 +222,9 @@ const ActivitySubmit = (props: {
         router.push("/activity/write");
       }
     },
-    validationSchema: Yup.object({
-      title: Yup.string().required("제목을 입력해 주세요."),
-    }),
+    validationSchema: activityValidationSchema,
+    validateOnChange: true,
+    validateOnBlur: true,
   });
 
   return (
@@ -247,6 +248,11 @@ const ActivitySubmit = (props: {
             />
           </ConfigProvider>
         </div>
+        {typeof activityformik.errors.patient_id === "string" && (
+          <div className="activitySubmit_error_message  activitySubmit_error_title">
+            {activityformik.errors.patient_id}
+          </div>
+        )}
         {/* 제목 */}
         <div className="activitySubmit_title">
           <div className="activitySubmit_text">제목</div>
@@ -328,7 +334,6 @@ const ActivitySubmit = (props: {
             </div>
           </div>
         </div>
-
         {/* 활동종류 & 재활 치료 */}
         <div
           className={`activitySubmit_type ${
@@ -337,45 +342,62 @@ const ActivitySubmit = (props: {
         >
           {/* 활동종류 */}
           <div>
-            <div className="activitySubmit_text">활동 종류</div>
-            <ConfigProvider theme={StatusTheme}>
-              <Select
-                className="activitySubmit_select"
-                value={
-                  com_type === "modify" ? type : activityformik.values.type
-                }
-                onChange={(value) => {
-                  setType(value);
-                  activityformik.setFieldValue("type", value);
-                }}
-                options={activityOptions}
-              />
-            </ConfigProvider>
+            <div className="activitySubmit_content">
+              <div className="activitySubmit_text">활동 종류</div>
+              <ConfigProvider theme={StatusTheme}>
+                <Select
+                  className="activitySubmit_select"
+                  value={
+                    com_type === "modify" ? type : activityformik.values.type
+                  }
+                  onChange={(value) => {
+                    setType(value);
+                    activityformik.setFieldValue("type", value);
+                  }}
+                  options={activityOptions}
+                />
+              </ConfigProvider>
+            </div>
+            {activityformik.touched.type && activityformik.errors.type && (
+              <div className="activitySubmit_error_message">
+                {activityformik.errors.type}
+              </div>
+            )}
           </div>
 
           {/* 재활 치료 */}
           <div>
-            <div className="activitySubmit_text">재활 치료</div>
-
-            <ConfigProvider theme={StatusTheme}>
-              <Radio.Group
-                buttonStyle="solid"
-                value={activityformik.values.rehabilitation}
-                onChange={(e) =>
-                  activityformik.setFieldValue("rehabilitation", e.target.value)
-                }
-              >
-                <Radio.Button className="activitySubmit_radio" value="yes">
-                  참여
-                </Radio.Button>
-                <Radio.Button className="activitySubmit_radio" value="no">
-                  미참여
-                </Radio.Button>
-                <Radio.Button className="activitySubmit_radio" value="none">
-                  비대상
-                </Radio.Button>
-              </Radio.Group>
-            </ConfigProvider>
+            <div className="activitySubmit_content">
+              <div className="activitySubmit_text">재활 치료</div>
+              <ConfigProvider theme={StatusTheme}>
+                <Radio.Group
+                  buttonStyle="solid"
+                  value={activityformik.values.rehabilitation}
+                  onChange={(e) =>
+                    activityformik.setFieldValue(
+                      "rehabilitation",
+                      e.target.value
+                    )
+                  }
+                >
+                  <Radio.Button className="activitySubmit_radio" value="yes">
+                    참여
+                  </Radio.Button>
+                  <Radio.Button className="activitySubmit_radio" value="no">
+                    미참여
+                  </Radio.Button>
+                  <Radio.Button className="activitySubmit_radio" value="none">
+                    비대상
+                  </Radio.Button>
+                </Radio.Group>
+              </ConfigProvider>
+            </div>
+            {activityformik.touched.rehabilitation &&
+              activityformik.errors.rehabilitation && (
+                <div className="activitySubmit_error_message ">
+                  {activityformik.errors.rehabilitation}
+                </div>
+              )}
           </div>
         </div>
 
@@ -397,7 +419,11 @@ const ActivitySubmit = (props: {
             />
           </ConfigProvider>
         </div>
-
+        {activityformik.touched.note && activityformik.errors.note && (
+          <div className="activitySubmit_error_message">
+            {activityformik.errors.note}
+          </div>
+        )}
         <div className="activitySubmit_record_div">
           <ConfigProvider theme={StatusTheme}>
             <Button

@@ -6,8 +6,9 @@ import { HeaderStyled } from "./styled";
 import clsx from "clsx";
 import { useAuthStore } from "@/stores/useAuthStore";
 import type { MenuProps } from "antd";
-import { Dropdown, Modal } from "antd";
+import { Button, ConfigProvider, Dropdown, Modal } from "antd";
 import Cookies from "js-cookie";
+import { GreenTheme } from "@/utill/antdtheme";
 
 export interface HeaderProps {
   className?: string;
@@ -86,8 +87,18 @@ const Header = ({ className }: HeaderProps) => {
           title="로그아웃"
           closable={{ "aria-label": "Custom Close Button" }}
           open={isModalOpen}
-          onOk={handleOk}
-          onCancel={handleCancel}
+          // onOk={handleOk}
+          //onCancel={handleCancel}
+          footer={[
+            <ConfigProvider theme={GreenTheme}>
+              <Button key="close" onClick={handleCancel}>
+                취소
+              </Button>
+              <Button key="complete" type="primary" onClick={handleOk}>
+                로그아웃
+              </Button>
+            </ConfigProvider>,
+          ]}
         >
           <div>정말로 로그아웃 하시겠습니까?</div>
         </Modal>

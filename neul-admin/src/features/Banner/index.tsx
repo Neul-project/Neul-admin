@@ -33,15 +33,15 @@ const Banner = () => {
       righturl: "",
     },
     onSubmit: async (values) => {
-      //console.log("values", values);
+      console.log("values", values);
       const formData = new FormData();
       if (values.leftimg) formData.append("img", values.leftimg || arr[0]);
       if (values.rightimg) formData.append("img", values.rightimg || arr[1]);
       formData.append("lefturl", values.lefturl);
       formData.append("righturl", values.righturl);
 
-      //console.log("FormData 내용:", Array.from(formData.entries()));
-      //return;
+      // console.log("FormData 내용:", Array.from(formData.entries()));
+      // return;
 
       try {
         await axiosInstance.post("/banner/registration", formData, {
@@ -143,11 +143,15 @@ const Banner = () => {
               name="lefturl"
               placeholder="링크를 입력하시오"
               className="Banner_title"
+              value={formik.values.lefturl}
+              onChange={formik.handleChange}
             />
             <Input
               name="righturl"
               placeholder="링크를 입력하시오"
               className="Banner_title"
+              value={formik.values.righturl}
+              onChange={formik.handleChange}
             />
           </ConfigProvider>
         </div>

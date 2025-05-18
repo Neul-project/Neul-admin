@@ -61,7 +61,7 @@ const Feedback = () => {
     //피드백 내용 전체 불러오기
     axiosInstance.get(`/activity/feedback/views`).then((res) => {
       const data = res.data;
-      console.log("data", data);
+      //console.log("data", data);
       const mappedList: DataType[] = data.map((item: any, index: number) => ({
         key: item.id,
         number: index + 1,
