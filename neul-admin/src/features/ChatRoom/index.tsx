@@ -74,7 +74,7 @@ const ChatRoom = () => {
   const adminId = useAuthStore((state) => state.user?.id);
 
   // 채팅방
-  const chatRoomLimit = 10;
+  const chatRoomLimit = 11;
 
   // 채팅창
   const chatLimit = 20;
@@ -89,7 +89,7 @@ const ChatRoom = () => {
   const fetchNextPage = async () => {
     if (loading || !hasMore || isFetching.current) return;
     if (selectedUserIdRef.current === null) return;
-    console.log("실행하자");
+
     isFetching.current = true;
     const nextPage = page + 1;
 
@@ -106,8 +106,7 @@ const ChatRoom = () => {
   // 채팅방 아래쪽 감지해서 요청
   const fetchNextRoomPage = async () => {
     if (loadingRoom || !hasMoreRoom || isFetchingRoom.current) return;
-    if (pageRoom === 1) return; // 첫 페이지 로딩 완료 전엔 호출 막기
-    console.log("실행하자Room");
+
     isFetchingRoom.current = true;
     const nextPageRoom = pageRoom + 1;
 
@@ -135,13 +134,12 @@ const ChatRoom = () => {
         params: { adminId, page: pageToFetch, limit: chatRoomLimit },
       });
 
-      console.log("채팅방 목록 ", res.data);
       setChatRoomList((prev) =>
-        pageToFetch === 1 ? res.data : [...res.data, ...prev]
+        pageToFetch === 1 ? res.data : [...prev, ...res.data]
       );
 
       // hasMore는 데이터 개수가 limit보다 작으면 false
-      setHasMoreRoom(res.data.length === chatRoomLimit);
+      setHasMoreRoom(res.data.length >= chatRoomLimit);
       setPageRoom(pageToFetch);
 
       // 렌더링이 끝난 뒤 scrollTop 조절
@@ -164,7 +162,6 @@ const ChatRoom = () => {
     setSelectedUserId(userId);
     selectedUserIdRef.current = userId;
 
-    console.log("fetchChatMessages 호출, page:", pageToFetch);
     const container = scrollContainerRef.current;
     const prevScrollHeight = container?.scrollHeight ?? 0;
 
@@ -191,8 +188,6 @@ const ChatRoom = () => {
           time,
         };
       });
-
-      console.log("목록 왔다", parsedChats);
 
       setChattings((prev) =>
         pageToFetch === 1 ? parsedChats : [...parsedChats, ...prev]
@@ -242,8 +237,6 @@ const ChatRoom = () => {
 
   useEffect(() => {
     if (!adminId) return;
-
-    // console.log("선택된 userID", selectedUserId);
 
     // 소켓 연결
     socketRef.current = io(process.env.NEXT_PUBLIC_API_URL, {
