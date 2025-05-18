@@ -18,7 +18,7 @@ export const ProgramlistStyled = styled.div`
     }
 
     .ant-pagination-item {
-      border-color: #5da487 !important;
+      border-color: none !important;
       color: #5da487 !important;
     }
 

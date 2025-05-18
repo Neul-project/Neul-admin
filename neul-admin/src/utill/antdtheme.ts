@@ -28,7 +28,7 @@ export const AntdGlobalTheme = {
       itemActiveBg: "#fff", // 활성 페이지 배경색
       itemActiveColor: "#ffffff", // 활성 페이지 텍스트 색
       colorText: "#333", // 비활성 텍스트 색
-      itemBorder: "#5da487",
+      itemBorder: "#fff",
     },
     Menu: {
       colorItemBg: "#fff", // 전체 배경색

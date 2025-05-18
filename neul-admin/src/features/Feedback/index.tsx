@@ -4,6 +4,7 @@ import axiosInstance from "@/lib/axios";
 import { Table, TableProps, Select, Modal, Button, ConfigProvider } from "antd";
 import { AntdGlobalTheme, paginationstyle } from "@/utill/antdtheme";
 import { formatDate } from "@/utill/activityoptionlist";
+import FeedbackModal from "../FeedbackModal";
 
 interface DataType {
   key: number;
@@ -61,7 +62,7 @@ const Feedback = () => {
     //피드백 내용 전체 불러오기
     axiosInstance.get(`/activity/feedback/views`).then((res) => {
       const data = res.data;
-      //console.log("data", data);
+      console.log("data", data);
       const mappedList: DataType[] = data.map((item: any, index: number) => ({
         key: item.id,
         number: index + 1,
@@ -135,16 +136,7 @@ const Feedback = () => {
         onCancel={() => setIsModalOpen(false)}
         footer={null}
       >
-        {selectedRecord && (
-          <div className="Feedback_content">
-            <div className="Feedback_content_row">
-              <strong>내용 :</strong> {selectedRecord.content}
-            </div>
-            <div className="Feedback_content_row">
-              <strong>날짜 :</strong> {selectedRecord.date}
-            </div>
-          </div>
-        )}
+        <FeedbackModal selectedRecord={selectedRecord} />
       </StyledModal>
     </FeedbackStyled>
   );
