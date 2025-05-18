@@ -47,7 +47,7 @@ export const ActivityListStyled = styled.div`
   }
 `;
 
-export const ㄹ = styled(Modal)`
+export const StyledModal = styled(Modal)`
   .ant-modal-content {
     padding: 0px 10px 20px 20px;
 
