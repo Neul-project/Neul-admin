@@ -142,7 +142,7 @@ const ChatRoom = () => {
       setHasMoreRoom(res.data.length >= chatRoomLimit);
       setPageRoom(pageToFetch);
 
-      // 렌더링이 끝난 뒤 scrollTop 조절
+      // 렌더링이 끝난 뒤 scrollTop 조절(스크롤 높이 차이만큼 위로 올려주는 방식)
       requestAnimationFrame(() => {
         setTimeout(() => {
           if (containerRoom) {
@@ -163,6 +163,7 @@ const ChatRoom = () => {
     selectedUserIdRef.current = userId;
 
     const container = scrollContainerRef.current;
+    const prevScrollTop = container?.scrollTop ?? 0;
     const prevScrollHeight = container?.scrollHeight ?? 0;
 
     setLoading(true);
@@ -212,15 +213,11 @@ const ChatRoom = () => {
 
       // 렌더링이 끝난 뒤 scrollTop 조절
       requestAnimationFrame(() => {
-        setTimeout(() => {
-          if (container) {
-            const newScrollHeight = container.scrollHeight;
-            container.scrollTop = newScrollHeight - prevScrollHeight;
-
-            // 최초 로딩 시 맨 아래로
-            if (pageToFetch === 1) scrollToBottom();
-          }
-        }, 0);
+        if (container) {
+          const newScrollHeight = container.scrollHeight;
+          container.scrollTop =
+            newScrollHeight - (prevScrollHeight - prevScrollTop);
+        }
       });
     } catch (e) {
       console.error("선택한 유저의 채팅 불러오기 실패:", e);
@@ -291,9 +288,11 @@ const ChatRoom = () => {
     };
   }, [selectedUserId]);
 
-  // 새로운 채팅이 추가될 때마다 자동으로 스크롤 맨 아래로
   useEffect(() => {
-    scrollToBottom();
+    if (!loading && !isFetching.current) {
+      // 맨 아래에서 새 메시지가 추가된 경우만 스크롤 이동
+      scrollToBottom();
+    }
   }, [chattings]);
 
   // 날짜별로 그룹화
