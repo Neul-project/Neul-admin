@@ -10,6 +10,7 @@ export const DashStyled = styled.div`
       font-size: 15px;
     }
   }
+
   .DashPage_content {
     display: flex;
     width: 100%;
@@ -26,9 +27,27 @@ export const DashStyled = styled.div`
       width: 65%;
       height: 50%;
     }
+
     .DashPage_gender {
       width: 30%;
       height: 50%;
+    }
+  }
+
+  .DashPage_program_content {
+    display: flex;
+    width: 65%;
+    margin-top: 30px;
+
+    .DashPage_program {
+      width: 100%;
+      height: 100%;
+
+      .DashPage_title {
+        font-size: 17px;
+        font-weight: bolder;
+        margin-bottom: 10px;
+      }
     }
   }
 `;

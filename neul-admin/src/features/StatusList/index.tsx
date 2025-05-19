@@ -32,7 +32,6 @@ const StatusList = () => {
 
   const router = useRouter();
   const adminId = useAuthStore((state) => state.user?.id);
-  console.log("관리자 id", adminId);
 
   const medicationMap: any = {
     yes: "예",

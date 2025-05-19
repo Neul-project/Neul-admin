@@ -212,7 +212,7 @@ const Programlist = () => {
           </Modal>
         </ConfigProvider>
         <ConfigProvider theme={AntdGlobalTheme}>
-          <Button onClick={execelDowonload}>엑셀 다운받기</Button>
+          <Button onClick={execelDowonload}>엑셀 다운</Button>
         </ConfigProvider>
       </div>
       <div>

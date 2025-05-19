@@ -26,7 +26,8 @@ const FeedbackModal = (props: { selectedRecord: any }) => {
               "/uploads/audio/" +
               selectedRecord.content
             }
-            onPlay={() => console.log("onPlay")}
+            showJumpControls={false}
+            //onPlay={() => console.log("onPlay")}
           />
         )}
       </div>
