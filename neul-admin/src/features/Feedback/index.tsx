@@ -29,9 +29,9 @@ const Feedback = () => {
 
   const columns: TableProps<DataType>["columns"] = [
     { title: "번호", dataIndex: "number", key: "number" },
+    { title: "활동기록", dataIndex: "activity", key: "activity" },
     { title: "내용", dataIndex: "content", key: "content" },
     { title: "날짜", dataIndex: "date", key: "date" },
-
     {
       key: "typeBtn",
       title: "상세",
@@ -40,8 +40,6 @@ const Feedback = () => {
           <Button
             onClick={() => {
               //console.log("re", record);
-              //setUserName(record.name);
-              //setRowId(record.original);
               setSelectedRecord(record);
               setIsModalOpen(true);
             }}
@@ -62,10 +60,11 @@ const Feedback = () => {
     //피드백 내용 전체 불러오기
     axiosInstance.get(`/activity/feedback/views`).then((res) => {
       const data = res.data;
-      console.log("data", data);
+      //console.log("data", data);
       const mappedList: DataType[] = data.map((item: any, index: number) => ({
         key: item.id,
         number: index + 1,
+        activity: item.activity.title,
         content: item.message,
         date: formatDate(item.recorded_at),
         admin: item.activity.id,
@@ -82,8 +81,10 @@ const Feedback = () => {
       //전체 feedback내용 보여지기
       axiosInstance.get("/activity/feedback/views").then((res) => {
         const data = res.data;
-        const mappedList: DataType[] = data.map((item: any) => ({
+        const mappedList: DataType[] = data.map((item: any, index: number) => ({
           key: item.id,
+          number: index + 1,
+          activity: item.activity.title,
           content: item.message,
           date: formatDate(item.recorded_at),
           admin: item.activity.id,
@@ -100,13 +101,17 @@ const Feedback = () => {
         .then((res) => {
           //console.log("activity feedback view res", res.data);
           const data = res.data;
-          const mappedList: DataType[] = data.map((item: any) => ({
-            key: item.id,
-            content: item.message,
-            date: formatDate(item.recorded_at),
-            admin: item.activity.id,
-            origin: item,
-          }));
+          const mappedList: DataType[] = data.map(
+            (item: any, index: number) => ({
+              key: item.id,
+              number: index + 1,
+              activity: item.activity.title,
+              content: item.message,
+              date: formatDate(item.recorded_at),
+              admin: item.activity.id,
+              origin: item,
+            })
+          );
 
           setList(mappedList);
         });

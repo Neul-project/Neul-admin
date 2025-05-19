@@ -39,7 +39,13 @@ export const BannerStyled = styled.div`
     .Banner_btns {
       display: flex;
       justify-content: space-around;
-      padding: 8px 0px;
+      padding: 10px 0px;
+
+      .Banner_error {
+        color: red;
+        margin-top: 4px;
+        margin-left: -40px;
+      }
     }
 
     .Banner_save {
@@ -49,9 +55,13 @@ export const BannerStyled = styled.div`
       margin-bottom: 13px;
     }
 
-    .Banner_input {
+    .Banner_inputs {
       display: flex;
       gap: 20px;
+
+      .Banner_input {
+        width: 50%;
+      }
     }
   }
 `;
