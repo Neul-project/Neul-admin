@@ -19,32 +19,7 @@ interface RefundItem {
 }
 
 const RefundPage = () => {
-  const [dataSource, setDataSource] = useState<RefundItem[]>([
-    {
-      id: 1,
-      programId: 4,
-      requester: "홍길동",
-      bank: "국민은행",
-      account: "12345678910111",
-      depositor: "홍길동",
-      reason: "개인 사정으로 인한 환불 요청",
-      programName: "미술치료 프로그램",
-      email: "hong@example.com",
-      phone: "01012345678",
-    },
-    {
-      id: 2,
-      programId: 5,
-      requester: "김영희",
-      bank: "신한은행",
-      account: "98765432101112",
-      depositor: "김영희",
-      reason: "중복 신청으로 인한 환불",
-      programName: "언어치료 프로그램",
-      email: "kim@example.com",
-      phone: "01098765432",
-    },
-  ]);
+  const [dataSource, setDataSource] = useState<RefundItem[]>([]);
 
   // 환불 리스트 요청
   useEffect(() => {
@@ -55,7 +30,7 @@ const RefundPage = () => {
         );
 
         console.log("환불 리스트 응답", res.data);
-        setDataSource(res.data);
+        // setDataSource(res.data);
       } catch (error) {
         console.error("환불 리스트 불러오기 실패:", error);
       }
@@ -162,7 +137,7 @@ const RefundPage = () => {
         columns={columns}
         dataSource={dataSource}
         pagination={{ pageSize: 5 }}
-        rowKey="key"
+        rowKey="id"
       />
 
       {/* 상세 보기 모달 */}
