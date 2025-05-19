@@ -464,9 +464,14 @@ const ChatRoom = () => {
       </div>
       {/* 채팅 내용 */}
       <div className="chatroom_content_box">
-        <div className="chatroom_content">
+        {showBottomButton && (
+          <div className="chatroom_bottom_button" onClick={scrollToBottom}>
+            <DownOutlined />
+          </div>
+        )}
+        <div className="chatroom_content" ref={scrollContainerRef}>
           {selectedUserId ? (
-            <div className="chat-scroll-wrapper" ref={scrollContainerRef}>
+            <div className="chat-scroll-wrapper">
               {/* 채팅창 위쪽 감지 */}
               {hasMore && (
                 <div
