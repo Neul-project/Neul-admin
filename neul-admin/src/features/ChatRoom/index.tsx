@@ -186,12 +186,11 @@ const ChatRoom = () => {
 
   // 채팅 목록 가져오기 요청
   const handleSelectUser = async (pageToFetch = 1, userId: number) => {
+    const container = scrollContainerRef.current;
+    const prevScrollHeight = container?.scrollHeight ?? 0;
+
     setSelectedUserId(userId);
     selectedUserIdRef.current = userId;
-
-    const container = scrollContainerRef.current;
-    const prevScrollTop = container?.scrollTop ?? 0;
-    const prevScrollHeight = container?.scrollHeight ?? 0;
 
     setLoading(true);
 
@@ -240,11 +239,15 @@ const ChatRoom = () => {
 
       // 렌더링이 끝난 뒤 scrollTop 조절
       requestAnimationFrame(() => {
-        if (container) {
-          const newScrollHeight = container.scrollHeight;
-          container.scrollTop =
-            newScrollHeight - (prevScrollHeight - prevScrollTop);
-        }
+        setTimeout(() => {
+          if (container) {
+            const newScrollHeight = container.scrollHeight;
+            container.scrollTop = newScrollHeight - prevScrollHeight;
+
+            // 최초 로딩 시 맨 아래로
+            if (pageToFetch === 1) scrollToBottom();
+          }
+        }, 0);
       });
     } catch (e) {
       console.error("선택한 유저의 채팅 불러오기 실패:", e);
