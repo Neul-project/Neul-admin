@@ -242,12 +242,19 @@ const ChatRoom = () => {
         setTimeout(() => {
           if (container) {
             const newScrollHeight = container.scrollHeight;
-            container.scrollTop = newScrollHeight - prevScrollHeight;
-
-            // 최초 로딩 시 맨 아래로
-            if (pageToFetch === 1) scrollToBottom();
+            const scrollOffset = newScrollHeight - prevScrollHeight;
+            container.scrollTop = scrollOffset;
           }
-        }, 0);
+        }, 30);
+        // setTimeout(() => {
+        //   if (container) {
+        //     const newScrollHeight = container.scrollHeight;
+        //     container.scrollTop = newScrollHeight - prevScrollHeight;
+
+        //     // 최초 로딩 시 맨 아래로
+        //     if (pageToFetch === 1) scrollToBottom();
+        //   }
+        // }, 0);
       });
     } catch (e) {
       console.error("선택한 유저의 채팅 불러오기 실패:", e);
