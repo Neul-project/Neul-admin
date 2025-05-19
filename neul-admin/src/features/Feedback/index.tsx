@@ -1,10 +1,23 @@
 import { useEffect, useState } from "react";
 import { FeedbackStyled, StyledModal } from "./styled";
 import axiosInstance from "@/lib/axios";
-import { Table, TableProps, Select, Modal, Button, ConfigProvider } from "antd";
 import { AntdGlobalTheme, paginationstyle } from "@/utill/antdtheme";
 import { formatDate } from "@/utill/activityoptionlist";
 import FeedbackModal from "../FeedbackModal";
+import {
+  Table,
+  TableProps,
+  Select,
+  Modal,
+  Button,
+  ConfigProvider,
+  Input,
+} from "antd";
+import { AudioOutlined } from "@ant-design/icons";
+import type { GetProps } from "antd";
+import { SearchProps } from "antd/es/input";
+
+const { Search } = Input;
 
 interface DataType {
   key: number;
@@ -27,6 +40,7 @@ const Feedback = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<DataType | null>(null);
 
+  //테이블 열
   const columns: TableProps<DataType>["columns"] = [
     { title: "번호", dataIndex: "number", key: "number" },
     { title: "활동기록", dataIndex: "activity", key: "activity" },
@@ -51,6 +65,19 @@ const Feedback = () => {
     },
   ];
 
+  //활동기록 검색
+  const onSearch: SearchProps["onSearch"] = (value, _e, info) => {
+    console.log("value", value);
+
+    //피드백 : 활동기록 제목(title) 검색에 따른 행(피드백) 반환 요청
+    axiosInstance
+      .get("/activity/search", { params: { data: value } })
+      .then((res) => {
+        const data = res.data;
+        setList(data);
+      });
+  };
+
   useEffect(() => {
     axiosInstance.get(`/user/adminlist`).then((res) => {
       const data: AdminType[] = res.data;
@@ -60,7 +87,7 @@ const Feedback = () => {
     //피드백 내용 전체 불러오기
     axiosInstance.get(`/activity/feedback/views`).then((res) => {
       const data = res.data;
-      //console.log("data", data);
+      console.log("data", data);
       const mappedList: DataType[] = data.map((item: any, index: number) => ({
         key: item.id,
         number: index + 1,
@@ -119,17 +146,29 @@ const Feedback = () => {
   };
   return (
     <FeedbackStyled>
-      <div className="Feedback_admin_select">
-        <div>관리자</div>
-        <ConfigProvider theme={AntdGlobalTheme}>
-          <Select
-            defaultValue={{ value: 0, label: "전체" }}
-            style={{ width: 120 }}
-            onChange={handleChange}
-            options={adminlist}
-            labelInValue
-          />
-        </ConfigProvider>
+      <div className="Feedback_admin_choice">
+        <div className="Feedback_admin_select">
+          <div>관리자</div>
+          <ConfigProvider theme={AntdGlobalTheme}>
+            <Select
+              defaultValue={{ value: 0, label: "전체" }}
+              style={{ width: 120 }}
+              onChange={handleChange}
+              options={adminlist}
+              labelInValue
+            />
+          </ConfigProvider>
+        </div>
+        <div className="Feedback_admin_select">
+          <div>활동기록</div>
+          <ConfigProvider theme={AntdGlobalTheme}>
+            <Search
+              placeholder="활동기록 명을 입력하시오."
+              onSearch={onSearch}
+              className="Feedback_search"
+            />
+          </ConfigProvider>
+        </div>
       </div>
       <ConfigProvider theme={AntdGlobalTheme}>
         <Table<DataType> columns={columns} dataSource={list} />
