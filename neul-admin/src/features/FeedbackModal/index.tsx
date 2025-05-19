@@ -5,7 +5,7 @@ import "react-h5-audio-player/lib/styles.css";
 
 const FeedbackModal = (props: { selectedRecord: any }) => {
   const { selectedRecord } = props;
-
+  //console.log("selectedRecord", selectedRecord);
   const isAudioFile =
     typeof selectedRecord.content === "string" &&
     selectedRecord.content.toLowerCase().endsWith(".webm");
@@ -13,6 +13,10 @@ const FeedbackModal = (props: { selectedRecord: any }) => {
   return (
     <FeedbackModalStyled>
       <div className="Feedback_content">
+        <div className="Feedback_content_row">
+          <strong>활동기록 이름 : </strong>
+          {selectedRecord.origin.activity.title}
+        </div>
         <div className="Feedback_content_row">
           <strong>내용 :</strong> {selectedRecord.content}
         </div>

@@ -100,6 +100,23 @@ export const ChatRoomStyled = styled.div`
       flex-direction: column;
       border: 0.7px solid #ccc;
 
+      .chatroom_bottom_button {
+        position: fixed;
+        bottom: 155px;
+        right: 70px;
+        background-color: ${(props) => props.theme.colors.pointGreen};
+        color: white;
+        padding: 13px;
+        border-radius: 50%;
+        font-size: 16px;
+        z-index: 1000;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        &:hover {
+          background-color: ${(props) => props.theme.colors.softGreen};
+          cursor: pointer;
+        }
+      }
+
       .chatroom_content {
         flex: 1;
         overflow-y: auto;

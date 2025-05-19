@@ -344,7 +344,7 @@ const UserManage = () => {
             <Button className="usermanage_delete_button" onClick={WithdrawUser}>
               회원삭제
             </Button>
-            <Button onClick={handleDownloadExcel}>엑셀 다운</Button>
+            <Button onClick={handleDownloadExcel}>엑셀 다운로드</Button>
           </div>
         </div>
 

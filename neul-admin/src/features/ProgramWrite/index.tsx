@@ -165,7 +165,7 @@ const ProgramWrite = (props: {
         //   console.log(`${key}: ${value}`);
         // }
 
-        // return;
+        //return;
 
         axiosInstance
           .patch(`program/update/${programId}`, formData, {
@@ -496,7 +496,11 @@ const ProgramWrite = (props: {
           {modify === "modify" ? (
             <div className="ProgramWrite_submit">
               <ConfigProvider theme={GreenTheme}>
-                <Button htmlType="submit" type="primary">
+                <Button
+                  htmlType="submit"
+                  type="primary"
+                  className="ProgramWrite_submit_btn"
+                >
                   수정하기
                 </Button>
               </ConfigProvider>
@@ -504,7 +508,11 @@ const ProgramWrite = (props: {
           ) : (
             <div className="ProgramWrite_submit">
               <ConfigProvider theme={GreenTheme}>
-                <Button htmlType="submit" type="primary">
+                <Button
+                  htmlType="submit"
+                  type="primary"
+                  className="ProgramWrite_submit_btn"
+                >
                   등록하기
                 </Button>
               </ConfigProvider>

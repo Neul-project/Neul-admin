@@ -52,7 +52,7 @@ const DashBoard = () => {
 
   useEffect(() => {
     axiosInstance.get("/activity/targetlist").then((res) => {
-      console.log("전체 admin당 피보호자 리스트", res.data);
+      //console.log("전체 admin당 피보호자 리스트", res.data);
 
       //성비 - 남성
       const male = res.data.filter(
