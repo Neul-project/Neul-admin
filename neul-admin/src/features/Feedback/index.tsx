@@ -75,7 +75,21 @@ const Feedback = () => {
       .get("/activity/search", { params: { data: value } })
       .then((res) => {
         const data = res.data;
-        setList(data);
+        //console.log("data", data);
+
+        const mappedList: DataType[] = data
+          .reverse()
+          .map((item: any, index: number) => ({
+            key: item.id,
+            number: index + 1,
+            activity: item.activity.title,
+            content: item.message,
+            date: formatDate(item.recorded_at),
+            admin: item.activity.id,
+            origin: item,
+          }));
+        setList(mappedList);
+
         setSearchValue("");
       });
   };
@@ -153,7 +167,7 @@ const Feedback = () => {
           </ConfigProvider>
         </div>
         <div className="Feedback_admin_select">
-          <div>활동기록</div>
+          <div>활동기록명</div>
           <ConfigProvider theme={AntdGlobalTheme}>
             <Search
               placeholder="활동기록 명을 입력하시오."

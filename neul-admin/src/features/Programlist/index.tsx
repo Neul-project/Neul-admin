@@ -105,7 +105,18 @@ const Programlist = () => {
       .then((res) => {
         //console.log("res", res.data);
         const data = res.data;
-        setList(data);
+
+        const programList = data.reverse().map((item: any, index: number) => ({
+          num: index + 1,
+          key: item.id,
+          title: item.name,
+          manager: item.manager,
+          target: item.target,
+          price: formatPrice(item.price),
+          origin: item,
+        }));
+
+        setList(programList);
         setSearchValue("");
       });
   };
