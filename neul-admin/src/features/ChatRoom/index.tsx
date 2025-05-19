@@ -11,6 +11,7 @@ import "dayjs/locale/ko"; // 한국어 로케일 불러오기
 import { Modal, notification } from "antd";
 import { useAuthStore } from "@/stores/useAuthStore";
 import useInfiniteScroll from "@/hooks/useInfiniteScroll";
+import { DownOutlined } from "@ant-design/icons";
 
 dayjs.extend(localizedFormat);
 dayjs.locale("ko"); // 로케일 설정
@@ -63,6 +64,9 @@ const ChatRoom = () => {
 
   // 소켓
   const socketRef = useRef<any>(null);
+
+  // 바텀버튼
+  const [showBottomButton, setShowBottomButton] = useState(false);
 
   // 맨 밑 감지
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -124,6 +128,29 @@ const ChatRoom = () => {
   const scrollToBottom = () => {
     bottomRef.current?.scrollIntoView({ behavior: "auto" });
   };
+
+  // 스크롤 위치가 맨 아래가 아닌 경우 버튼을 보이도록
+  const handleScroll = () => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const isAtBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight <
+      50;
+
+    setShowBottomButton(!isAtBottom);
+  };
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    container.addEventListener("scroll", handleScroll);
+
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   // 채팅방 목록 불러오기
   const fetchChatRoomList = async (pageToFetch = 1) => {
@@ -337,9 +364,12 @@ const ChatRoom = () => {
 
   const onClickDeleteChattingRoom = (
     e: React.MouseEvent<HTMLDivElement>,
+    roomId: number,
     userId: number
   ) => {
     e.preventDefault();
+
+    console.log(roomId, "삭제할 방");
 
     Modal.confirm({
       title: "채팅방을 나가겠습니까?",
@@ -353,10 +383,10 @@ const ChatRoom = () => {
         style: { color: "#5DA487" },
       },
       async onOk() {
-        if (userId == null) return;
+        if (roomId == null) return;
         try {
           await axiosInstance.delete(`/chat/exitRoom`, {
-            params: { userId },
+            params: { roomId },
           });
           notification.success({
             message: `채팅방 삭제완료`,
@@ -393,7 +423,7 @@ const ChatRoom = () => {
                 onContextMenu={
                   room.isMatched
                     ? undefined
-                    : (e) => onClickDeleteChattingRoom(e, room.userId)
+                    : (e) => onClickDeleteChattingRoom(e, room.id, room.userId)
                 }
               >
                 <div className="chatroom_name_box">
