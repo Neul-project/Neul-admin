@@ -102,7 +102,7 @@ export const ChatRoomStyled = styled.div`
 
       .chatroom_bottom_button {
         position: fixed;
-        bottom: 140px;
+        bottom: 155px;
         right: 70px;
         background-color: ${(props) => props.theme.colors.pointGreen};
         color: white;
