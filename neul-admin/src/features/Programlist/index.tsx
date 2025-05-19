@@ -8,6 +8,7 @@ import {
   Modal,
   ConfigProvider,
   notification,
+  Input,
 } from "antd";
 import { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axios";
@@ -16,6 +17,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { AntdGlobalTheme } from "@/utill/antdtheme";
 import { formatPrice } from "@/utill/programcategory";
+import { SearchProps } from "antd/es/input";
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>["rowSelection"];
@@ -40,6 +42,7 @@ const Programlist = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [originlist, setOriginList] = useState([]);
   const [id, setId] = useState();
+  const { Search } = Input;
 
   const columns: TableProps<DataType>["columns"] = [
     {
@@ -56,6 +59,11 @@ const Programlist = () => {
       title: "담당자",
       dataIndex: "manager",
       key: "manager",
+    },
+    {
+      title: "참여대상",
+      dataIndex: "target",
+      key: "target",
     },
     {
       title: "가격",
@@ -84,6 +92,20 @@ const Programlist = () => {
       },
     },
   ];
+
+  //프로그램명 검색
+  const onSearch: SearchProps["onSearch"] = (value, _e, info) => {
+    console.log("value", value);
+
+    //프로그램명 키워드 검색으로 내용 전체 반환 요청
+    axiosInstance
+      .get("/program/search", { params: { data: value } })
+      .then((res) => {
+        console.log("res", res.data);
+        const data = res.data;
+        setList(data);
+      });
+  };
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
     //console.log("selectedRowKeys changed: ", newSelectedRowKeys);
@@ -167,8 +189,10 @@ const Programlist = () => {
     setIsModalOpen(false);
   };
 
+  //프로그램 리스트
   const getprogramlist = () => {
     axiosInstance.get("/program/list").then((res) => {
+      //console.log("res", res.data);
       const programList = res.data
         .reverse()
         .map((item: any, index: number) => ({
@@ -176,6 +200,7 @@ const Programlist = () => {
           key: item.id,
           title: item.name,
           manager: item.manager,
+          target: item.target,
           price: formatPrice(item.price),
           origin: item,
         }));
@@ -191,6 +216,13 @@ const Programlist = () => {
   return (
     <ProgramlistStyled className={clsx("Programlist_main_wrap")}>
       <div className="Programlist_btns">
+        <ConfigProvider theme={AntdGlobalTheme}>
+          <Search
+            placeholder="프로그램명 검색"
+            onSearch={onSearch}
+            style={{ width: 200 }}
+          />
+        </ConfigProvider>
         <ConfigProvider theme={AntdGlobalTheme}>
           <Button onClick={ProgramPost}>등록하기</Button>
         </ConfigProvider>

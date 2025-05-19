@@ -180,6 +180,12 @@ const ActivitySubmit = (props: {
       });
 
       if (rowcontent) {
+        // console.log("values", values);
+
+        // for (let [key, value] of formData.entries()) {
+        //   console.log(`${key}: ${value}`);
+        // }
+        // return;
         //수정하기
         axiosInstance
           .patch(`/activity/update/${activityId}`, formData, {

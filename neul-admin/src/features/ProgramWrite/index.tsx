@@ -165,7 +165,7 @@ const ProgramWrite = (props: {
         //   console.log(`${key}: ${value}`);
         // }
 
-        // return;
+        //return;
 
         axiosInstance
           .patch(`program/update/${programId}`, formData, {
