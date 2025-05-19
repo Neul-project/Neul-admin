@@ -367,7 +367,7 @@ const ChatRoom = () => {
             setChattings([]);
           }
         } catch (e) {
-          console.error("해당 채팅방 내용 삭제 실패: ", e);
+          console.error("해당 채팅방 삭제 실패: ", e);
           notification.success({
             message: `채팅방 삭제실패`,
             description: `해당 채팅방 삭제에 실패하였습니다.`,
