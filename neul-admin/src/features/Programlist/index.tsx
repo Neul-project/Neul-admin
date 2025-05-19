@@ -42,6 +42,8 @@ const Programlist = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [originlist, setOriginList] = useState([]);
   const [id, setId] = useState();
+  const [searchValue, setSearchValue] = useState(""); //검색 내용
+
   const { Search } = Input;
 
   const columns: TableProps<DataType>["columns"] = [
@@ -101,9 +103,10 @@ const Programlist = () => {
     axiosInstance
       .get("/program/search", { params: { data: value } })
       .then((res) => {
-        console.log("res", res.data);
+        //console.log("res", res.data);
         const data = res.data;
         setList(data);
+        setSearchValue("");
       });
   };
 
@@ -220,7 +223,9 @@ const Programlist = () => {
           <Search
             placeholder="프로그램명 검색"
             onSearch={onSearch}
-            style={{ width: 200 }}
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            className="Programlist_search"
           />
         </ConfigProvider>
         <ConfigProvider theme={AntdGlobalTheme}>

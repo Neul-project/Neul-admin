@@ -79,7 +79,7 @@ export const sidebarMenus = createSidebarMenus([
   },
   {
     key: "/banner",
-    label: "배너 등록",
+    label: "광고 등록",
   },
   {
     key: "/chat",

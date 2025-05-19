@@ -11,10 +11,11 @@ export const ProgramlistStyled = styled.div`
       display: flex;
       width: 100%;
       justify-content: end;
-    }
-
-    .Programlist_btns {
       gap: 5px;
+
+      .Programlist_search {
+        width: 250px;
+      }
     }
 
     .ant-pagination-item {
