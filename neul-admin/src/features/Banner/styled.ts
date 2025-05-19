@@ -26,6 +26,7 @@ export const BannerStyled = styled.div`
           height: 100%;
           object-fit: contain;
         }
+
         .Banner_preview_text {
           display: flex;
           width: 100%;

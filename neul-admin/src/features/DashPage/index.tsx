@@ -9,6 +9,8 @@ import {
   getAgeChartData,
   ageChartOptions,
   countByAgeGroup,
+  countProgramsByMonth,
+  getProgramMonthlyChartData,
 } from "@/utill/chartdata";
 
 import {
@@ -34,6 +36,11 @@ ChartJS.register(
 const DashBoard = () => {
   const [patientGenderData, setPatientGenderData] = useState<number[]>([]); // [남자 수, 여자 수]
   const [PatientAgeData, setPatientAgeData] = useState<number[]>([]);
+  const [programMonthlyData, setProgramMonthlyData] = useState<{
+    labels: string[];
+    data: number[];
+  }>({ labels: [], data: [] });
+
   const [isLoading, setIsLoading] = useState(true);
 
   //오늘 날짜 표시하기
@@ -62,6 +69,12 @@ const DashBoard = () => {
       setPatientAgeData(ageCounts);
       setIsLoading(false);
     });
+
+    axiosInstance.get("/program/list").then((res) => {
+      //console.log("progran", res.data);
+      const { labels, data } = countProgramsByMonth(res.data);
+      setProgramMonthlyData({ labels, data });
+    });
   }, []);
 
   //연령별 데이터
@@ -89,6 +102,32 @@ const DashBoard = () => {
         <div className="DashPage_gender">
           <p className="DashPage_title">피보호자 성비</p>
           <Pie data={genderdata} />
+        </div>
+      </div>
+      <div className="DashPage_program_content">
+        <div className="DashPage_program">
+          <p className="DashPage_title">월별 프로그램 등록</p>
+          <Bar
+            data={getProgramMonthlyChartData(
+              programMonthlyData.labels,
+              programMonthlyData.data
+            )}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: { display: false },
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: {
+                    stepSize: 10, // 세로 간격
+                    precision: 0, // 소수점 없게
+                  },
+                },
+              },
+            }}
+          />
         </div>
       </div>
     </DashStyled>

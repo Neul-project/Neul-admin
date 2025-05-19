@@ -14,15 +14,18 @@ import { AntdGlobalTheme } from "@/utill/antdtheme";
 const Banner = () => {
   //useState
   const [arr, setArr] = useState([]);
+  const [url, setUrl] = useState([]);
 
   useEffect(() => {
-    if (arr.length > 1) {
-      axiosInstance.get("/banner/list").then((res) => {
-        const datalist = res.data;
-        const data = res.data[datalist.length - 1].img.split(",");
-        setArr(data);
-      });
-    }
+    axiosInstance.get("/banner/list").then((res) => {
+      const datalist = res.data;
+      //console.log("datalist", datalist);
+      const data = res.data[datalist.length - 1].img.split(",");
+      const urldata = res.data[datalist.length - 1].url.split(",");
+      setArr(data);
+      setUrl(urldata);
+      //console.log("d", data);
+    });
   }, []);
 
   const formik = useFormik({
@@ -37,8 +40,8 @@ const Banner = () => {
       const formData = new FormData();
       if (values.leftimg) formData.append("img", values.leftimg || arr[0]);
       if (values.rightimg) formData.append("img", values.rightimg || arr[1]);
-      formData.append("lefturl", values.lefturl);
-      formData.append("righturl", values.righturl);
+      formData.append("lefturl", values.lefturl || url[0]);
+      formData.append("righturl", values.righturl || url[1]);
 
       // console.log("FormData 내용:", Array.from(formData.entries()));
       // return;
@@ -95,7 +98,9 @@ const Banner = () => {
               <div>
                 <img
                   className="Banner_imgstyle"
-                  src={process.env.NEXT_PUBLIC_API_URL + "/uploads/" + arr[0]}
+                  src={
+                    process.env.NEXT_PUBLIC_API_URL + "/uploads/image/" + arr[0]
+                  }
                   alt="왼쪽 이미지"
                 />
               </div>
@@ -115,7 +120,9 @@ const Banner = () => {
               <div>
                 <img
                   className="Banner_imgstyle"
-                  src={process.env.NEXT_PUBLIC_API_URL + "/uploads/" + arr[1]}
+                  src={
+                    process.env.NEXT_PUBLIC_API_URL + "/uploads/image/" + arr[1]
+                  }
                   alt="오른쪽 이미지"
                 />
               </div>
@@ -143,14 +150,14 @@ const Banner = () => {
               name="lefturl"
               placeholder="링크를 입력하시오"
               className="Banner_title"
-              value={formik.values.lefturl}
+              value={formik.values.lefturl || url[0]}
               onChange={formik.handleChange}
             />
             <Input
               name="righturl"
               placeholder="링크를 입력하시오"
               className="Banner_title"
-              value={formik.values.righturl}
+              value={formik.values.righturl || url[1]}
               onChange={formik.handleChange}
             />
           </ConfigProvider>

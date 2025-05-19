@@ -72,4 +72,48 @@ export const ageChartOptions = {
     //   text: "피보호자 연령 분포",
     // },
   },
+  scales: {
+    y: {
+      beginAtZero: true,
+      ticks: {
+        stepSize: 5, // 세로 간격
+        precision: 0, // 소수점 없게
+      },
+    },
+  },
 };
+
+// utils/chartdata.ts 안에 추가해도 좋음
+export const countProgramsByMonth = (programs: any[]) => {
+  const counts: { [key: string]: number } = {};
+
+  programs.forEach((program) => {
+    const date = new Date(program.registration_at);
+    const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}`; // "2025-05"
+    counts[month] = (counts[month] || 0) + 1;
+  });
+
+  // 정렬된 라벨과 데이터
+  const labels = Object.keys(counts).sort(); // 예: ["2025-05", "2025-06", ...]
+  const data = labels.map((label) => counts[label]);
+
+  return { labels, data };
+};
+
+export const getProgramMonthlyChartData = (
+  labels: string[],
+  data: number[]
+) => ({
+  labels,
+  datasets: [
+    {
+      label: "프로그램 등록 수",
+      data,
+      backgroundColor: "rgba(108, 166, 205, 0.7)",
+      borderRadius: 8,
+    },
+  ],
+});
