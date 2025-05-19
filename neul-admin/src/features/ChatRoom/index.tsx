@@ -11,6 +11,7 @@ import "dayjs/locale/ko"; // 한국어 로케일 불러오기
 import { Modal, notification } from "antd";
 import { useAuthStore } from "@/stores/useAuthStore";
 import useInfiniteScroll from "@/hooks/useInfiniteScroll";
+import { DownOutlined } from "@ant-design/icons";
 
 dayjs.extend(localizedFormat);
 dayjs.locale("ko"); // 로케일 설정
@@ -63,6 +64,9 @@ const ChatRoom = () => {
 
   // 소켓
   const socketRef = useRef<any>(null);
+
+  // 바텀버튼
+  const [showBottomButton, setShowBottomButton] = useState(false);
 
   // 맨 밑 감지
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -125,6 +129,29 @@ const ChatRoom = () => {
     bottomRef.current?.scrollIntoView({ behavior: "auto" });
   };
 
+  // 스크롤 위치가 맨 아래가 아닌 경우 버튼을 보이도록
+  const handleScroll = () => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const isAtBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight <
+      50;
+
+    setShowBottomButton(!isAtBottom);
+  };
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    container.addEventListener("scroll", handleScroll);
+
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   // 채팅방 목록 불러오기
   const fetchChatRoomList = async (pageToFetch = 1) => {
     const containerRoom = scrollContainerRefRoom.current;
@@ -159,12 +186,11 @@ const ChatRoom = () => {
 
   // 채팅 목록 가져오기 요청
   const handleSelectUser = async (pageToFetch = 1, userId: number) => {
+    const container = scrollContainerRef.current;
+    const prevScrollHeight = container?.scrollHeight ?? 0;
+
     setSelectedUserId(userId);
     selectedUserIdRef.current = userId;
-
-    const container = scrollContainerRef.current;
-    const prevScrollTop = container?.scrollTop ?? 0;
-    const prevScrollHeight = container?.scrollHeight ?? 0;
 
     setLoading(true);
 
@@ -213,11 +239,15 @@ const ChatRoom = () => {
 
       // 렌더링이 끝난 뒤 scrollTop 조절
       requestAnimationFrame(() => {
-        if (container) {
-          const newScrollHeight = container.scrollHeight;
-          container.scrollTop =
-            newScrollHeight - (prevScrollHeight - prevScrollTop);
-        }
+        setTimeout(() => {
+          if (container) {
+            const newScrollHeight = container.scrollHeight;
+            container.scrollTop = newScrollHeight - prevScrollHeight;
+
+            // 최초 로딩 시 맨 아래로
+            if (pageToFetch === 1) scrollToBottom();
+          }
+        }, 0);
       });
     } catch (e) {
       console.error("선택한 유저의 채팅 불러오기 실패:", e);
@@ -337,9 +367,12 @@ const ChatRoom = () => {
 
   const onClickDeleteChattingRoom = (
     e: React.MouseEvent<HTMLDivElement>,
+    roomId: number,
     userId: number
   ) => {
     e.preventDefault();
+
+    console.log(roomId, "삭제할 방");
 
     Modal.confirm({
       title: "채팅방을 나가겠습니까?",
@@ -353,10 +386,10 @@ const ChatRoom = () => {
         style: { color: "#5DA487" },
       },
       async onOk() {
-        if (userId == null) return;
+        if (roomId == null) return;
         try {
           await axiosInstance.delete(`/chat/exitRoom`, {
-            params: { userId },
+            params: { roomId },
           });
           notification.success({
             message: `채팅방 삭제완료`,
@@ -367,7 +400,7 @@ const ChatRoom = () => {
             setChattings([]);
           }
         } catch (e) {
-          console.error("해당 채팅방 내용 삭제 실패: ", e);
+          console.error("해당 채팅방 삭제 실패: ", e);
           notification.success({
             message: `채팅방 삭제실패`,
             description: `해당 채팅방 삭제에 실패하였습니다.`,
@@ -393,7 +426,7 @@ const ChatRoom = () => {
                 onContextMenu={
                   room.isMatched
                     ? undefined
-                    : (e) => onClickDeleteChattingRoom(e, room.userId)
+                    : (e) => onClickDeleteChattingRoom(e, room.id, room.userId)
                 }
               >
                 <div className="chatroom_name_box">
@@ -434,9 +467,14 @@ const ChatRoom = () => {
       </div>
       {/* 채팅 내용 */}
       <div className="chatroom_content_box">
-        <div className="chatroom_content">
+        {showBottomButton && (
+          <div className="chatroom_bottom_button" onClick={scrollToBottom}>
+            <DownOutlined />
+          </div>
+        )}
+        <div className="chatroom_content" ref={scrollContainerRef}>
           {selectedUserId ? (
-            <div className="chat-scroll-wrapper" ref={scrollContainerRef}>
+            <div className="chat-scroll-wrapper">
               {/* 채팅창 위쪽 감지 */}
               {hasMore && (
                 <div
