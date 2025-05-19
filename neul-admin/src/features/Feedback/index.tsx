@@ -80,7 +80,7 @@ const Feedback = () => {
       .get("/activity/search", { params: { data: value } })
       .then((res) => {
         const data = res.data;
-        console.log("data", data);
+        //console.log("data", data);
 
         const mappedList: DataType[] = data
           .reverse()
@@ -93,14 +93,6 @@ const Feedback = () => {
             // admin: item.activity.id,
             origin: item,
           }));
-
-        //console.log("mappedList", mappedList);
-        // if (selectedAdmin === 0) {
-        //   setList(mappedList);
-        // } else {
-        //   //console.log("se", selectedAdmin);
-        //   feedbackview(selectedAdmin);
-        // }
 
         const filteredList =
           selectedAdmin === 0
