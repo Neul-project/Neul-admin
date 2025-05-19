@@ -21,12 +21,21 @@ export const StyledModal = styled(Modal)`
   }
 `;
 export const FeedbackStyled = styled.div`
-  .Feedback_admin_select {
+  .Feedback_admin_choice {
     display: flex;
-    flex-direction: row;
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 15px;
+    justify-content: space-between;
+
+    .Feedback_admin_select {
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .Feedback_search {
+      width: 300px;
+    }
   }
 
   .ant-pagination-item {

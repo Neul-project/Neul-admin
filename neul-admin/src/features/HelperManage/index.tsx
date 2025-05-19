@@ -149,7 +149,7 @@ const HelperManage = () => {
       <HelperManageStyled className={clsx("helpermanage_wrap")}>
         <div className="helpermanage_title_box">
           <TitleCompo title="담당 회원" />
-          <Button onClick={handleDownloadExcel}>엑셀 다운</Button>
+          <Button onClick={handleDownloadExcel}>엑셀 다운로드</Button>
         </div>
 
         <div className="helpermanage_info">

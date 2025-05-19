@@ -6,7 +6,7 @@ export const ProgramWriteStyled = styled.div`
     flex-direction: column;
     width: 100%;
 
-    .ProgramWrite_submit {
+    .ProgramWrite_submit_btn {
       width: 100%;
     }
 
