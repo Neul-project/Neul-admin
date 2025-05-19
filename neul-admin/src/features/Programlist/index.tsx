@@ -15,7 +15,7 @@ import axiosInstance from "@/lib/axios";
 import ProgramWrite from "../ProgramWrite";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { AntdGlobalTheme } from "@/utill/antdtheme";
+import { AntdGlobalTheme, GreenTheme } from "@/utill/antdtheme";
 import { formatPrice } from "@/utill/programcategory";
 import { SearchProps } from "antd/es/input";
 
@@ -230,7 +230,7 @@ const Programlist = () => {
   return (
     <ProgramlistStyled className={clsx("Programlist_main_wrap")}>
       <div className="Programlist_btns">
-        <ConfigProvider theme={AntdGlobalTheme}>
+        <ConfigProvider theme={GreenTheme}>
           <Search
             placeholder="프로그램명 검색"
             onSearch={onSearch}

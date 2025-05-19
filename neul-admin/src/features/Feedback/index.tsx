@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { FeedbackStyled, StyledModal } from "./styled";
 import axiosInstance from "@/lib/axios";
-import { AntdGlobalTheme, paginationstyle } from "@/utill/antdtheme";
+import {
+  AntdGlobalTheme,
+  GreenTheme,
+  paginationstyle,
+} from "@/utill/antdtheme";
 import { formatDate } from "@/utill/activityoptionlist";
 import FeedbackModal from "../FeedbackModal";
 import {
@@ -23,7 +27,7 @@ interface DataType {
   key: number;
   content: string;
   date: string;
-  admin: number;
+  // admin: number;
   origin: any;
 }
 
@@ -40,6 +44,7 @@ const Feedback = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); //상세 모달 여부확인
   const [selectedRecord, setSelectedRecord] = useState<DataType | null>(null); //모달로 넘길 내용
   const [searchValue, setSearchValue] = useState(""); //검색 내용
+  const [selectedAdmin, setSelectedAdmin] = useState<number>(0); //select로 선택된 어드민 id
 
   //테이블 열
   const columns: TableProps<DataType>["columns"] = [
@@ -75,7 +80,7 @@ const Feedback = () => {
       .get("/activity/search", { params: { data: value } })
       .then((res) => {
         const data = res.data;
-        //console.log("data", data);
+        console.log("data", data);
 
         const mappedList: DataType[] = data
           .reverse()
@@ -85,11 +90,27 @@ const Feedback = () => {
             activity: item.activity.title,
             content: item.message,
             date: formatDate(item.recorded_at),
-            admin: item.activity.id,
+            // admin: item.activity.id,
             origin: item,
           }));
-        setList(mappedList);
 
+        //console.log("mappedList", mappedList);
+        // if (selectedAdmin === 0) {
+        //   setList(mappedList);
+        // } else {
+        //   //console.log("se", selectedAdmin);
+        //   feedbackview(selectedAdmin);
+        // }
+
+        const filteredList =
+          selectedAdmin === 0
+            ? mappedList
+            : mappedList.filter(
+                (item) => item.origin.admin.id === selectedAdmin
+              );
+
+        setList(filteredList);
+        //setList(filteredList);
         setSearchValue("");
       });
   };
@@ -98,14 +119,14 @@ const Feedback = () => {
   const feedbackviews = () => {
     axiosInstance.get(`/activity/feedback/views`).then((res) => {
       const data = res.data;
-      //console.log("data", data);
+      console.log("data", data);
       const mappedList: DataType[] = data.map((item: any, index: number) => ({
         key: item.id,
         number: index + 1,
         activity: item.activity.title,
         content: item.message,
         date: formatDate(item.recorded_at),
-        admin: item.activity.id,
+        // admin: item.activity.id,
         origin: item,
       }));
       setList(mappedList);
@@ -124,7 +145,6 @@ const Feedback = () => {
           activity: item.activity.title,
           content: item.message,
           date: formatDate(item.recorded_at),
-          admin: item.activity.id,
           origin: item,
         }));
 
@@ -132,6 +152,7 @@ const Feedback = () => {
       });
   };
 
+  //화면 초기 렌더링 시 자료 불러오기
   useEffect(() => {
     axiosInstance.get(`/user/adminlist`).then((res) => {
       const data: AdminType[] = res.data;
@@ -140,10 +161,15 @@ const Feedback = () => {
     feedbackviews();
   }, []);
 
+  //select 선택
   const handleChange = (option: { value: number; label: string }) => {
-    //console.log(`selected ${option.value}`);
+    //value = admin id ; label = admin name
+    console.log(`selected ${option.value}`);
     const admin = option.value;
+    setSelectedAdmin(admin);
+
     if (admin === 0) {
+      //sleect 전체 선택 - 전체 피드백 내용 보여주기
       feedbackviews();
     } else {
       //도우미 id에 해당하는 feedback내용 보여지기
@@ -168,9 +194,9 @@ const Feedback = () => {
         </div>
         <div className="Feedback_admin_select">
           <div>활동기록명</div>
-          <ConfigProvider theme={AntdGlobalTheme}>
+          <ConfigProvider theme={GreenTheme}>
             <Search
-              placeholder="활동기록 명을 입력하시오."
+              placeholder="활동기록명을 입력하시오."
               onSearch={onSearch}
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
