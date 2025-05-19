@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { RefundStyled, Divider } from "./styled";
-import { Button, Table, Modal, notification } from "antd";
+import { Button, Table, Modal, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import axiosInstance from "@/lib/axios";
+import { formatPhoneNumber } from "@/utill/formatter";
+import dayjs from "dayjs";
 
 interface RefundItem {
   // key: number;
@@ -16,6 +18,9 @@ interface RefundItem {
   programName: string;
   email: string;
   phone: string;
+  price: number;
+  status: string;
+  create_at: string;
 }
 
 const RefundPage = () => {
@@ -30,7 +35,7 @@ const RefundPage = () => {
         );
 
         console.log("환불 리스트 응답", res.data);
-        // setDataSource(res.data);
+        setDataSource(res.data);
       } catch (error) {
         console.error("환불 리스트 불러오기 실패:", error);
       }
@@ -48,7 +53,7 @@ const RefundPage = () => {
     setIsModalVisible(true);
   };
 
-  // 완료 상태로 변경요청
+  // 환불 '완료' 상태로 변경요청
   const handleComplete = async () => {
     if (!selectedRecord) return;
 
@@ -57,47 +62,30 @@ const RefundPage = () => {
         id: selectedRecord.programId,
       });
 
-      console.log("환불 완료 응답", res.data);
+      // console.log("환불 완료 응답", res.data);
 
       if (res.data.ok === true) {
-        notification.success({
-          message: "환불 완료",
-          description: `${selectedRecord.requester}님의 환불 상태가 '완료'로 변경되었습니다.`,
-        });
+        message.success(
+          `${selectedRecord.requester}님의 환불 상태가 '완료'로 변경되었습니다.`
+        );
 
-        // 상태 갱신(완료된 항목은 리스트에서 제외)
+        // 상태만 '환불 완료'로 업데이트
         setDataSource((prev) =>
-          prev.filter((item) => item.programId !== selectedRecord.programId)
+          prev.map((item) =>
+            item.programId === selectedRecord.programId
+              ? { ...item, status: "환불 완료" }
+              : item
+          )
         );
       } else {
         throw new Error("서버 응답 실패");
       }
     } catch (error) {
-      notification.error({
-        message: "환불 처리 실패",
-        description: "서버에 요청 중 문제가 발생했습니다.",
-      });
+      message.error("환불 처리 중 오류가 발생했습니다.");
       console.error("환불 완료 요청 실패:", error);
     } finally {
       setIsModalVisible(false); // 모달 닫기
     }
-  };
-
-  // 환불 완료 요청
-  const handleRefund = (record: RefundItem) => {
-    Modal.confirm({
-      title: `${record.requester}님의 환불을 처리하시겠습니까?`,
-      okText: "확인",
-      cancelText: "취소",
-      onOk: () => {
-        notification.success({
-          message: "환불 처리 완료",
-          description: `${record.requester}님의 환불이 완료되었습니다.`,
-        });
-
-        // 실제 환불 처리 로직 삽입 (예: API 호출)
-      },
-    });
   };
 
   // 테이블 컬럼
@@ -119,6 +107,22 @@ const RefundPage = () => {
       key: "requester",
     },
     {
+      title: "상태",
+      dataIndex: "status",
+      key: "status",
+      render: (status) => (
+        <span style={{ color: status === "환불 완료" ? "#5da487" : "orange" }}>
+          {status === "환불 완료" ? "환불 완료" : "환불 대기"}
+        </span>
+      ),
+    },
+    {
+      title: "요청일",
+      dataIndex: "created_at",
+      key: "created_at",
+      render: (date: string) => dayjs(date).format("YYYY-MM-DD HH:mm"),
+    },
+    {
       title: "보기",
       key: "action",
       render: (_, record) => (
@@ -131,7 +135,7 @@ const RefundPage = () => {
 
   return (
     <RefundStyled>
-      <div>환불 목록</div>
+      <div className="Refund_title">환불 목록</div>
 
       <Table
         columns={columns}
@@ -146,9 +150,11 @@ const RefundPage = () => {
         open={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
         footer={[
-          <Button key="complete" type="primary" onClick={handleComplete}>
-            완료 상태로 변경
-          </Button>,
+          selectedRecord?.status !== "환불 완료" && (
+            <Button key="complete" type="primary" onClick={handleComplete}>
+              완료 상태로 변경
+            </Button>
+          ),
           <Button key="close" onClick={() => setIsModalVisible(false)}>
             닫기
           </Button>,
@@ -166,7 +172,8 @@ const RefundPage = () => {
               <strong>이메일:</strong> {selectedRecord.email}
             </p>
             <p>
-              <strong>전화번호:</strong> {selectedRecord.phone}
+              <strong>전화번호:</strong>{" "}
+              {formatPhoneNumber(selectedRecord.phone)}
             </p>
 
             <Divider />
@@ -179,6 +186,10 @@ const RefundPage = () => {
             </p>
             <p>
               <strong>입금자명:</strong> {selectedRecord.depositor}
+            </p>
+            <p>
+              <strong>환불 금액:</strong>{" "}
+              {selectedRecord.price.toLocaleString()}원
             </p>
             <p>
               <strong>환불 사유:</strong> {selectedRecord.reason}

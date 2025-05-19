@@ -1,11 +1,8 @@
 import styled from "styled-components";
 
 export const RefundStyled = styled.div`
-  .my-divider {
-    width: 100%;
-    height: 10px;
-    background-color: #e0e0e0;
-    margin: 16px 0;
+  .Refund_title {
+    margin-bottom: 13px;
   }
 `;
 
