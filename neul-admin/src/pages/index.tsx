@@ -1,5 +1,6 @@
-import DashBoard from "@/features/DashPage";
+import UserManage from "@/features/UserManage";
+
 const Home = () => {
-  return <DashBoard />;
+  return <UserManage />;
 };
 export default Home;
