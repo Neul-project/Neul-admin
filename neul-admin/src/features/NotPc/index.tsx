@@ -27,12 +27,12 @@ const NotPc = () => {
                 fontSize: 20,
               }}
             >
-              관리자 페이지 안내
+              도우미 페이지 안내
             </Text>
           </Paragraph>
           <Paragraph>
             <CloseCircleOutlined className="site-result-demo-error-icon" />{" "}
-            관리자 페이지는 모바일에서 지원 하지 않습니다.
+            도우미 페이지는 모바일에서 지원 하지 않습니다.
           </Paragraph>
           <Paragraph>
             <CloseCircleOutlined className="site-result-demo-error-icon" />{" "}
