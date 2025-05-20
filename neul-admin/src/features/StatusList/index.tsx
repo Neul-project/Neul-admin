@@ -40,7 +40,11 @@ const StatusList = () => {
   };
 
   const mapAndSetStatusList = (data: any[]) => {
-    const mapped = data.map((x: any, i: number) => ({
+    const sorted = data.sort(
+      (a, b) => dayjs(b.recorded_at).valueOf() - dayjs(a.recorded_at).valueOf()
+    );
+
+    const mapped = sorted.map((x: any, i: number) => ({
       key: x.id,
       id: x.id,
       num: i + 1,
