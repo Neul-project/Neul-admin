@@ -41,7 +41,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <title>관리자</title>
+        <title>도우미</title>
       </Head>
 
       <ConfigProvider>
