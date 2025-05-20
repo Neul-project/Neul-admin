@@ -29,10 +29,6 @@ export const createSidebarMenus = (menus: MenuProps["items"]): any => {
  */
 export const sidebarMenus = createSidebarMenus([
   {
-    key: "/",
-    label: "대시보드",
-  },
-  {
     key: "/users",
     label: "회원 관리",
     children: [
@@ -43,25 +39,6 @@ export const sidebarMenus = createSidebarMenus([
       {
         key: "/users/helpermanage",
         label: "담당 회원 정보",
-      },
-    ],
-  },
-
-  {
-    key: "/program",
-    label: "프로그램",
-    children: [
-      {
-        key: "/program/manage",
-        label: "프로그램 등록",
-      },
-      {
-        key: "/program/payment",
-        label: "결제 목록",
-      },
-      {
-        key: "/program/refund",
-        label: "환불 목록",
       },
     ],
   },
@@ -78,11 +55,19 @@ export const sidebarMenus = createSidebarMenus([
     label: "피드백",
   },
   {
-    key: "/banner",
-    label: "광고 등록",
+    key: "/matching",
+    label: "매칭 관리",
+  },
+  {
+    key: "/calender",
+    label: "일정표",
   },
   {
     key: "/chat",
     label: "채팅",
+  },
+  {
+    key: "/mypage",
+    label: "마이페이지",
   },
 ]);
