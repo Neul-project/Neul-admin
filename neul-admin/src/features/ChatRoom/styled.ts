@@ -108,7 +108,7 @@ export const ChatRoomStyled = styled.div`
         right: 50px;
         background-color: ${(props) => props.theme.colors.pointGreen};
         color: white;
-        padding: 13px;
+        padding: 10px 13px;
         border-radius: 50%;
         font-size: 16px;
         z-index: 1000;
