@@ -120,9 +120,10 @@ const StatusWrite = ({ _data, getStatusList, setModalVisible }: DataProps) => {
 
   // 해당 리스트 삭제
   const WithdrawList = async () => {
+    console.log("삭제할거다", _data.id);
     try {
       await axiosInstance.delete("/status/delete", {
-        data: _data.id,
+        data: [_data.id],
       });
       notification.success({
         message: `삭제 완료`,
