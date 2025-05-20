@@ -97,7 +97,7 @@ const Programlist = () => {
 
   //프로그램명 검색
   const onSearch: SearchProps["onSearch"] = (value, _e, info) => {
-    console.log("value", value);
+    //console.log("value", value);
 
     //프로그램명 키워드 검색으로 내용 전체 반환 요청
     axiosInstance

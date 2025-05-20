@@ -111,7 +111,7 @@ const Feedback = () => {
   const feedbackviews = () => {
     axiosInstance.get(`/activity/feedback/views`).then((res) => {
       const data = res.data;
-      console.log("data", data);
+      //console.log("data", data);
       const mappedList: DataType[] = data.map((item: any, index: number) => ({
         key: item.id,
         number: index + 1,
@@ -156,7 +156,7 @@ const Feedback = () => {
   //select 선택
   const handleChange = (option: { value: number; label: string }) => {
     //value = admin id ; label = admin name
-    console.log(`selected ${option.value}`);
+    //console.log(`selected ${option.value}`);
     const admin = option.value;
     setSelectedAdmin(admin);
 
