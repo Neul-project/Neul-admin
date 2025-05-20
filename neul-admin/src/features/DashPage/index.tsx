@@ -4,6 +4,8 @@ import axiosInstance from "@/lib/axios";
 import { useEffect, useState } from "react";
 import { Pie } from "react-chartjs-2";
 import { Bar } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
+
 import {
   getGenderChartData,
   getAgeChartData,
@@ -11,6 +13,8 @@ import {
   countByAgeGroup,
   countProgramsByMonth,
   getProgramMonthlyChartData,
+  countPaymentsByProgram,
+  getPaymentLineChartData,
 } from "@/utill/chartdata";
 
 import {
@@ -20,6 +24,8 @@ import {
   Legend,
   CategoryScale,
   LinearScale,
+  PointElement,
+  LineElement,
   BarElement,
   Title,
 } from "chart.js";
@@ -29,6 +35,8 @@ ChartJS.register(
   Legend,
   CategoryScale,
   LinearScale,
+  LineElement,
+  PointElement,
   BarElement,
   Title
 );
@@ -36,7 +44,14 @@ ChartJS.register(
 const DashBoard = () => {
   const [patientGenderData, setPatientGenderData] = useState<number[]>([]); // [남자 수, 여자 수]
   const [PatientAgeData, setPatientAgeData] = useState<number[]>([]);
+  //월별 프로그램 건 수
   const [programMonthlyData, setProgramMonthlyData] = useState<{
+    labels: string[];
+    data: number[];
+  }>({ labels: [], data: [] });
+
+  //프로그램 결제 건 수
+  const [programPaymentData, setProgramPaymentData] = useState<{
     labels: string[];
     data: number[];
   }>({ labels: [], data: [] });
@@ -74,6 +89,12 @@ const DashBoard = () => {
       //console.log("progran", res.data);
       const { labels, data } = countProgramsByMonth(res.data);
       setProgramMonthlyData({ labels, data });
+    });
+
+    axiosInstance.get("/program/payment-list").then((res) => {
+      // console.log("res", res.data);
+      const { labels, data } = countPaymentsByProgram(res.data);
+      setProgramPaymentData({ labels, data });
     });
   }, []);
 
@@ -118,6 +139,37 @@ const DashBoard = () => {
                 legend: { display: false },
               },
               scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: {
+                    stepSize: 10, // 세로 간격
+                    precision: 0, // 소수점 없게
+                  },
+                },
+              },
+            }}
+          />
+        </div>
+      </div>
+      <div className="DashPage_program_content">
+        <div className="DashPage_program">
+          <p className="DashPage_title">프로그램 결제 건 수</p>
+          <Line
+            data={getPaymentLineChartData(
+              programPaymentData.labels,
+              programPaymentData.data
+            )}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: { display: false },
+              },
+              scales: {
+                x: {
+                  ticks: {
+                    maxTicksLimit: 10, // 최대 라벨 조절
+                  },
+                },
                 y: {
                   beginAtZero: true,
                   ticks: {

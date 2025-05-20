@@ -96,8 +96,24 @@ export const countProgramsByMonth = (programs: any[]) => {
     counts[month] = (counts[month] || 0) + 1;
   });
 
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+
+  const recent5Months: string[] = [];
+  for (let i = 4; i >= 0; i--) {
+    let year = currentYear;
+    let month = currentMonth - i;
+    if (month <= 0) {
+      year -= 1;
+      month += 12;
+    }
+    recent5Months.push(`${year}-${String(month).padStart(2, "0")}`);
+  }
+
   // 정렬된 라벨과 데이터
-  const labels = Object.keys(counts).sort(); // 예: ["2025-05", "2025-06", ...]
+  const labels = recent5Months;
+  //const labels = Object.keys(counts).sort(); // 예: ["2025-05", "2025-06", ...]
   const data = labels.map((label) => counts[label]);
 
   return { labels, data };
@@ -114,6 +130,46 @@ export const getProgramMonthlyChartData = (
       data,
       backgroundColor: "rgba(108, 166, 205, 0.7)",
       borderRadius: 8,
+    },
+  ],
+});
+
+//프로그램 건수 별 선형 그래프
+export const countPaymentsByProgram = (payments: any[]) => {
+  const counts: { [key: number]: { name: string; count: number } } = {};
+
+  payments.forEach((payment) => {
+    const id = payment.programId;
+    const name = payment.programName;
+
+    if (!counts[id]) {
+      counts[id] = { name, count: 1 };
+    } else {
+      counts[id].count += 1;
+    }
+  });
+
+  const sorted = Object.entries(counts)
+    .sort((a, b) => b[1].count - a[1].count) // 결제 건수 내림차순
+    .map(([id, value]) => ({ id: Number(id), ...value }))
+    .slice(0, 7);
+
+  const labels = sorted.map((item) => item.name); // programName 기준
+  const data = sorted.map((item) => item.count);
+
+  return { labels, data };
+};
+
+export const getPaymentLineChartData = (labels: string[], data: any) => ({
+  labels,
+  datasets: [
+    {
+      label: "프로그램별 결제 건수",
+      data,
+      borderColor: "#6ca6cd",
+      backgroundColor: "rgba(108, 166, 205, 0.4)",
+      tension: 0.3,
+      fill: true,
     },
   ],
 });
