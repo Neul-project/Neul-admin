@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.3.7",
+    "@toast-ui/editor": "^3.2.2",
+    "@toast-ui/react-editor": "^3.2.3",
     "@types/styled-components": "^5.1.34",
     "antd": "^5.17.4",
     "axios": "^1.6.8",

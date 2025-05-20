@@ -28,6 +28,12 @@ import { Pagination, A11y } from "swiper/modules";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { AntdGlobalTheme } from "@/utill/antdtheme";
 import { activityValidationSchema } from "./activityValidation";
+import dynamic from "next/dynamic";
+//import ToastEdit from "../ToastEdit";
+
+const ToastEdit = dynamic(() => import("@/components/ToastEdit"), {
+  ssr: false,
+});
 
 //활동 기록 등록 컴포넌트 - formik 작성
 const ActivitySubmit = (props: {
@@ -210,6 +216,14 @@ const ActivitySubmit = (props: {
           });
       } else {
         //기록하기
+
+        console.log("values", values);
+
+        for (let [key, value] of formData.entries()) {
+          console.log(`${key}: ${value}`);
+        }
+
+        return;
 
         //백엔드 저장 요청
         axiosInstance
@@ -410,20 +424,9 @@ const ActivitySubmit = (props: {
         {/* 특이 사항 */}
         <div>
           <div className="activitySubmit_text">특이 사항</div>
-          <ConfigProvider theme={ActivityTheme}>
-            <TextArea
-              rows={7}
-              name="note"
-              value={com_type === "modify" ? note : activityformik.values.note}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (com_type === "modify") {
-                  setNote(value);
-                }
-                activityformik.handleChange(e);
-              }}
-            />
-          </ConfigProvider>
+          <ToastEdit
+            setNote={(value) => activityformik.setFieldValue("note", value)}
+          />
         </div>
         {activityformik.touched.note && activityformik.errors.note && (
           <div className="activitySubmit_error_message">

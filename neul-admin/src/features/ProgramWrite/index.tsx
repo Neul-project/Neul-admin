@@ -29,14 +29,15 @@ import clsx from "clsx";
 import { useRouter } from "next/router";
 import { AntdGlobalTheme, GreenTheme } from "@/utill/antdtheme";
 
-//프로그램 등록 컴포넌트
-const ProgramWrite = (props: {
+interface ProgramType {
   modify: string;
   list: any;
-  getprogramlist: any;
+  getprogramlist?: any;
+  setIsModalOpen?: (open: boolean) => void;
+}
 
-  setIsModalOpen: (open: boolean) => void;
-}) => {
+//프로그램 등록 컴포넌트
+const ProgramWrite = (props: ProgramType) => {
   //변수 선언
   const { modify, list, setIsModalOpen, getprogramlist } = props;
   const router = useRouter();
@@ -179,7 +180,10 @@ const ProgramWrite = (props: {
               description: `성공적으로 수정이 완료 되었습니다.`,
             });
             getprogramlist();
-            setIsModalOpen(false);
+
+            if (setIsModalOpen) {
+              setIsModalOpen(false);
+            }
           });
       } else {
         //console.log("values", values);
