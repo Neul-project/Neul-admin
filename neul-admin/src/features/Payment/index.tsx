@@ -19,15 +19,18 @@ interface PaymentItem {
 
 const PaymentPage = () => {
   const [data, setData] = useState<PaymentItem[]>([]);
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
+
+  console.log("결제 리스트 응답", data);
 
   // 테이블 헤더
-
   const columns: ColumnsType<PaymentItem> = [
     {
       title: "번호",
       dataIndex: "key",
       key: "key",
-      render: (_, __, index) => index + 1,
+      render: (_, __, index) =>
+        (pagination.current - 1) * pagination.pageSize + index + 1,
     },
     {
       title: "프로그램명",
@@ -66,7 +69,6 @@ const PaymentPage = () => {
           "/program/payment-list"
         );
 
-        console.log("결제 리스트 응답", res.data);
         setData(res.data);
       } catch (error) {
         console.error("결제 리스트 불러오기 실패:", error);
@@ -83,8 +85,14 @@ const PaymentPage = () => {
       <Table
         columns={columns}
         dataSource={data}
-        pagination={{ pageSize: 5 }}
         rowKey="id"
+        pagination={{
+          current: pagination.current,
+          pageSize: pagination.pageSize,
+          total: data.length,
+          onChange: (page, pageSize) =>
+            setPagination({ current: page, pageSize }),
+        }}
       />
     </PaymentStyled>
   );
