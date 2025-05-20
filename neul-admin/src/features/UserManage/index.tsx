@@ -18,6 +18,7 @@ import { UserManageStyled } from "./styled";
 import { useAuthStore } from "@/stores/useAuthStore";
 import type { SearchProps } from "antd/es/input";
 import { GreenTheme } from "@/utill/antdtheme";
+import { formatPhoneNumber } from "@/utill/formatter";
 const { Search } = Input;
 
 const UserManage = () => {
@@ -165,7 +166,7 @@ const UserManage = () => {
     {
       key: "phone",
       title: "전화번호",
-      dataIndex: "phone",
+      render: (record: any) => formatPhoneNumber(record.phone),
     },
     {
       key: "patient_name",

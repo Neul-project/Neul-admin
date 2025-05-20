@@ -244,6 +244,8 @@ const ChatRoom = () => {
             const newScrollHeight = container.scrollHeight;
             const scrollOffset = newScrollHeight - prevScrollHeight;
             container.scrollTop = scrollOffset;
+            // 최초 로딩 시 맨 아래로
+            if (pageToFetch === 1) scrollToBottom();
           }
         }, 30);
         // setTimeout(() => {
@@ -403,12 +405,13 @@ const ChatRoom = () => {
             description: `해당 채팅방이 삭제되었습니다.`,
           });
           fetchChatRoomList();
+          setSelectedUserId(null);
           if (selectedUserId === userId) {
             setChattings([]);
           }
         } catch (e) {
           console.error("해당 채팅방 삭제 실패: ", e);
-          notification.success({
+          notification.error({
             message: `채팅방 삭제실패`,
             description: `해당 채팅방 삭제에 실패하였습니다.`,
           });

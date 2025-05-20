@@ -7,12 +7,12 @@ import { saveAs } from "file-saver";
 import TitleCompo from "@/components/TitleCompo";
 import axiosInstance from "@/lib/axios";
 import { GreenTheme } from "@/utill/antdtheme";
+import { formatPhoneNumber } from "@/utill/formatter";
 
 const HelperManage = () => {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [users, setUsers] = useState<any[]>([]);
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [userOrder, setUserOrder] = useState("DESC");
   const [sortKey, setSortKey] = useState("created_at");
   const [sortedUsers, setSortedUsers] = useState<any[]>([]);
@@ -117,7 +117,7 @@ const HelperManage = () => {
     {
       key: "phone",
       title: "전화번호",
-      dataIndex: "phone",
+      render: (record: any) => formatPhoneNumber(record.phone),
     },
     {
       key: "patient_name",

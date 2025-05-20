@@ -40,11 +40,15 @@ const StatusList = () => {
   };
 
   const mapAndSetStatusList = (data: any[]) => {
-    const mapped = data.map((x: any, i: number) => ({
+    const sorted = data.sort(
+      (a, b) => dayjs(b.recorded_at).valueOf() - dayjs(a.recorded_at).valueOf()
+    );
+
+    const mapped = sorted.map((x: any, i: number) => ({
       key: x.id,
       id: x.id,
       num: i + 1,
-      patient: x.patient.name,
+      patient: `${x.patient.name}(${x.patient.id})`,
       condition: x.condition,
       medication: medicationMap[x.medication] || "없음",
       recorded_at: dayjs(x.recorded_at).format("YYYY-MM-DD HH:mm:ss"),
