@@ -97,7 +97,7 @@ const ActivitySubmit = (props: {
   useEffect(() => {
     //수정하기로 들어 온 경우 상태 업데이트
     if (rowcontent) {
-      //console.log("res", rowcontent);
+      console.log("res", rowcontent);
       setWard(rowcontent.patient.name ?? "");
       setType(rowcontent.type ?? "");
       setRehabilitation(rowcontent.rehabilitation ?? "");
@@ -192,6 +192,7 @@ const ActivitySubmit = (props: {
         //   console.log(`${key}: ${value}`);
         // }
         // return;
+
         //수정하기
         axiosInstance
           .patch(`/activity/update/${activityId}`, formData, {
@@ -217,13 +218,11 @@ const ActivitySubmit = (props: {
       } else {
         //기록하기
 
-        console.log("values", values);
+        // console.log("values", values);
 
-        for (let [key, value] of formData.entries()) {
-          console.log(`${key}: ${value}`);
-        }
-
-        return;
+        // for (let [key, value] of formData.entries()) {
+        //   console.log(`${key}: ${value}`);
+        // }
 
         //백엔드 저장 요청
         axiosInstance
@@ -259,6 +258,7 @@ const ActivitySubmit = (props: {
           <ConfigProvider theme={ActivityTheme}>
             <Select
               className="activitySubmit_select"
+              placeholder="피보호자를 선택해 주세요."
               onChange={(value) =>
                 activityformik.setFieldValue("patient_id", value)
               }
@@ -374,6 +374,7 @@ const ActivitySubmit = (props: {
                     setType(value);
                     activityformik.setFieldValue("type", value);
                   }}
+                  placeholder="활동종류를 선택해 주세요."
                   options={activityOptions}
                 />
               </ConfigProvider>
@@ -424,9 +425,12 @@ const ActivitySubmit = (props: {
         {/* 특이 사항 */}
         <div>
           <div className="activitySubmit_text">특이 사항</div>
-          <ToastEdit
-            setNote={(value) => activityformik.setFieldValue("note", value)}
-          />
+          <div className="activitySubmit_toastEdit">
+            <ToastEdit
+              note={note}
+              setNote={(value) => activityformik.setFieldValue("note", value)}
+            />
+          </div>
         </div>
         {activityformik.touched.note && activityformik.errors.note && (
           <div className="activitySubmit_error_message">
