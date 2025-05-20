@@ -244,6 +244,8 @@ const ChatRoom = () => {
             const newScrollHeight = container.scrollHeight;
             const scrollOffset = newScrollHeight - prevScrollHeight;
             container.scrollTop = scrollOffset;
+            // 최초 로딩 시 맨 아래로
+            if (pageToFetch === 1) scrollToBottom();
           }
         }, 30);
         // setTimeout(() => {

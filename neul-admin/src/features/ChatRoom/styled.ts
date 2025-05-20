@@ -94,16 +94,18 @@ export const ChatRoomStyled = styled.div`
 
     /* 채팅 내용 */
     .chatroom_content_box {
+      position: relative;
       width: 65%;
       height: 82vh;
       display: flex;
       flex-direction: column;
       border: 0.7px solid #ccc;
+      overflow: hidden;
 
       .chatroom_bottom_button {
-        position: fixed;
-        bottom: 155px;
-        right: 70px;
+        position: absolute;
+        bottom: 90px;
+        right: 50px;
         background-color: ${(props) => props.theme.colors.pointGreen};
         color: white;
         padding: 13px;
