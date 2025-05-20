@@ -3,6 +3,7 @@ import { Editor } from "@toast-ui/react-editor";
 import { useEffect, useRef } from "react";
 import { ToastEditStyled } from "./styled";
 import clsx from "clsx";
+import axiosInstance from "@/lib/axios";
 
 const ToastEdit = (props: {
   setNote: (note: string) => void;
@@ -31,6 +32,28 @@ const ToastEdit = (props: {
           const markdown = editorRef.current?.getInstance().getHTML();
           //console.log("mark", markdown);
           setNote(markdown || "");
+        }}
+        hooks={{
+          addImageBlobHook: async (
+            blob: Blob,
+            callback: (url: string, altText?: string) => void
+          ) => {
+            const formData = new FormData();
+            formData.append("file", blob);
+
+            try {
+              const response = await axiosInstance.post(
+                "/activity/toastimg",
+                formData
+              );
+
+              const imageUrl = response.data.url; // 서버 배포 후 확인 가능할거 같음
+
+              callback(imageUrl, "alt text");
+            } catch (error) {
+              console.error("Image upload error:", error);
+            }
+          },
         }}
       />
     </ToastEditStyled>
