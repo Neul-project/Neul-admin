@@ -1,7 +1,7 @@
 import UserManage from "@/features/UserManage";
 
-const ManagePage = () => {
+const HelpermangePage = () => {
   return <UserManage />;
 };
 
-export default ManagePage;
+export default HelpermangePage;

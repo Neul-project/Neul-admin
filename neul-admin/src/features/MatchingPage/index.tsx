@@ -1,7 +1,9 @@
+import clsx from "clsx";
+import { MatchingPageStyled } from "./styled";
+import TitleCompo from "@/components/TitleCompo";
 import { useEffect, useState } from "react";
 import {
   Button,
-  message,
   Modal,
   Select,
   Table,
@@ -9,40 +11,84 @@ import {
   notification,
   ConfigProvider,
 } from "antd";
-import clsx from "clsx";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import TitleCompo from "@/components/TitleCompo";
 import axiosInstance from "@/lib/axios";
-import { UserManageStyled } from "./styled";
 import { useAuthStore } from "@/stores/useAuthStore";
 import type { SearchProps } from "antd/es/input";
 import { GreenTheme } from "@/utill/antdtheme";
 import { formatPhoneNumber } from "@/utill/formatter";
 const { Search } = Input;
 
-const UserManage = () => {
+const dummyUsers = [
+  {
+    key: "user001",
+    status: "apply", // 수락 대기
+    id: "user001",
+    email: "guardian001@example.com",
+    name: "김보호자",
+    phone: "01012345678",
+    patient_id: "patient001",
+    patient_name: "이환자",
+    patient_gender: "남",
+    patient_birth: "1950-05-20",
+    patient_note: "치매 초기 증상 있음",
+    created_at: "2025-05-01T10:00:00Z",
+  },
+  {
+    key: "user002",
+    status: "accepted", // 수락 완료, 결제 대기중
+    id: "user002",
+    email: "guardian002@example.com",
+    name: "박보호자",
+    phone: "01023456789",
+    patient_id: "patient002",
+    patient_name: "김환자",
+    patient_gender: "여",
+    patient_birth: "1945-08-15",
+    patient_note: "거동이 불편함",
+    created_at: "2025-05-02T14:30:00Z",
+  },
+  {
+    key: "user003",
+    status: "apply",
+    id: "user003",
+    email: "guardian003@example.com",
+    name: "최보호자",
+    phone: "01098765432",
+    patient_id: "patient003",
+    patient_name: "최환자",
+    patient_gender: "남",
+    patient_birth: "1952-12-05",
+    patient_note: "고혈압, 당뇨",
+    created_at: "2025-05-03T09:20:00Z",
+  },
+];
+
+const MatchingPage = () => {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [users, setUsers] = useState<any[]>([]);
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [userOrder, setUserOrder] = useState("DESC");
   const [sortKey, setSortKey] = useState("created_at");
   const [sortedUsers, setSortedUsers] = useState<any[]>([]);
   const [selectSearch, setSelectSearch] = useState<string>("user_id");
   const adminId = useAuthStore((state) => state.user?.id);
 
-  const getUserList = async () => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [refuseReason, setRefuseReason] = useState("");
+
+  // 해당 도우미에게 신청한 user 불러오기
+  const getApplyList = async () => {
     try {
-      // 모든 user불러오기
-      const res = await axiosInstance.get("/matching/alluser");
+      // setUsers(dummyUsers);
+      const res = await axiosInstance.get("/matching/applyuser");
       const data = res.data;
-      console.log(data);
+      console.log("신청한 user정보", data);
 
       const mapped = data.map((x: any) => ({
         key: x.user_id,
-        admin_id: x.admin_id,
-        admin_name: x.admin_name,
+        status: x.status, //수락 여부
         id: x.user_id,
         email: x.user_email,
         name: x.user_name,
@@ -57,12 +103,12 @@ const UserManage = () => {
 
       setUsers(mapped);
     } catch (err) {
-      console.error("유저 불러오기 실패", err);
+      console.error("신청 정보 불러오기 실패", err);
     }
   };
 
   useEffect(() => {
-    getUserList();
+    getApplyList();
   }, []);
 
   // 유저 정렬하기
@@ -89,7 +135,7 @@ const UserManage = () => {
     const excelData = users.map((user) => ({
       보호자ID: user.id,
       보호자_아이디: user.email,
-      보호자명: user.user,
+      보호자명: user.name,
       보호자_전화번호: user.phone,
       피보호자ID: user.patient_id,
       피보호자명: user.patient_name,
@@ -100,7 +146,7 @@ const UserManage = () => {
 
     const worksheet = XLSX.utils.json_to_sheet(excelData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "회원목록");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "신청목록");
 
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
@@ -108,40 +154,7 @@ const UserManage = () => {
     });
 
     const file = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(file, "회원목록.xlsx");
-  };
-
-  // 회원삭제(userId들 보냄)
-  const WithdrawUser = async () => {
-    if (selectedRowKeys.length === 0) {
-      message.warning("삭제할 회원을 선택해주세요.");
-      return;
-    }
-    try {
-      await axiosInstance.delete("/matching/userdelete", {
-        data: { ids: selectedRowKeys },
-      });
-      notification.success({
-        message: `선택한 회원 삭제 성공`,
-        description: `선택한 회원을 완전히 삭제했습니다.`,
-      });
-      getUserList(); // 목록 다시 불러오기
-      setSelectedRowKeys([]); // 선택 초기화
-    } catch (e) {
-      console.error("회원 삭제 실패:", e);
-      notification.error({
-        message: `선택한 회원 삭제 실패`,
-        description: `선택한 회원 삭제에 실패했습니다.`,
-      });
-    }
-  };
-
-  // 테이블 rowSelection 설정
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: (keys: React.Key[]) => {
-      setSelectedRowKeys(keys);
-    },
+    saveAs(file, "신청목록.xlsx");
   };
 
   const columns = [
@@ -188,95 +201,65 @@ const UserManage = () => {
     },
     {
       key: "matching",
-      title: "담당",
+      title: "관리",
       render: (data: any) =>
-        data.admin_id === null ? (
-          // 담당 관리자 없을경우
-          <Button
-            onClick={(e) => {
-              e.stopPropagation();
+        data.status === "apply" ? (
+          // 신청만 왔을 경우
+          <>
+            <Button
+              className="matching_accept_button"
+              onClick={(e) => {
+                e.stopPropagation();
 
-              Modal.confirm({
-                title: "해당 유저와 매칭하시겠습니까?",
-                content: "해당 유저의 담당 관리자가 됩니다.",
-                okText: "매칭",
-                cancelText: "취소",
-                okButtonProps: {
-                  style: { backgroundColor: "#5DA487" },
-                },
-                cancelButtonProps: {
-                  style: { color: "#5DA487" },
-                },
-                async onOk() {
-                  try {
-                    await axiosInstance.post(`/matching/user`, {
-                      adminId,
-                      userId: data.id,
-                      patientId: data.patient_id,
-                    });
-                    notification.success({
-                      message: `매칭 성공`,
-                      description: `해당 유저와 매칭되었습니다.`,
-                    });
-                    getUserList();
-                  } catch (e) {
-                    console.error("해당 유저와의 매칭 실패: ", e);
-                    notification.error({
-                      message: `매칭 실패`,
-                      description: `해당 유저와의 매칭에 실패했습니다.`,
-                    });
-                  }
-                },
-              });
-            }}
-          >
-            매칭
-          </Button>
-        ) : data.admin_id === adminId ? (
-          // 본인이 담당 관리자인 경우
-          <Button
-            onClick={(e) => {
-              e.stopPropagation();
-
-              Modal.confirm({
-                title: "해당 유저와 매칭 취소하시겠습니까?",
-                content: "해당 유저의 담당이 취소됩니다.",
-                okText: "예",
-                cancelText: "아니요",
-                okButtonProps: {
-                  style: { backgroundColor: "#5DA487" },
-                },
-                cancelButtonProps: {
-                  style: { color: "#5DA487" },
-                },
-                async onOk() {
-                  try {
-                    await axiosInstance.patch(`/matching/cancel`, {
-                      adminId,
-                      userId: data.id,
-                      patientId: data.patient_id,
-                    });
-                    notification.success({
-                      message: `매칭 취소 성공`,
-                      description: `해당 유저와의 매칭이 취소되었습니다.`,
-                    });
-                    getUserList();
-                  } catch (e) {
-                    console.error("해당 유저와의 매칭 취소 실패: ", e);
-                    notification.error({
-                      message: `매칭 취소 실패`,
-                      description: `해당 유저와의 매칭 취소에 실패했습니다.`,
-                    });
-                  }
-                },
-              });
-            }}
-          >
-            매칭취소
-          </Button>
+                Modal.confirm({
+                  title: "해당 유저와 매칭하시겠습니까?",
+                  content: "해당 유저의 담당 관리자가 됩니다.",
+                  cancelText: "아니요",
+                  okText: "예",
+                  okButtonProps: {
+                    style: { backgroundColor: "#5DA487" },
+                  },
+                  cancelButtonProps: {
+                    style: { color: "#5DA487" },
+                  },
+                  async onOk() {
+                    try {
+                      // 수락
+                      await axiosInstance.post(`/matching/accept`, {
+                        adminId,
+                        userId: data.id,
+                      });
+                      notification.success({
+                        message: `매칭 성공`,
+                        description: `해당 유저와 매칭되었습니다.`,
+                      });
+                      getApplyList();
+                    } catch (e) {
+                      console.error("해당 유저와의 매칭 실패: ", e);
+                      notification.error({
+                        message: `매칭 실패`,
+                        description: `해당 유저와의 매칭에 실패했습니다.`,
+                      });
+                    }
+                  },
+                });
+              }}
+            >
+              수락
+            </Button>
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedUser(data); // 어떤 유저인지 저장
+                setIsModalVisible(true); // 모달 열기
+              }}
+            >
+              거절
+            </Button>
+          </>
         ) : (
-          // 다른 사람이 담당 관리자인 경우
-          <>{data.admin_name}</>
+          // 결제 대기(수락은 한 상태)
+          <>결제 대기중</>
         ),
     },
   ];
@@ -301,6 +284,7 @@ const UserManage = () => {
     console.log("검색 기준", selectSearch);
     console.log("검색 단어", value);
     try {
+      // 신청된 목록 중에서 검색
       const res = await axiosInstance.get("/matching/searchuser", {
         params: {
           search: selectSearch, // 어떤 기준으로 검색하는지(user_id->보호자ID, user_name->보호자 이름, patient_name->피보호자 이름)
@@ -312,8 +296,6 @@ const UserManage = () => {
 
       const mapped = searchData.map((x: any) => ({
         key: x.user_id,
-        admin_id: x.admin_id,
-        admin_name: x.admin_name,
         id: x.user_id,
         email: x.user_email,
         name: x.user_name,
@@ -335,16 +317,12 @@ const UserManage = () => {
       });
     }
   };
-
   return (
     <ConfigProvider theme={GreenTheme}>
-      <UserManageStyled className={clsx("usermanage_wrap")}>
+      <MatchingPageStyled className={clsx("matching_wrap")}>
         <div className="usermanage_title_box">
-          <TitleCompo title="담당 회원" />
+          <TitleCompo title="매칭 관리" />
           <div>
-            <Button className="usermanage_delete_button" onClick={WithdrawUser}>
-              회원삭제
-            </Button>
             <Button onClick={handleDownloadExcel}>엑셀 다운로드</Button>
           </div>
         </div>
@@ -378,17 +356,19 @@ const UserManage = () => {
           </div>
         </div>
         <Table
-          rowSelection={rowSelection}
           columns={columns}
           dataSource={sortedUsers}
           rowKey="key"
           onRow={(record) => ({
-            onClick: () => {
+            onClick: (e) => {
+              e.stopPropagation();
               setSelectedUser(record); // 클릭한 유저 데이터
               setModalOpen(true); // 모달 열기
             },
           })}
         />
+
+        {/* 특이사항 모달 */}
         <Modal
           title="특이사항"
           open={modalOpen}
@@ -402,9 +382,68 @@ const UserManage = () => {
             </div>
           )}
         </Modal>
-      </UserManageStyled>
+
+        {/* 거절 모달 */}
+        <Modal
+          open={isModalVisible}
+          title="해당 신청을 거절하시겠습니까?"
+          onCancel={() => {
+            setIsModalVisible(false);
+            setRefuseReason("");
+          }}
+          onOk={async () => {
+            if (!refuseReason.trim()) {
+              notification.warning({
+                message: "거절 사유를 입력해주세요.",
+              });
+              return;
+            }
+
+            try {
+              await axiosInstance.post(`/matching/refuse`, {
+                adminId,
+                userId: selectedUser.id,
+                content: refuseReason,
+              });
+
+              notification.success({
+                message: `신청 거절`,
+                description: `해당 신청을 거절했습니다.`,
+              });
+
+              getApplyList(); // 새로고침
+            } catch (e) {
+              console.error("신청 거절 실패: ", e);
+              notification.error({
+                message: `신청 거절 실패`,
+                description: `신청 거절에 실패했습니다.`,
+              });
+            }
+
+            setIsModalVisible(false);
+            setRefuseReason("");
+          }}
+          okText="거절"
+          cancelText="취소"
+          okButtonProps={{
+            style: { backgroundColor: "#5DA487" },
+          }}
+          cancelButtonProps={{
+            style: { color: "#5DA487" },
+          }}
+        >
+          <div style={{ marginBottom: 8 }}>거절 사유</div>
+          <Input.TextArea
+            value={refuseReason}
+            onChange={(e) => setRefuseReason(e.target.value)}
+            placeholder="거절 사유를 입력해주세요"
+            rows={4}
+            style={{ height: "100px", resize: "none" }}
+          />
+        </Modal>
+      </MatchingPageStyled>
     </ConfigProvider>
   );
 };
 
-export default UserManage;
+export default MatchingPage;

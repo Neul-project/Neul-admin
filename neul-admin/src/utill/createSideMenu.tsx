@@ -30,17 +30,7 @@ export const createSidebarMenus = (menus: MenuProps["items"]): any => {
 export const sidebarMenus = createSidebarMenus([
   {
     key: "/users",
-    label: "회원 관리",
-    children: [
-      {
-        key: "/users/manage",
-        label: "전체 회원 정보",
-      },
-      {
-        key: "/users/helpermanage",
-        label: "담당 회원 정보",
-      },
-    ],
+    label: "담당 회원",
   },
   {
     key: "/activity/write",

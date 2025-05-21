@@ -1,8 +1,11 @@
 import styled from "styled-components";
 
-export const UserManageStyled = styled.div`
-  &.usermanage_wrap {
+export const MatchingPageStyled = styled.div`
+  &.matching_wrap {
     padding: 20px;
+    .matching_accept_button {
+      margin: 0 3px 2px 0;
+    }
     .usermanage_title_box {
       display: flex;
       justify-content: space-between;
