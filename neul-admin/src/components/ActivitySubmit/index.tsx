@@ -28,12 +28,8 @@ import { Pagination, A11y } from "swiper/modules";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { AntdGlobalTheme } from "@/utill/antdtheme";
 import { activityValidationSchema } from "./activityValidation";
-import dynamic from "next/dynamic";
+//import dynamic from "next/dynamic";
 //import ToastEdit from "../ToastEdit";
-
-const ToastEdit = dynamic(() => import("@/components/ToastEdit"), {
-  ssr: false,
-});
 
 //활동 기록 등록 컴포넌트 - formik 작성
 const ActivitySubmit = (props: {
@@ -426,10 +422,22 @@ const ActivitySubmit = (props: {
         <div>
           <div className="activitySubmit_text">특이 사항</div>
           <div className="activitySubmit_toastEdit">
-            <ToastEdit
-              note={note}
-              setNote={(value) => activityformik.setFieldValue("note", value)}
-            />
+            <ConfigProvider theme={ActivityTheme}>
+              <TextArea
+                rows={7}
+                name="note"
+                value={
+                  com_type === "modify" ? note : activityformik.values.note
+                }
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (com_type === "modify") {
+                    setNote(value);
+                  }
+                  activityformik.handleChange(e);
+                }}
+              />
+            </ConfigProvider>
           </div>
         </div>
         {activityformik.touched.note && activityformik.errors.note && (
