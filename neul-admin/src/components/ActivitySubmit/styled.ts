@@ -35,6 +35,10 @@ export const ActivityStyled = styled.div`
       margin-bottom: 5px;
     }
 
+    .activitySubmit_toastEdit {
+      width: 100%;
+    }
+
     .activitySubmit_ward {
       display: flex;
       width: 100%;

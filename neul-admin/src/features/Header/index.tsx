@@ -94,6 +94,8 @@ const Header = ({ className }: HeaderProps) => {
               <Button key="close" onClick={handleCancel}>
                 취소
               </Button>
+            </ConfigProvider>,
+            <ConfigProvider theme={GreenTheme}>
               <Button key="complete" type="primary" onClick={handleOk}>
                 로그아웃
               </Button>
