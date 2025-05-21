@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Calendar, Badge, Button, FloatButton, ConfigProvider } from "antd";
+import { Calendar, ConfigProvider } from "antd";
 import type { CalendarProps } from "antd";
 import type { Dayjs } from "dayjs";
 import koKR from "antd/locale/ko_KR";
@@ -11,7 +11,7 @@ import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import { SchedulePageStyled } from "./styled";
 import clsx from "clsx";
-import { CalendarOutlined, PlusOutlined } from "@ant-design/icons";
+import { CalendarOutlined } from "@ant-design/icons";
 import axiosInstance from "@/lib/axios";
 
 dayjs.extend(isSameOrAfter);
@@ -21,10 +21,11 @@ interface ScheduleItem {
   id: number;
   userId: number;
   userName: string;
+  phone: string;
   patientId: number;
   patientName: string;
-  startDate: string; // 'YYYY-MM-DD'
-  endDate: string; // 'YYYY-MM-DD'
+  availableFrom: string; // 'YYYY-MM-DD'
+  availableTo: string; // 'YYYY-MM-DD'
 }
 
 const SchedulePage = () => {
@@ -41,47 +42,40 @@ const SchedulePage = () => {
     }
   };
 
-  // 일정 삭제하기
-  const deleteSchedule = async (scheduleId: number) => {
-    try {
-      await axiosInstance.delete(`/admin/schedule/${scheduleId}`);
-      setSchedules((prev) => prev.filter((s) => s.id !== scheduleId));
-    } catch (error) {
-      console.error("삭제 실패:", error);
-    }
-  };
-
   useEffect(() => {
-    // fetchSchedules();
-    setSchedules([
-      {
-        id: 1,
-        userId: 101,
-        userName: "김보호자",
-        patientId: 201,
-        patientName: "이피보호자",
-        startDate: "2025-05-21",
-        endDate: "2025-05-21",
-      },
-      {
-        id: 2,
-        userId: 101,
-        userName: "김보호자",
-        patientId: 202,
-        patientName: "박피보호자",
-        startDate: "2025-05-22",
-        endDate: "2025-05-25",
-      },
-      {
-        id: 3,
-        userId: 101,
-        userName: "김보호자",
-        patientId: 203,
-        patientName: "최피보호자",
-        startDate: "2025-05-22",
-        endDate: "2025-05-22",
-      },
-    ]);
+    fetchSchedules();
+    // setSchedules([
+    //   {
+    //     id: 1,
+    //     userId: 101,
+    //     userName: "김선",
+    //     phone: "010-1234-5678",
+    //     patientId: 201,
+    //     patientName: "이수",
+    //     availableFrom: "2025-05-21",
+    //     availableTo: "2025-05-21",
+    //   },
+    //   {
+    //     id: 2,
+    //     userId: 101,
+    //     userName: "김길",
+    //     phone: "010-1234-5678",
+    //     patientId: 202,
+    //     patientName: "박박",
+    //     availableFrom: "2025-05-22",
+    //     availableTo: "2025-05-25",
+    //   },
+    //   {
+    //     id: 3,
+    //     userId: 101,
+    //     userName: "김백",
+    //     phone: "010-1234-5678",
+    //     patientId: 203,
+    //     patientName: "최현",
+    //     availableFrom: "2025-05-22",
+    //     availableTo: "2025-05-22",
+    //   },
+    // ]);
   }, []);
 
   // 날짜 범위 내에 포함된 일정만 필터링
@@ -89,8 +83,8 @@ const SchedulePage = () => {
     schedules.filter((item) => {
       const target = date.format("YYYY-MM-DD");
       return (
-        dayjs(target).isSameOrAfter(item.startDate) &&
-        dayjs(target).isSameOrBefore(item.endDate)
+        dayjs(target).isSameOrAfter(item.availableFrom) &&
+        dayjs(target).isSameOrBefore(item.availableTo)
       );
     });
 
@@ -115,12 +109,15 @@ const SchedulePage = () => {
     <ConfigProvider locale={koKR}>
       <SchedulePageStyled className={clsx("schedule_wrap")}>
         <TitleCompo title="일정표" />
+
+        {/* 달력 */}
         <Calendar
           fullscreen={true}
           cellRender={cellRender}
           onSelect={(date) => setSelectedDate(date)}
         />
 
+        {/* 해당 날짜 일정 */}
         {selectedDate && (
           <div className="schedule_select">
             <div className="schedule_content_title">
@@ -134,42 +131,30 @@ const SchedulePage = () => {
                   <div className="schedule_content_box">
                     <CalendarOutlined className="schedule_calender_icon" />
                     <div className="schedule_content">
-                      {/* 피보호자 */}
                       <span className="schedule_patient">
+                        {/* 피보호자 */}
                         {item.patientName}({item.patientId}) -
                         <span>
+                          {/* 보호자 */}
                           {item.userName}({item.userId})보호자님
                         </span>
                       </span>
                       <span className="schedule_date">
-                        {item.startDate === item.endDate
-                          ? item.startDate
-                          : `${item.startDate} - ${item.endDate}`}
+                        {item.availableFrom === item.availableTo
+                          ? item.availableFrom
+                          : `${item.availableFrom} - ${item.availableTo}`}
                       </span>
                     </div>
                   </div>
-                  <Button
-                    onClick={
-                      () => deleteSchedule(item.id)
-                      // setSchedules((prev) =>
-                      //   prev.filter((s) => s.id !== item.id)
-                      // )
-                    }
-                  >
-                    삭제
-                  </Button>
+                  {/* 연락처 */}
+                  <div className="schedule_phone">
+                    보호자 연락처: {item.phone}
+                  </div>
                 </div>
               ))
             )}
           </div>
         )}
-
-        {/* <FloatButton
-          type="primary"
-          tooltip="일정 추가"
-          icon={<PlusOutlined />}
-          onClick={() => alert("추가기능")}
-        /> */}
       </SchedulePageStyled>
     </ConfigProvider>
   );

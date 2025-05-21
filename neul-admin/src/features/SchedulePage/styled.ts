@@ -61,6 +61,9 @@ export const SchedulePageStyled = styled.div`
         border: 1px solid #eee;
         border-radius: 6px;
         margin-bottom: 8px;
+        .schedule_phone {
+          color: #999;
+        }
         .schedule_content_box {
           display: flex;
           align-items: center;
