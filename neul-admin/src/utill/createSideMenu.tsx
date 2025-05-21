@@ -59,7 +59,7 @@ export const sidebarMenus = createSidebarMenus([
     label: "매칭 관리",
   },
   {
-    key: "/calender",
+    key: "/schedule",
     label: "일정표",
   },
   {
