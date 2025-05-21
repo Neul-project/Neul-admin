@@ -15,50 +15,48 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import axiosInstance from "@/lib/axios";
 import { useAuthStore } from "@/stores/useAuthStore";
-import type { SearchProps } from "antd/es/input";
 import { GreenTheme } from "@/utill/antdtheme";
 import { formatPhoneNumber } from "@/utill/formatter";
-const { Search } = Input;
 
 const dummyUsers = [
   {
-    key: "user001",
+    key: 2,
     status: "apply", // 수락 대기
-    id: "user001",
+    id: 2,
     email: "guardian001@example.com",
     name: "김보호자",
     phone: "01012345678",
-    patient_id: "patient001",
+    patient_id: 6,
     patient_name: "이환자",
-    patient_gender: "남",
+    patient_gender: "male",
     patient_birth: "1950-05-20",
     patient_note: "치매 초기 증상 있음",
     created_at: "2025-05-01T10:00:00Z",
   },
   {
-    key: "user002",
+    key: 3,
     status: "accepted", // 수락 완료, 결제 대기중
-    id: "user002",
+    id: 3,
     email: "guardian002@example.com",
     name: "박보호자",
     phone: "01023456789",
-    patient_id: "patient002",
+    patient_id: 7,
     patient_name: "김환자",
-    patient_gender: "여",
+    patient_gender: "female",
     patient_birth: "1945-08-15",
     patient_note: "거동이 불편함",
     created_at: "2025-05-02T14:30:00Z",
   },
   {
-    key: "user003",
+    key: 1,
     status: "apply",
-    id: "user003",
+    id: 1,
     email: "guardian003@example.com",
     name: "최보호자",
     phone: "01098765432",
-    patient_id: "patient003",
+    patient_id: 8,
     patient_name: "최환자",
-    patient_gender: "남",
+    patient_gender: "male",
     patient_birth: "1952-12-05",
     patient_note: "고혈압, 당뇨",
     created_at: "2025-05-03T09:20:00Z",
@@ -72,7 +70,6 @@ const MatchingPage = () => {
   const [userOrder, setUserOrder] = useState("DESC");
   const [sortKey, setSortKey] = useState("created_at");
   const [sortedUsers, setSortedUsers] = useState<any[]>([]);
-  const [selectSearch, setSelectSearch] = useState<string>("user_id");
   const adminId = useAuthStore((state) => state.user?.id);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -81,27 +78,27 @@ const MatchingPage = () => {
   // 해당 도우미에게 신청한 user 불러오기
   const getApplyList = async () => {
     try {
-      // setUsers(dummyUsers);
-      const res = await axiosInstance.get("/matching/applyuser");
-      const data = res.data;
-      console.log("신청한 user정보", data);
+      setUsers(dummyUsers);
+      // const res = await axiosInstance.get("/matching/applyuser");
+      // const data = res.data;
+      // console.log("신청한 user정보", data);
 
-      const mapped = data.map((x: any) => ({
-        key: x.user_id,
-        status: x.status, //수락 여부
-        id: x.user_id,
-        email: x.user_email,
-        name: x.user_name,
-        phone: x.user_phone,
-        patient_id: x.patient_id,
-        patient_name: x.patient_name,
-        patient_gender: x.patient_gender === "male" ? "남" : "여",
-        patient_birth: x.patient_birth || "없음",
-        patient_note: x.patient_note || "없음",
-        created_at: x.user_create,
-      }));
+      // const mapped = data.map((x: any) => ({
+      //   key: x.user_id,
+      //   status: x.status, //수락 여부
+      //   id: x.user_id,
+      //   email: x.user_email,
+      //   name: x.user_name,
+      //   phone: x.user_phone,
+      //   patient_id: x.patient_id,
+      //   patient_name: x.patient_name,
+      //   patient_gender: x.patient_gender === "male" ? "남" : "여",
+      //   patient_birth: x.patient_birth || "없음",
+      //   patient_note: x.patient_note || "없음",
+      //   created_at: x.user_create,
+      // }));
 
-      setUsers(mapped);
+      // setUsers(mapped);
     } catch (err) {
       console.error("신청 정보 불러오기 실패", err);
     }
@@ -213,7 +210,7 @@ const MatchingPage = () => {
 
                 Modal.confirm({
                   title: "해당 유저와 매칭하시겠습니까?",
-                  content: "해당 유저의 담당 관리자가 됩니다.",
+                  content: "해당 유저의 담당 도우미가 됩니다.",
                   cancelText: "아니요",
                   okText: "예",
                   okButtonProps: {
@@ -226,8 +223,8 @@ const MatchingPage = () => {
                     try {
                       // 수락
                       await axiosInstance.post(`/matching/accept`, {
-                        adminId,
-                        userId: data.id,
+                        adminId, // 도우미 id
+                        userId: data.id, // 보호자 id
                       });
                       notification.success({
                         message: `매칭 성공`,
@@ -269,54 +266,6 @@ const MatchingPage = () => {
     { value: "ASC", label: "오래된순" },
   ];
 
-  const searchOption = [
-    { value: "user_id", label: "보호자 ID" },
-    { value: "user_name", label: "보호자 이름" },
-    { value: "patient_name", label: "피보호자 이름" },
-  ];
-
-  const handleChange = (value: string) => {
-    // 선택된 검색 셀렉트
-    setSelectSearch(value);
-  };
-
-  const onSearch: SearchProps["onSearch"] = async (value) => {
-    console.log("검색 기준", selectSearch);
-    console.log("검색 단어", value);
-    try {
-      // 신청된 목록 중에서 검색
-      const res = await axiosInstance.get("/matching/searchuser", {
-        params: {
-          search: selectSearch, // 어떤 기준으로 검색하는지(user_id->보호자ID, user_name->보호자 이름, patient_name->피보호자 이름)
-          word: value, // 검색 단어
-        },
-      });
-      const searchData = res.data;
-      console.log("검색된 유저들", searchData);
-
-      const mapped = searchData.map((x: any) => ({
-        key: x.user_id,
-        id: x.user_id,
-        email: x.user_email,
-        name: x.user_name,
-        phone: x.user_phone,
-        patient_id: x.patient_id,
-        patient_name: x.patient_name,
-        patient_gender: x.patient_gender === "male" ? "남" : "여",
-        patient_birth: x.patient_birth || "없음",
-        patient_note: x.patient_note || "없음",
-        created_at: x.user_create,
-      }));
-
-      setUsers(mapped);
-    } catch (e) {
-      console.error("검색 실패: ", e);
-      notification.error({
-        message: `검색 실패`,
-        description: `검색에 실패하였습니다.`,
-      });
-    }
-  };
   return (
     <ConfigProvider theme={GreenTheme}>
       <MatchingPageStyled className={clsx("matching_wrap")}>
@@ -338,20 +287,6 @@ const MatchingPage = () => {
                 setUserOrder(e);
                 setSortKey("created_at"); // 최신순/오래된순 정렬 기준을 가입일로 변경
               }}
-            />
-          </div>
-          <div>
-            <Select
-              className="usermanage_search_select"
-              value={selectSearch}
-              options={searchOption}
-              onChange={handleChange}
-            />
-            <Search
-              placeholder="선택한 기준으로 검색"
-              allowClear
-              onSearch={onSearch}
-              style={{ width: 200 }}
             />
           </div>
         </div>
@@ -400,10 +335,10 @@ const MatchingPage = () => {
             }
 
             try {
-              await axiosInstance.post(`/matching/refuse`, {
-                adminId,
-                userId: selectedUser.id,
-                content: refuseReason,
+              await axiosInstance.post(`/matching/cancel`, {
+                adminId, // 도우미 id
+                userId: selectedUser.id, // 보호자 id
+                content: refuseReason, // 거절 사유
               });
 
               notification.success({
