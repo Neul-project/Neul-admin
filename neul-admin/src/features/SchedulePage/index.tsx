@@ -35,7 +35,7 @@ const SchedulePage = () => {
   // 일정 가져오기
   const fetchSchedules = async () => {
     try {
-      const res = await axiosInstance.get("/admin/schedule");
+      const res = await axiosInstance.get("/matching/schedule");
       setSchedules(res.data);
     } catch (e) {
       console.error("일정 조회 실패:", e);
