@@ -34,15 +34,13 @@ const UserManage = () => {
 
   const getUserList = async () => {
     try {
-      // 모든 user불러오기
-      const res = await axiosInstance.get("/matching/alluser");
+      // 매칭된 user불러오기
+      const res = await axiosInstance.get("/matching/matchuser");
       const data = res.data;
       console.log(data);
 
       const mapped = data.map((x: any) => ({
         key: x.user_id,
-        admin_id: x.admin_id,
-        admin_name: x.admin_name,
         id: x.user_id,
         email: x.user_email,
         name: x.user_name,
@@ -52,7 +50,9 @@ const UserManage = () => {
         patient_gender: x.patient_gender === "male" ? "남" : "여",
         patient_birth: x.patient_birth || "없음",
         patient_note: x.patient_note || "없음",
-        created_at: x.user_create,
+        availableFrom: x.availableFrom, // 'YYYY-MM-DD'
+        availableTo: x.availableTo, // 'YYYY-MM-DD'
+        created_at: x.user_create, // 매칭된 날짜
       }));
 
       setUsers(mapped);
@@ -188,96 +188,11 @@ const UserManage = () => {
     },
     {
       key: "matching",
-      title: "담당",
-      render: (data: any) =>
-        data.admin_id === null ? (
-          // 담당 관리자 없을경우
-          <Button
-            onClick={(e) => {
-              e.stopPropagation();
-
-              Modal.confirm({
-                title: "해당 유저와 매칭하시겠습니까?",
-                content: "해당 유저의 담당 관리자가 됩니다.",
-                okText: "매칭",
-                cancelText: "취소",
-                okButtonProps: {
-                  style: { backgroundColor: "#5DA487" },
-                },
-                cancelButtonProps: {
-                  style: { color: "#5DA487" },
-                },
-                async onOk() {
-                  try {
-                    await axiosInstance.post(`/matching/user`, {
-                      adminId,
-                      userId: data.id,
-                      patientId: data.patient_id,
-                    });
-                    notification.success({
-                      message: `매칭 성공`,
-                      description: `해당 유저와 매칭되었습니다.`,
-                    });
-                    getUserList();
-                  } catch (e) {
-                    console.error("해당 유저와의 매칭 실패: ", e);
-                    notification.error({
-                      message: `매칭 실패`,
-                      description: `해당 유저와의 매칭에 실패했습니다.`,
-                    });
-                  }
-                },
-              });
-            }}
-          >
-            매칭
-          </Button>
-        ) : data.admin_id === adminId ? (
-          // 본인이 담당 관리자인 경우
-          <Button
-            onClick={(e) => {
-              e.stopPropagation();
-
-              Modal.confirm({
-                title: "해당 유저와 매칭 취소하시겠습니까?",
-                content: "해당 유저의 담당이 취소됩니다.",
-                okText: "예",
-                cancelText: "아니요",
-                okButtonProps: {
-                  style: { backgroundColor: "#5DA487" },
-                },
-                cancelButtonProps: {
-                  style: { color: "#5DA487" },
-                },
-                async onOk() {
-                  try {
-                    await axiosInstance.patch(`/matching/cancel`, {
-                      adminId,
-                      userId: data.id,
-                      patientId: data.patient_id,
-                    });
-                    notification.success({
-                      message: `매칭 취소 성공`,
-                      description: `해당 유저와의 매칭이 취소되었습니다.`,
-                    });
-                    getUserList();
-                  } catch (e) {
-                    console.error("해당 유저와의 매칭 취소 실패: ", e);
-                    notification.error({
-                      message: `매칭 취소 실패`,
-                      description: `해당 유저와의 매칭 취소에 실패했습니다.`,
-                    });
-                  }
-                },
-              });
-            }}
-          >
-            매칭취소
-          </Button>
-        ) : (
-          // 다른 사람이 담당 관리자인 경우
-          <>{data.admin_name}</>
-        ),
+      title: "배정일",
+      render: (record: any) =>
+        record.patient_name
+          ? `${record.patient_name} (${record.patient_id})`
+          : `없음 (${record.patient_id || "없음"})`,
     },
   ];
 
