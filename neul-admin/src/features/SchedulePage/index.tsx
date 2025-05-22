@@ -24,8 +24,7 @@ interface ScheduleItem {
   phone: string;
   patientId: number;
   patientName: string;
-  availableFrom: string; // 'YYYY-MM-DD'
-  availableTo: string; // 'YYYY-MM-DD'
+  availableDate: string;
 }
 
 const SchedulePage = () => {
@@ -52,8 +51,7 @@ const SchedulePage = () => {
     //     phone: "010-1234-5678",
     //     patientId: 201,
     //     patientName: "이수",
-    //     availableFrom: "2025-05-21",
-    //     availableTo: "2025-05-21",
+    //     availableDate: "2025-05-21,2025-05-23",
     //   },
     //   {
     //     id: 2,
@@ -62,8 +60,7 @@ const SchedulePage = () => {
     //     phone: "010-1234-5678",
     //     patientId: 202,
     //     patientName: "박박",
-    //     availableFrom: "2025-05-22",
-    //     availableTo: "2025-05-25",
+    //     availableDate: "2025-05-21,2025-05-23",
     //   },
     //   {
     //     id: 3,
@@ -72,8 +69,7 @@ const SchedulePage = () => {
     //     phone: "010-1234-5678",
     //     patientId: 203,
     //     patientName: "최현",
-    //     availableFrom: "2025-05-22",
-    //     availableTo: "2025-05-22",
+    //     availableDate: "2025-05-21,2025-05-23",
     //   },
     // ]);
   }, []);
@@ -81,11 +77,8 @@ const SchedulePage = () => {
   // 날짜 범위 내에 포함된 일정만 필터링
   const getSchedulesByDate = (date: Dayjs) =>
     schedules.filter((item) => {
-      const target = date.format("YYYY-MM-DD");
-      return (
-        dayjs(target).isSameOrAfter(item.availableFrom) &&
-        dayjs(target).isSameOrBefore(item.availableTo)
-      );
+      const dates = item.availableDate.split(",");
+      return dates.includes(date.format("YYYY-MM-DD"));
     });
 
   const cellRender: CalendarProps<Dayjs>["cellRender"] = (current, info) => {
@@ -140,9 +133,12 @@ const SchedulePage = () => {
                         </span>
                       </span>
                       <span className="schedule_date">
-                        {item.availableFrom === item.availableTo
-                          ? item.availableFrom
-                          : `${item.availableFrom} - ${item.availableTo}`}
+                        {(() => {
+                          const dates = item.availableDate.split(",").sort(); // 날짜 정렬
+                          return dates.length === 1
+                            ? dates[0]
+                            : `${dates[0]} ~ ${dates[dates.length - 1]}`;
+                        })()}
                       </span>
                     </div>
                   </div>
