@@ -27,7 +27,7 @@ const UserManage = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [userOrder, setUserOrder] = useState("DESC");
-  const [sortKey, setSortKey] = useState("created_at");
+  const [sortKey, setSortKey] = useState("matcing_at");
   const [sortedUsers, setSortedUsers] = useState<any[]>([]);
   const [selectSearch, setSelectSearch] = useState<string>("user_id");
   const adminId = useAuthStore((state) => state.user?.id);
@@ -52,7 +52,8 @@ const UserManage = () => {
         patient_note: x.patient_note || "없음",
         availableFrom: x.availableFrom, // 'YYYY-MM-DD'
         availableTo: x.availableTo, // 'YYYY-MM-DD'
-        created_at: x.user_create, // 매칭된 날짜
+        matcing_at: x.matcing_at, // 매칭된 날짜
+        created_at: x.user_create,
       }));
 
       setUsers(mapped);
@@ -69,11 +70,11 @@ const UserManage = () => {
   const sortUsers = () => {
     let sorted = [...users];
 
-    if (sortKey === "created_at") {
+    if (sortKey === "matcing_at") {
       sorted.sort((a, b) =>
         userOrder === "DESC"
-          ? new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-          : new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          ? new Date(b.matcing_at).getTime() - new Date(a.matcing_at).getTime()
+          : new Date(a.matcing_at).getTime() - new Date(b.matcing_at).getTime()
       );
     }
     setSortedUsers(sorted);
@@ -238,6 +239,7 @@ const UserManage = () => {
         patient_gender: x.patient_gender === "male" ? "남" : "여",
         patient_birth: x.patient_birth || "없음",
         patient_note: x.patient_note || "없음",
+        matcing_at: x.matcing_at, // 매칭된 날짜
         created_at: x.user_create,
       }));
 
@@ -273,7 +275,7 @@ const UserManage = () => {
               options={sortOption}
               onChange={(e) => {
                 setUserOrder(e);
-                setSortKey("created_at"); // 최신순/오래된순 정렬 기준을 가입일로 변경
+                setSortKey("matcing_at"); // 최신순/오래된순 정렬 기준을 가입일로 변경
               }}
             />
           </div>
