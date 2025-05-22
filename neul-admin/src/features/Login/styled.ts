@@ -15,10 +15,11 @@ export const LoginStyled = styled.div`
     gap: 15px;
 
     .Login_logo {
-      width: 100px;
-      height: 100px;
+      width: 70px;
+      height: 60px;
       display: flex;
       margin: 0px auto;
+      margin-bottom: 15px;
 
       .Login_imgstyle {
         width: 100%;

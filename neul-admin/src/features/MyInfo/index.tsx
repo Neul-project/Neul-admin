@@ -10,31 +10,7 @@ import ModalCompo from "@/components/ModalCompo";
 import * as S from "@/components/ModalCompo/ModalContent";
 import { Button, ConfigProvider, notification } from "antd";
 import { GreenTheme } from "@/utill/antdtheme";
-
-interface HelperInfo {
-  id: number;
-  gender: string;
-  birth: string;
-  profileImage: string;
-  certificate: string; // 자격증 pdf파일
-  desiredPay: number; // 희망 일당
-  experience: string; // 경력사항
-  certificateName: string;
-  certificateName2: string | null;
-  certificateName3: string | null;
-  status: string;
-  user: {
-    id: number;
-    name: string;
-    email: string;
-    phone: string;
-    address: string | null;
-    created_at: string;
-    password: string;
-    provider: "local" | string;
-    role: "admin" | "user" | string;
-  };
-}
+import { HelperInfo } from "./info";
 
 // 로그인한 도우미 정보
 const MyInfo = () => {
@@ -75,13 +51,16 @@ const MyInfo = () => {
     }
   }, [info]);
 
+  //로그인한 도우미 정보 가져오기
   const getMyInfo = async () => {
     if (!adminId) return;
-    console.log(adminId);
+    //console.log(adminId);
     try {
       const res = await axiosInstance.get("/helper/userlist", {
         params: { id: adminId },
       });
+
+      console.log("res", res.data);
       setInfo(res.data);
     } catch (e) {
       console.error("해당 도우미 정보 불러오기 실패: ", e);
@@ -100,7 +79,9 @@ const MyInfo = () => {
     },
     validationSchema: changePwValidation,
     onSubmit: async (values) => {
+      //비밀번호 관련
       try {
+        //비밀번호 변경
         const res = await axiosInstance.patch("/auth/password", {
           newPassword: values.password,
         });
