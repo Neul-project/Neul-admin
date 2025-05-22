@@ -38,12 +38,22 @@ interface HelperInfo {
 const MyInfo = () => {
   const [info, setInfo] = useState<HelperInfo>();
   const [pwOpen, setPwOpen] = useState(false);
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<{
+    desiredPay: number;
+    experience: string;
+    certificateName: string;
+    certificateName2: string | null;
+    certificateName3: string | null;
+    certificateFile: File | null;
+    profileImageFile: File | null;
+  }>({
     desiredPay: 0,
     experience: "",
     certificateName: "",
-    certificateFile: null as File | null,
-    profileImageFile: null as File | null,
+    certificateName2: null,
+    certificateName3: null,
+    certificateFile: null,
+    profileImageFile: null,
   });
 
   const adminId = useAuthStore((state) => state.user?.id);
@@ -55,6 +65,8 @@ const MyInfo = () => {
         desiredPay: info.desiredPay,
         experience: info.experience,
         certificateName: info.certificateName,
+        certificateName2: info.certificateName2 ?? "",
+        certificateName3: info.certificateName3 ?? "",
         certificateFile: null,
         profileImageFile: null,
       });
@@ -68,7 +80,6 @@ const MyInfo = () => {
       const res = await axiosInstance.get("/helper/userlist", {
         params: { id: adminId },
       });
-      console.log("나는 누구인가", res.data);
       setInfo(res.data);
     } catch (e) {
       console.error("해당 도우미 정보 불러오기 실패: ", e);
@@ -87,8 +98,6 @@ const MyInfo = () => {
     },
     validationSchema: changePwValidation,
     onSubmit: async (values) => {
-      console.log("비밀번호 변경요청", values);
-
       try {
         const res = await axiosInstance.patch("/auth/password", {
           newPassword: values.password,
@@ -158,6 +167,10 @@ const MyInfo = () => {
       updateData.append("certificateName", form.certificateName);
     if (form.certificateFile)
       updateData.append("certificate", form.certificateFile);
+    if (form.certificateName2 !== certificateName2)
+      updateData.append("certificateName2", form.certificateName2 ?? "");
+    if (form.certificateName3 !== certificateName3)
+      updateData.append("certificateName3", form.certificateName3 ?? "");
 
     try {
       await axiosInstance.patch("/helper/edit-profile", updateData, {
@@ -181,6 +194,8 @@ const MyInfo = () => {
     experience,
     certificate,
     certificateName,
+    certificateName2,
+    certificateName3,
     profileImage,
   } = info;
 
@@ -209,7 +224,7 @@ const MyInfo = () => {
       />
 
       {/* 이름, 이메일, 비밀번호 변경 */}
-      <div className="myinfo_flex">
+      <div className="myinfo_flex myinfo_name_box">
         <div className="myinfo_cont">
           <div className="myinfo_name">
             <span>{info.user?.name}</span>님
@@ -266,42 +281,87 @@ const MyInfo = () => {
         </ModalCompo>
       )}
 
-      <div className="myinfo_info">
-        <div className="myinfo_column">
-          <span className="myinfo_title">전화번호</span>
-          <span className="myinfo_title">생년월일</span>
-          <span className="myinfo_title">성별</span>
-          <span className="myinfo_title">희망 일급</span>
-          <span className="myinfo_title">경력</span>
-          <span className="myinfo_title">자격증명</span>
-          {certificate && <span className="myinfo_title">자격증 PDF</span>}
-        </div>
-        <div className="myinfo_column">
-          <span className="myinfo_content">{user.phone}</span>
-          <span className="myinfo_content">{birth}</span>
-          <span className="myinfo_content">
-            {gender === "male" ? "남성" : "여성"}
-          </span>
-          <input
-            type="number"
-            name="desiredPay"
-            value={form.desiredPay}
-            onChange={handleChange}
-            className="myinfo_input"
-          />
-          <textarea
-            name="experience"
-            value={form.experience}
-            onChange={handleChange}
-            className="myinfo_input"
-          />
-          <input
-            type="text"
-            name="certificateName"
-            value={form.certificateName}
-            onChange={handleChange}
-            className="myinfo_input"
-          />
+      {/* 전화번호 */}
+      <div className="myinfo_flex">
+        <span className="myinfo_title">전화번호</span>
+        <span className="myinfo_content">{user.phone}</span>
+      </div>
+
+      {/* 생년월일 */}
+      <div className="myinfo_flex">
+        <span className="myinfo_title">생년월일</span>
+        <span className="myinfo_content">{birth}</span>
+      </div>
+
+      {/* 성별 */}
+      <div className="myinfo_flex">
+        <span className="myinfo_title">성별</span>
+        <span className="myinfo_content">
+          {gender === "male" ? "남성" : "여성"}
+        </span>
+      </div>
+
+      {/* 희망 일급 */}
+      <div className="myinfo_flex">
+        <span className="myinfo_title">희망 일급</span>
+        <input
+          type="number"
+          name="desiredPay"
+          value={form.desiredPay}
+          onChange={handleChange}
+          className="myinfo_input"
+        />
+      </div>
+
+      {/* 경력 */}
+      <div className="myinfo_flex">
+        <span className="myinfo_title">경력</span>
+        <textarea
+          name="experience"
+          value={form.experience}
+          onChange={handleChange}
+          className="myinfo_input"
+        />
+      </div>
+
+      {/* 자격증명 */}
+      <div className="myinfo_flex">
+        <span className="myinfo_title">자격증 명</span>
+        <input
+          type="text"
+          name="certificateName"
+          value={form.certificateName}
+          onChange={handleChange}
+          className="myinfo_input"
+        />
+      </div>
+      {/* 자격증명2 */}
+      <div className="myinfo_flex">
+        <span className="myinfo_title">자격증 명2</span>
+        <input
+          type="text"
+          name="certificateName2"
+          value={form.certificateName2 ?? ""}
+          onChange={handleChange}
+          className="myinfo_input"
+        />
+      </div>
+      {/* 자격증명3 */}
+      <div className="myinfo_flex">
+        <span className="myinfo_title">자격증 명3</span>
+        <input
+          type="text"
+          name="certificateName3"
+          value={form.certificateName3 ?? ""}
+          onChange={handleChange}
+          className="myinfo_input"
+        />
+      </div>
+
+      {/* 자격증 PDF */}
+      <div className="myinfo_flex">
+        {certificate && <span className="myinfo_title">자격증 PDF</span>}
+        <div className="myinfo_pdf">
           {certificate && (
             <>
               <a
@@ -310,7 +370,7 @@ const MyInfo = () => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                PDF 보기
+                기존 파일 보기
               </a>
               <input
                 type="file"
@@ -322,6 +382,7 @@ const MyInfo = () => {
           )}
         </div>
       </div>
+
       <button onClick={handleUpdate} className="myinfo_button">
         수정하기
       </button>
