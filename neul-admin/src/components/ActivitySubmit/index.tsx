@@ -17,19 +17,17 @@ import {
   notification,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-import type { UploadProps, RadioChangeEvent } from "antd";
+import type { UploadProps } from "antd";
 const { TextArea } = Input;
 
 //Swiper
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
-import { Pagination, A11y } from "swiper/modules";
+import { Pagination } from "swiper/modules";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { AntdGlobalTheme } from "@/utill/antdtheme";
 import { activityValidationSchema } from "./activityValidation";
-//import dynamic from "next/dynamic";
-//import ToastEdit from "../ToastEdit";
 
 //활동 기록 등록 컴포넌트 - formik 작성
 const ActivitySubmit = (props: {
@@ -364,7 +362,9 @@ const ActivitySubmit = (props: {
                 <Select
                   className="activitySubmit_select"
                   value={
-                    com_type === "modify" ? type : activityformik.values.type
+                    com_type === "modify"
+                      ? type
+                      : activityformik.values.type || undefined
                   }
                   onChange={(value) => {
                     setType(value);
