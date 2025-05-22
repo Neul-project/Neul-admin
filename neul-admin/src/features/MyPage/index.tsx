@@ -32,8 +32,6 @@ const MyPage = () => {
   const getDate = async () => {
     try {
       const res = await axiosInstance.get("/helper/posibledate");
-      console.log("가능일임", res.data);
-
       setPossibleDate(res.data);
     } catch (e) {
       console.error("근무 가능일 가져오기 실패: ", e);
@@ -42,13 +40,15 @@ const MyPage = () => {
 
   useEffect(() => {
     getDate();
-  }, []);
+  }, [possibleDate]);
 
   return (
     <MyPageStyled className={clsx("mypage_wrap")}>
       <TitleCompo title="마이페이지" />
       {/* 내용 */}
       <MyInfo />
+
+      {/* 근무 가능일 */}
       <div className="mypage_button">
         {possibleDate ? (
           <div>
