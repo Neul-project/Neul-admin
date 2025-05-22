@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axios";
 
 //antd
-import { Select, Button, Table, Modal, ConfigProvider, message } from "antd";
+import { Select, Button, Table, ConfigProvider, message } from "antd";
 import type { TableColumnsType, TableProps } from "antd";
 
 //component
@@ -13,34 +13,10 @@ import ActivitySubmit from "@/components/ActivitySubmit";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { formatDate, getActivityLabel } from "@/utill/activityoptionlist";
 import { AntdGlobalTheme } from "@/utill/antdtheme";
+import { DataTableType, DataType, UserType } from "./datainfo";
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>["rowSelection"];
-
-interface DataType {
-  key: number;
-  name: string;
-  title: string;
-  type: string;
-  recorded: string;
-  original?: any;
-}
-
-//테이블 데이터 타입
-interface DataTableType {
-  key: number;
-  name: string;
-  title: string;
-  type: string;
-  recorded: string;
-  original?: any;
-}
-
-//유저 데이터 타입
-interface UserType {
-  value: number;
-  label: string;
-}
 
 //활동기록 > 활동기록 리스트 컴포넌트
 const ActivityList = () => {
@@ -60,6 +36,10 @@ const ActivityList = () => {
 
   //table colums
   const columns: TableColumnsType<DataType> = [
+    {
+      title: "번호",
+      dataIndex: "num",
+    },
     {
       title: "피보호자(ID)",
       dataIndex: "name",
@@ -118,6 +98,7 @@ const ActivityList = () => {
         const data = res.data.reverse();
         const mappedData: DataType[] = data.map((item: any, index: number) => ({
           key: item.id,
+          num: index + 1,
           name: item.patient.name + "(" + item.patient.id + ")" ?? "",
           title: item.title,
           type: getActivityLabel(item.type ?? ""),
@@ -161,6 +142,7 @@ const ActivityList = () => {
 
         const mappedData: DataType[] = data.map((item: any, index: number) => ({
           key: item.id,
+          num: index + 1,
           name: item.patient.name + "(" + item.patient.id + ")" ?? "",
           title: item.title,
           type: getActivityLabel(item.type ?? ""),
