@@ -190,9 +190,9 @@ const UserManage = () => {
       key: "matching",
       title: "배정일",
       render: (record: any) =>
-        record.patient_name
-          ? `${record.patient_name} (${record.patient_id})`
-          : `없음 (${record.patient_id || "없음"})`,
+        record.availableFrom && record.availableTo
+          ? `${record.availableFrom} - ${record.availableTo}`
+          : `없음`,
     },
   ];
 
