@@ -3,6 +3,13 @@ import { Modal } from "antd";
 
 export const ActivityListStyled = styled.div`
   &.ActivityList_main_wrap {
+    .ant-table-cell {
+      text-align: center;
+    }
+    .ant-table-thead > tr > th {
+      text-align: center;
+    }
+
     .ActivitiyList_status {
       display: flex;
       justify-content: space-between;

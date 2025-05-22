@@ -1,24 +1,10 @@
 import { useEffect, useState } from "react";
 import { FeedbackStyled, StyledModal } from "./styled";
 import axiosInstance from "@/lib/axios";
-import {
-  AntdGlobalTheme,
-  GreenTheme,
-  paginationstyle,
-} from "@/utill/antdtheme";
+import { AntdGlobalTheme, GreenTheme } from "@/utill/antdtheme";
 import { formatDate } from "@/utill/activityoptionlist";
 import FeedbackModal from "../FeedbackModal";
-import {
-  Table,
-  TableProps,
-  Select,
-  Modal,
-  Button,
-  ConfigProvider,
-  Input,
-} from "antd";
-import { AudioOutlined } from "@ant-design/icons";
-import type { GetProps } from "antd";
+import { Table, TableProps, Select, Button, ConfigProvider, Input } from "antd";
 import { SearchProps } from "antd/es/input";
 
 const { Search } = Input;
@@ -50,7 +36,6 @@ const Feedback = () => {
   const columns: TableProps<DataType>["columns"] = [
     { title: "번호", dataIndex: "number", key: "number" },
     { title: "활동기록", dataIndex: "activity", key: "activity" },
-    { title: "내용", dataIndex: "content", key: "content" },
     { title: "날짜", dataIndex: "date", key: "date" },
     {
       key: "typeBtn",
@@ -115,8 +100,8 @@ const Feedback = () => {
       const mappedList: DataType[] = data.map((item: any, index: number) => ({
         key: item.id,
         number: index + 1,
-        activity: item.activity.title,
         content: item.message,
+        activity: item.activity.title,
         date: formatDate(item.recorded_at),
         // admin: item.activity.id,
         origin: item,

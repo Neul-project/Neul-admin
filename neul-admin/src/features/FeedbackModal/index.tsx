@@ -7,14 +7,18 @@ const FeedbackModal = (props: { selectedRecord: any }) => {
     <FeedbackModalStyled>
       <div className="Feedback_content">
         <div className="Feedback_content_row">
-          <strong>활동기록 이름 : </strong>
+          <strong className="Feedback_content_title">활동기록</strong>
           {selectedRecord.origin.activity.title}
         </div>
         <div className="Feedback_content_row">
-          <strong>내용 :</strong> {selectedRecord.content}
+          <strong className="Feedback_content_title">내용 </strong>
+          <div className="Feedback_content_content">
+            {selectedRecord.content}
+          </div>
         </div>
         <div className="Feedback_content_row">
-          <strong>날짜 :</strong> {selectedRecord.date}
+          <strong className="Feedback_content_title">날짜 </strong>
+          {selectedRecord.date}
         </div>
       </div>
     </FeedbackModalStyled>

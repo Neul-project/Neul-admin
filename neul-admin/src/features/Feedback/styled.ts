@@ -3,23 +3,10 @@ import { Modal } from "antd";
 
 export const StyledModal = styled(Modal)`
   .ant-modal-content {
-    padding: 0px 10px 20px 20px;
-    .Feedback_content {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      max-height: 70vh;
-      //min-height: 300px;
-      overflow-y: auto;
-      margin-top: 24px;
-      padding-right: 10px;
-    }
-    .Feedback_content_row {
-      //margin-bottom: 10px;
-      font-size: 15px;
-    }
+    padding: 10px 10px 20px 20px;
   }
 `;
+
 export const FeedbackStyled = styled.div`
   .Feedback_admin_choice {
     display: flex;
@@ -36,6 +23,13 @@ export const FeedbackStyled = styled.div`
     .Feedback_search {
       width: 300px;
     }
+  }
+
+  .ant-table-cell {
+    text-align: center;
+  }
+  .ant-table-thead > tr > th {
+    text-align: center;
   }
 
   .ant-pagination-item {
