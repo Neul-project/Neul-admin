@@ -78,27 +78,26 @@ const MatchingPage = () => {
   // 해당 도우미에게 신청한 user 불러오기
   const getApplyList = async () => {
     try {
-      setUsers(dummyUsers);
-      // const res = await axiosInstance.get("/matching/applyuser");
-      // const data = res.data;
-      // console.log("신청한 user정보", data);
+      const res = await axiosInstance.get("/matching/applyuser");
+      const data = res.data;
+      console.log("신청한 user정보", data);
 
-      // const mapped = data.map((x: any) => ({
-      //   key: x.user_id,
-      //   status: x.status, //수락 여부
-      //   id: x.user_id,
-      //   email: x.user_email,
-      //   name: x.user_name,
-      //   phone: x.user_phone,
-      //   patient_id: x.patient_id,
-      //   patient_name: x.patient_name,
-      //   patient_gender: x.patient_gender === "male" ? "남" : "여",
-      //   patient_birth: x.patient_birth || "없음",
-      //   patient_note: x.patient_note || "없음",
-      //   created_at: x.user_create,
-      // }));
+      const mapped = data.map((x: any) => ({
+        key: x.user_id,
+        status: x.status, //수락 여부
+        id: x.user_id,
+        email: x.user_email,
+        name: x.user_name,
+        phone: x.user_phone,
+        patient_id: x.patient_id,
+        patient_name: x.patient_name,
+        patient_gender: x.patient_gender === "male" ? "남" : "여",
+        patient_birth: x.patient_birth || "없음",
+        patient_note: x.patient_note || "없음",
+        created_at: x.user_create,
+      }));
 
-      // setUsers(mapped);
+      setUsers(mapped);
     } catch (err) {
       console.error("신청 정보 불러오기 실패", err);
     }
@@ -200,7 +199,7 @@ const MatchingPage = () => {
       key: "matching",
       title: "관리",
       render: (data: any) =>
-        data.status === "apply" ? (
+        data.status !== "apply" ? (
           // 신청만 왔을 경우
           <>
             <Button

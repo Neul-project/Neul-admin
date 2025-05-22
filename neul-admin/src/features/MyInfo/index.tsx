@@ -2,6 +2,12 @@ import clsx from "clsx";
 import { MyInfoStyled } from "./styled";
 import axiosInstance from "@/lib/axios";
 import { useEffect, useState } from "react";
+import { useFormik } from "formik";
+import { changePwValidation } from "@/utill/userValidation";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { useRouter } from "next/router";
+import ModalCompo from "@/components/ModalCompo";
+import * as S from "@/components/ModalCompo/ModalContent";
 
 interface HelperInfo {
   id: number;
@@ -31,13 +37,27 @@ interface HelperInfo {
 // 로그인한 도우미 정보
 const MyInfo = () => {
   const [info, setInfo] = useState<HelperInfo>();
-  const [form, setForm] = useState({
+  const [pwOpen, setPwOpen] = useState(false);
+  const [form, setForm] = useState<{
+    desiredPay: number;
+    experience: string;
+    certificateName: string;
+    certificateName2: string | null;
+    certificateName3: string | null;
+    certificateFile: File | null;
+    profileImageFile: File | null;
+  }>({
     desiredPay: 0,
     experience: "",
     certificateName: "",
-    certificateFile: null as File | null,
-    profileImageFile: null as File | null,
+    certificateName2: null,
+    certificateName3: null,
+    certificateFile: null,
+    profileImageFile: null,
   });
+
+  const adminId = useAuthStore((state) => state.user?.id);
+  const router = useRouter();
 
   useEffect(() => {
     if (info) {
@@ -45,6 +65,8 @@ const MyInfo = () => {
         desiredPay: info.desiredPay,
         experience: info.experience,
         certificateName: info.certificateName,
+        certificateName2: info.certificateName2 ?? "",
+        certificateName3: info.certificateName3 ?? "",
         certificateFile: null,
         profileImageFile: null,
       });
@@ -52,9 +74,12 @@ const MyInfo = () => {
   }, [info]);
 
   const getMyInfo = async () => {
+    if (!adminId) return;
+    console.log(adminId);
     try {
-      const res = await axiosInstance.get("/helper/userlist");
-      console.log(res.data);
+      const res = await axiosInstance.get("/helper/userlist", {
+        params: { id: adminId },
+      });
       setInfo(res.data);
     } catch (e) {
       console.error("해당 도우미 정보 불러오기 실패: ", e);
@@ -63,7 +88,57 @@ const MyInfo = () => {
 
   useEffect(() => {
     getMyInfo();
-  }, []);
+  }, [adminId]);
+
+  // 비밀번호 변경 요청
+  const formik = useFormik({
+    initialValues: {
+      password: "",
+      confirmPassword: "",
+    },
+    validationSchema: changePwValidation,
+    onSubmit: async (values) => {
+      try {
+        const res = await axiosInstance.patch("/auth/password", {
+          newPassword: values.password,
+        });
+
+        if (res.data?.ok) {
+          alert("비밀번호가 성공적으로 변경되었습니다.");
+          setPwOpen(false);
+        } else {
+          alert("비밀번호 변경에 실패했습니다.");
+        }
+      } catch (error) {
+        console.error("비밀번호 변경 오류:", error);
+        alert("서버 오류가 발생했습니다.");
+      }
+    },
+  });
+
+  // 회원탈퇴 요청
+  const handleWithdraw = async () => {
+    const confirmed = confirm("정말 회원을 탈퇴하시겠습니까?");
+    if (!confirmed) return;
+
+    try {
+      const res = await axiosInstance.delete("/user/withdraw");
+
+      console.log("회원탈퇴", res.data);
+
+      if (res.data) {
+        // access_token, refresh_token 제거 및 zustand 상태 초기화
+        useAuthStore.getState().logout();
+
+        alert("탈퇴가 완료되었습니다.");
+        router.push("/");
+      } else {
+        alert("탈퇴에 실패했습니다. 다시 시도해주세요.");
+      }
+    } catch (err: any) {
+      console.error("회원탈퇴 오류:", err);
+    }
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -92,6 +167,10 @@ const MyInfo = () => {
       updateData.append("certificateName", form.certificateName);
     if (form.certificateFile)
       updateData.append("certificate", form.certificateFile);
+    if (form.certificateName2 !== certificateName2)
+      updateData.append("certificateName2", form.certificateName2 ?? "");
+    if (form.certificateName3 !== certificateName3)
+      updateData.append("certificateName3", form.certificateName3 ?? "");
 
     try {
       await axiosInstance.patch("/helper/edit-profile", updateData, {
@@ -115,11 +194,14 @@ const MyInfo = () => {
     experience,
     certificate,
     certificateName,
+    certificateName2,
+    certificateName3,
     profileImage,
   } = info;
 
   return (
     <MyInfoStyled className={clsx("myinfo_wrap")}>
+      {/* 프로필 사진 */}
       {profileImage && (
         <div className="myinfo_img_box">
           <img
@@ -141,46 +223,145 @@ const MyInfo = () => {
         className="myinfo_input"
       />
 
-      <div className="myinfo_info">
-        <div className="myinfo_column">
-          <span className="myinfo_title">이름</span>
-          <span className="myinfo_title">이메일</span>
-          <span className="myinfo_title">전화번호</span>
-          <span className="myinfo_title">생년월일</span>
-          <span className="myinfo_title">성별</span>
-          <span className="myinfo_title">희망 일급</span>
-          <span className="myinfo_title">경력</span>
-          <span className="myinfo_title">자격증명</span>
-          {certificate && <span className="myinfo_title">자격증 PDF</span>}
+      {/* 이름, 이메일, 비밀번호 변경 */}
+      <div className="myinfo_flex myinfo_name_box">
+        <div className="myinfo_cont">
+          <div className="myinfo_name">
+            <span>{info.user?.name}</span>님
+          </div>
+          <div className="myinfo_email">{info.user?.email}</div>
         </div>
-        <div className="myinfo_column">
-          <span className="myinfo_content">{user.name}</span>
-          <span className="myinfo_content">{user.email}</span>
-          <span className="myinfo_content">{user.phone}</span>
-          <span className="myinfo_content">{birth}</span>
-          <span className="myinfo_content">
-            {gender === "male" ? "남성" : "여성"}
-          </span>
-          <input
-            type="number"
-            name="desiredPay"
-            value={form.desiredPay}
-            onChange={handleChange}
-            className="myinfo_input"
-          />
-          <textarea
-            name="experience"
-            value={form.experience}
-            onChange={handleChange}
-            className="myinfo_input"
-          />
-          <input
-            type="text"
-            name="certificateName"
-            value={form.certificateName}
-            onChange={handleChange}
-            className="myinfo_input"
-          />
+
+        {/* 로컬로그인일 경우만 보임 */}
+        {user?.provider === "local" && (
+          <div className="myinfo_pw_btn">
+            <div onClick={() => setPwOpen(true)}>비밀번호 변경</div>
+          </div>
+        )}
+      </div>
+
+      {/* 비밀번호 변경 모달 */}
+      {pwOpen && (
+        <ModalCompo onClose={() => setPwOpen(false)}>
+          <S.ModalFormWrap onSubmit={formik.handleSubmit}>
+            <S.ModalTitle>비밀번호 변경</S.ModalTitle>
+
+            <S.ModalInputDiv>
+              <S.ModalInput
+                type="password"
+                name="password"
+                placeholder="새로운 비밀번호를 입력해주세요"
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              />
+              {formik.touched.password && formik.errors.password && (
+                <div className="error">{formik.errors.password}</div>
+              )}
+            </S.ModalInputDiv>
+            <S.ModalInputDiv>
+              <S.ModalInput
+                type="password"
+                name="confirmPassword"
+                placeholder="비밀번호를 확인해주세요"
+                value={formik.values.confirmPassword}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              />
+              {formik.touched.confirmPassword &&
+                formik.errors.confirmPassword && (
+                  <div className="error">{formik.errors.confirmPassword}</div>
+                )}
+            </S.ModalInputDiv>
+
+            <div>
+              <S.ModalButton type="submit">변경하기</S.ModalButton>
+            </div>
+          </S.ModalFormWrap>
+        </ModalCompo>
+      )}
+
+      {/* 전화번호 */}
+      <div className="myinfo_flex">
+        <span className="myinfo_title">전화번호</span>
+        <span className="myinfo_content">{user.phone}</span>
+      </div>
+
+      {/* 생년월일 */}
+      <div className="myinfo_flex">
+        <span className="myinfo_title">생년월일</span>
+        <span className="myinfo_content">{birth}</span>
+      </div>
+
+      {/* 성별 */}
+      <div className="myinfo_flex">
+        <span className="myinfo_title">성별</span>
+        <span className="myinfo_content">
+          {gender === "male" ? "남성" : "여성"}
+        </span>
+      </div>
+
+      {/* 희망 일급 */}
+      <div className="myinfo_flex">
+        <span className="myinfo_title">희망 일급</span>
+        <input
+          type="number"
+          name="desiredPay"
+          value={form.desiredPay}
+          onChange={handleChange}
+          className="myinfo_input"
+        />
+      </div>
+
+      {/* 경력 */}
+      <div className="myinfo_flex">
+        <span className="myinfo_title">경력</span>
+        <textarea
+          name="experience"
+          value={form.experience}
+          onChange={handleChange}
+          className="myinfo_input"
+        />
+      </div>
+
+      {/* 자격증명 */}
+      <div className="myinfo_flex">
+        <span className="myinfo_title">자격증 명</span>
+        <input
+          type="text"
+          name="certificateName"
+          value={form.certificateName}
+          onChange={handleChange}
+          className="myinfo_input"
+        />
+      </div>
+      {/* 자격증명2 */}
+      <div className="myinfo_flex">
+        <span className="myinfo_title">자격증 명2</span>
+        <input
+          type="text"
+          name="certificateName2"
+          value={form.certificateName2 ?? ""}
+          onChange={handleChange}
+          className="myinfo_input"
+        />
+      </div>
+      {/* 자격증명3 */}
+      <div className="myinfo_flex">
+        <span className="myinfo_title">자격증 명3</span>
+        <input
+          type="text"
+          name="certificateName3"
+          value={form.certificateName3 ?? ""}
+          onChange={handleChange}
+          className="myinfo_input"
+        />
+      </div>
+
+      {/* 자격증 PDF */}
+      <div className="myinfo_flex">
+        {certificate && <span className="myinfo_title">자격증 PDF</span>}
+        <div className="myinfo_pdf">
           {certificate && (
             <>
               <a
@@ -189,7 +370,7 @@ const MyInfo = () => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                PDF 보기
+                기존 파일 보기
               </a>
               <input
                 type="file"
@@ -201,6 +382,7 @@ const MyInfo = () => {
           )}
         </div>
       </div>
+
       <button onClick={handleUpdate} className="myinfo_button">
         수정하기
       </button>
