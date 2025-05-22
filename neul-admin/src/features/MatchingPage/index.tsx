@@ -58,7 +58,9 @@ const MatchingPage = () => {
         dates: x.dates, // 사용자가 신청한 날짜
       }));
 
-      setUsers(mapped);
+      setUsers(
+        mapped.filter((item: { status: string }) => item.status !== "승인 반려")
+      );
     } catch (err) {
       console.error("신청 정보 불러오기 실패", err);
     }
