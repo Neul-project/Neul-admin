@@ -94,7 +94,7 @@ const MyInfo = () => {
       updateData.append("certificate", form.certificateFile);
 
     try {
-      await axiosInstance.patch("/helper/update", updateData, {
+      await axiosInstance.patch("/helper/edit-profile", updateData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       alert("수정되었습니다!");

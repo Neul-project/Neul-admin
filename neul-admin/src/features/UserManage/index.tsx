@@ -53,7 +53,6 @@ const UserManage = () => {
         availableFrom: x.availableFrom, // 'YYYY-MM-DD'
         availableTo: x.availableTo, // 'YYYY-MM-DD'
         matcing_at: x.matcing_at, // 매칭된 날짜
-        created_at: x.user_create,
       }));
 
       setUsers(mapped);
@@ -228,8 +227,6 @@ const UserManage = () => {
 
       const mapped = searchData.map((x: any) => ({
         key: x.user_id,
-        admin_id: x.admin_id,
-        admin_name: x.admin_name,
         id: x.user_id,
         email: x.user_email,
         name: x.user_name,
@@ -239,8 +236,9 @@ const UserManage = () => {
         patient_gender: x.patient_gender === "male" ? "남" : "여",
         patient_birth: x.patient_birth || "없음",
         patient_note: x.patient_note || "없음",
+        availableFrom: x.availableFrom, // 'YYYY-MM-DD'
+        availableTo: x.availableTo, // 'YYYY-MM-DD'
         matcing_at: x.matcing_at, // 매칭된 날짜
-        created_at: x.user_create,
       }));
 
       setUsers(mapped);

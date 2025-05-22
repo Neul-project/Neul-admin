@@ -165,7 +165,7 @@ const StatusList = () => {
     },
     {
       key: "patient",
-      title: "피보호자(id)",
+      title: "피보호자(ID)",
       dataIndex: "patient",
     },
     {
