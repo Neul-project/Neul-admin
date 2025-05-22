@@ -2,6 +2,12 @@ import clsx from "clsx";
 import { MyInfoStyled } from "./styled";
 import axiosInstance from "@/lib/axios";
 import { useEffect, useState } from "react";
+import { useFormik } from "formik";
+import { changePwValidation } from "@/utill/userValidation";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { useRouter } from "next/router";
+import ModalCompo from "@/components/ModalCompo";
+import * as S from "@/components/ModalCompo/ModalContent";
 
 interface HelperInfo {
   id: number;
@@ -31,6 +37,7 @@ interface HelperInfo {
 // 로그인한 도우미 정보
 const MyInfo = () => {
   const [info, setInfo] = useState<HelperInfo>();
+  const [pwOpen, setPwOpen] = useState(false);
   const [form, setForm] = useState({
     desiredPay: 0,
     experience: "",
@@ -38,6 +45,9 @@ const MyInfo = () => {
     certificateFile: null as File | null,
     profileImageFile: null as File | null,
   });
+
+  const adminId = useAuthStore((state) => state.user?.id);
+  const router = useRouter();
 
   useEffect(() => {
     if (info) {
@@ -52,8 +62,11 @@ const MyInfo = () => {
   }, [info]);
 
   const getMyInfo = async () => {
+    if (!adminId) return;
     try {
-      const res = await axiosInstance.get("/helper/userlist");
+      const res = await axiosInstance.get("/helper/userlist", {
+        params: { adminId },
+      });
       console.log(res.data);
       setInfo(res.data);
     } catch (e) {
@@ -63,7 +76,59 @@ const MyInfo = () => {
 
   useEffect(() => {
     getMyInfo();
-  }, []);
+  }, [adminId]);
+
+  // 비밀번호 변경 요청
+  const formik = useFormik({
+    initialValues: {
+      password: "",
+      confirmPassword: "",
+    },
+    validationSchema: changePwValidation,
+    onSubmit: async (values) => {
+      console.log("비밀번호 변경요청", values);
+
+      try {
+        const res = await axiosInstance.patch("/auth/password", {
+          newPassword: values.password,
+        });
+
+        if (res.data?.ok) {
+          alert("비밀번호가 성공적으로 변경되었습니다.");
+          setPwOpen(false);
+        } else {
+          alert("비밀번호 변경에 실패했습니다.");
+        }
+      } catch (error) {
+        console.error("비밀번호 변경 오류:", error);
+        alert("서버 오류가 발생했습니다.");
+      }
+    },
+  });
+
+  // 회원탈퇴 요청
+  const handleWithdraw = async () => {
+    const confirmed = confirm("정말 회원을 탈퇴하시겠습니까?");
+    if (!confirmed) return;
+
+    try {
+      const res = await axiosInstance.delete("/user/withdraw");
+
+      console.log("회원탈퇴", res.data);
+
+      if (res.data) {
+        // access_token, refresh_token 제거 및 zustand 상태 초기화
+        useAuthStore.getState().logout();
+
+        alert("탈퇴가 완료되었습니다.");
+        router.push("/");
+      } else {
+        alert("탈퇴에 실패했습니다. 다시 시도해주세요.");
+      }
+    } catch (err: any) {
+      console.error("회원탈퇴 오류:", err);
+    }
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -120,6 +185,7 @@ const MyInfo = () => {
 
   return (
     <MyInfoStyled className={clsx("myinfo_wrap")}>
+      {/* 프로필 사진 */}
       {profileImage && (
         <div className="myinfo_img_box">
           <img
@@ -141,10 +207,66 @@ const MyInfo = () => {
         className="myinfo_input"
       />
 
+      {/* 이름, 이메일, 비밀번호 변경 */}
+      <div className="myinfo_flex">
+        <div className="myinfo_cont">
+          <div className="myinfo_name">
+            <span>{info.user?.name}</span>님
+          </div>
+          <div className="myinfo_email">{info.user?.email}</div>
+        </div>
+
+        {/* 로컬로그인일 경우만 보임 */}
+        {user?.provider === "local" && (
+          <div className="myinfo_pw_btn">
+            <div onClick={() => setPwOpen(true)}>비밀번호 변경</div>
+          </div>
+        )}
+      </div>
+
+      {/* 비밀번호 변경 모달 */}
+      {pwOpen && (
+        <ModalCompo onClose={() => setPwOpen(false)}>
+          <S.ModalFormWrap onSubmit={formik.handleSubmit}>
+            <S.ModalTitle>비밀번호 변경</S.ModalTitle>
+
+            <S.ModalInputDiv>
+              <S.ModalInput
+                type="password"
+                name="password"
+                placeholder="새로운 비밀번호를 입력해주세요"
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              />
+              {formik.touched.password && formik.errors.password && (
+                <div className="error">{formik.errors.password}</div>
+              )}
+            </S.ModalInputDiv>
+            <S.ModalInputDiv>
+              <S.ModalInput
+                type="password"
+                name="confirmPassword"
+                placeholder="비밀번호를 확인해주세요"
+                value={formik.values.confirmPassword}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              />
+              {formik.touched.confirmPassword &&
+                formik.errors.confirmPassword && (
+                  <div className="error">{formik.errors.confirmPassword}</div>
+                )}
+            </S.ModalInputDiv>
+
+            <div>
+              <S.ModalButton type="submit">변경하기</S.ModalButton>
+            </div>
+          </S.ModalFormWrap>
+        </ModalCompo>
+      )}
+
       <div className="myinfo_info">
         <div className="myinfo_column">
-          <span className="myinfo_title">이름</span>
-          <span className="myinfo_title">이메일</span>
           <span className="myinfo_title">전화번호</span>
           <span className="myinfo_title">생년월일</span>
           <span className="myinfo_title">성별</span>
@@ -154,8 +276,6 @@ const MyInfo = () => {
           {certificate && <span className="myinfo_title">자격증 PDF</span>}
         </div>
         <div className="myinfo_column">
-          <span className="myinfo_content">{user.name}</span>
-          <span className="myinfo_content">{user.email}</span>
           <span className="myinfo_content">{user.phone}</span>
           <span className="myinfo_content">{birth}</span>
           <span className="myinfo_content">

@@ -20,24 +20,28 @@ export const MyInfoStyled = styled.div`
       }
     }
 
-    .myinfo_info {
-      padding: 0 250px;
-      width: 100%;
+    .myinfo_flex {
+      width: 50%;
       display: flex;
-      gap: 50px;
-      .myinfo_column {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        font-size: 18px;
-        .myinfo_title {
-          font-weight: bold;
-          color: #ccc;
-        }
-        .myinfo_content {
-          color: #333;
-        }
+      justify-content: space-between;
+      .myinfo_email {
+        font-size: 14px;
+        color: #848896;
       }
+    }
+
+    .myinfo_pw_btn {
+      cursor: pointer;
+      border-radius: 4px;
+      background-color: #f6f6f8;
+      border: none;
+      padding: 9px 12px;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 20px;
+      letter-spacing: -1px;
+      color: #747783;
+      text-align: center;
     }
   }
 `;
