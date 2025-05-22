@@ -18,51 +18,6 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { GreenTheme } from "@/utill/antdtheme";
 import { formatPhoneNumber } from "@/utill/formatter";
 
-const dummyUsers = [
-  {
-    key: 2,
-    status: "apply", // 수락 대기
-    id: 2,
-    email: "guardian001@example.com",
-    name: "김보호자",
-    phone: "01012345678",
-    patient_id: 6,
-    patient_name: "이환자",
-    patient_gender: "male",
-    patient_birth: "1950-05-20",
-    patient_note: "치매 초기 증상 있음",
-    created_at: "2025-05-01T10:00:00Z",
-  },
-  {
-    key: 3,
-    status: "accepted", // 수락 완료, 결제 대기중
-    id: 3,
-    email: "guardian002@example.com",
-    name: "박보호자",
-    phone: "01023456789",
-    patient_id: 7,
-    patient_name: "김환자",
-    patient_gender: "female",
-    patient_birth: "1945-08-15",
-    patient_note: "거동이 불편함",
-    created_at: "2025-05-02T14:30:00Z",
-  },
-  {
-    key: 1,
-    status: "apply",
-    id: 1,
-    email: "guardian003@example.com",
-    name: "최보호자",
-    phone: "01098765432",
-    patient_id: 8,
-    patient_name: "최환자",
-    patient_gender: "male",
-    patient_birth: "1952-12-05",
-    patient_note: "고혈압, 당뇨",
-    created_at: "2025-05-03T09:20:00Z",
-  },
-];
-
 const MatchingPage = () => {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -82,8 +37,8 @@ const MatchingPage = () => {
       const data = res.data;
       console.log("신청한 user정보", data);
 
-      const mapped = data.map((x: any) => ({
-        key: x.id,
+      const mapped = data.map((x: any, i: number) => ({
+        key: i,
         status: x.status, //수락 여부
         id: x.id,
         email: x.email,
