@@ -1,11 +1,12 @@
 import TitleCompo from "@/components/TitleCompo";
 import { MyPageStyled } from "./styled";
 import clsx from "clsx";
-import { Button, Modal } from "antd";
+import { Button, ConfigProvider, Modal } from "antd";
 import Registration from "../Registration";
 import { useEffect, useState } from "react";
 import MyInfo from "../MyInfo";
 import axiosInstance from "@/lib/axios";
+import { GreenTheme } from "@/utill/antdtheme";
 
 type DateType = {
   startDate: string;
@@ -49,7 +50,7 @@ const MyPage = () => {
       <MyInfo />
 
       {/* 근무 가능일 */}
-      <div className="mypage_button">
+      <div className="mypage_btn_box">
         {possibleDate ? (
           <div>
             근무 가능일: {possibleDate?.startDate} - {possibleDate?.endDate}
@@ -63,8 +64,11 @@ const MyPage = () => {
         ) : (
           "근무 가능일을 등록해주세요"
         )}
-
-        <Button onClick={() => setOpen(true)}>근무 가능일 등록</Button>
+        <ConfigProvider theme={GreenTheme}>
+          <Button className="mypage_btn" onClick={() => setOpen(true)}>
+            근무 가능일 등록
+          </Button>
+        </ConfigProvider>
       </div>
 
       <Modal

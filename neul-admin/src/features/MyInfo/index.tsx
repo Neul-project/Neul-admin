@@ -8,6 +8,8 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useRouter } from "next/router";
 import ModalCompo from "@/components/ModalCompo";
 import * as S from "@/components/ModalCompo/ModalContent";
+import { Button, ConfigProvider, notification } from "antd";
+import { GreenTheme } from "@/utill/antdtheme";
 
 interface HelperInfo {
   id: number;
@@ -104,14 +106,23 @@ const MyInfo = () => {
         });
 
         if (res.data?.ok) {
-          alert("비밀번호가 성공적으로 변경되었습니다.");
+          notification.success({
+            message: "변경 성공",
+            description: "비밀번호가 성공적으로 변경되었습니다.",
+          });
           setPwOpen(false);
         } else {
-          alert("비밀번호 변경에 실패했습니다.");
+          notification.error({
+            message: "변경 실패",
+            description: "비밀번호 변경에 실패했습니다.",
+          });
         }
       } catch (error) {
         console.error("비밀번호 변경 오류:", error);
-        alert("서버 오류가 발생했습니다.");
+        notification.error({
+          message: "변경 실패",
+          description: "서버 오류가 발생했습니다.",
+        });
       }
     },
   });
@@ -201,191 +212,201 @@ const MyInfo = () => {
 
   return (
     <MyInfoStyled className={clsx("myinfo_wrap")}>
-      {/* 프로필 사진 */}
-      {profileImage && (
-        <div className="myinfo_img_box">
-          <img
-            className="myinfo_img"
-            src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/image/${profileImage}`}
-            alt="프로필"
+      <div className="myinfo_profile_wrap">
+        {/* 프로필 사진 */}
+        <div>
+          {/* {profileImage && ( */}
+          <div className="myinfo_img_box">
+            <img
+              className="myinfo_img"
+              src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/image/${profileImage}`}
+              alt="프로필"
+            />
+          </div>
+          {/* )} */}
+
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                setForm((prev) => ({ ...prev, profileImageFile: file }));
+              }
+            }}
           />
         </div>
-      )}
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) {
-            setForm((prev) => ({ ...prev, profileImageFile: file }));
-          }
-        }}
-        className="myinfo_input"
-      />
 
-      {/* 이름, 이메일, 비밀번호 변경 */}
-      <div className="myinfo_flex myinfo_name_box">
-        <div className="myinfo_cont">
-          <div className="myinfo_name">
-            <span>{info.user?.name}</span>님
+        <div className="myinfo_top_box">
+          {/* 이름, 이메일, 비밀번호 변경 */}
+          <div className="myinfo_flexs myinfo_name_box">
+            <div className="myinfo_cont">
+              <div className="myinfo_name">
+                <span>{info.user?.name}</span>님
+              </div>
+              <div className="myinfo_email">{info.user?.email}</div>
+            </div>
+
+            {/* 로컬로그인일 경우만 보임 */}
+            {user?.provider === "local" && (
+              <div className="myinfo_pw_box">
+                <div className="myinfo_pw_btn" onClick={() => setPwOpen(true)}>
+                  비밀번호 변경
+                </div>
+              </div>
+            )}
           </div>
-          <div className="myinfo_email">{info.user?.email}</div>
+
+          {/* 전화번호 */}
+          <div className="myinfo_flexs">
+            <span className="myinfo_title">전화번호</span>
+            <span className="myinfo_content">{user.phone}</span>
+          </div>
+
+          {/* 생년월일 */}
+          <div className="myinfo_flexs">
+            <span className="myinfo_title">생년월일</span>
+            <span className="myinfo_content">{birth}</span>
+          </div>
+
+          {/* 성별 */}
+          <div className="myinfo_flexs">
+            <span className="myinfo_title">성별</span>
+            <span className="myinfo_content">
+              {gender === "male" ? "남성" : "여성"}
+            </span>
+          </div>
         </div>
 
-        {/* 로컬로그인일 경우만 보임 */}
-        {user?.provider === "local" && (
-          <div className="myinfo_pw_btn">
-            <div onClick={() => setPwOpen(true)}>비밀번호 변경</div>
-          </div>
+        {/* 비밀번호 변경 모달 */}
+        {pwOpen && (
+          <ModalCompo onClose={() => setPwOpen(false)}>
+            <S.ModalFormWrap onSubmit={formik.handleSubmit}>
+              <S.ModalTitle>비밀번호 변경</S.ModalTitle>
+
+              <S.ModalInputDiv>
+                <S.ModalInput
+                  type="password"
+                  name="password"
+                  placeholder="새로운 비밀번호를 입력해주세요"
+                  value={formik.values.password}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                />
+                {formik.touched.password && formik.errors.password && (
+                  <div className="error">{formik.errors.password}</div>
+                )}
+              </S.ModalInputDiv>
+              <S.ModalInputDiv>
+                <S.ModalInput
+                  type="password"
+                  name="confirmPassword"
+                  placeholder="비밀번호를 확인해주세요"
+                  value={formik.values.confirmPassword}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                />
+                {formik.touched.confirmPassword &&
+                  formik.errors.confirmPassword && (
+                    <div className="error">{formik.errors.confirmPassword}</div>
+                  )}
+              </S.ModalInputDiv>
+
+              <div>
+                <S.ModalButton type="submit">변경하기</S.ModalButton>
+              </div>
+            </S.ModalFormWrap>
+          </ModalCompo>
         )}
       </div>
 
-      {/* 비밀번호 변경 모달 */}
-      {pwOpen && (
-        <ModalCompo onClose={() => setPwOpen(false)}>
-          <S.ModalFormWrap onSubmit={formik.handleSubmit}>
-            <S.ModalTitle>비밀번호 변경</S.ModalTitle>
-
-            <S.ModalInputDiv>
-              <S.ModalInput
-                type="password"
-                name="password"
-                placeholder="새로운 비밀번호를 입력해주세요"
-                value={formik.values.password}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              />
-              {formik.touched.password && formik.errors.password && (
-                <div className="error">{formik.errors.password}</div>
-              )}
-            </S.ModalInputDiv>
-            <S.ModalInputDiv>
-              <S.ModalInput
-                type="password"
-                name="confirmPassword"
-                placeholder="비밀번호를 확인해주세요"
-                value={formik.values.confirmPassword}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              />
-              {formik.touched.confirmPassword &&
-                formik.errors.confirmPassword && (
-                  <div className="error">{formik.errors.confirmPassword}</div>
-                )}
-            </S.ModalInputDiv>
-
-            <div>
-              <S.ModalButton type="submit">변경하기</S.ModalButton>
-            </div>
-          </S.ModalFormWrap>
-        </ModalCompo>
-      )}
-
-      {/* 전화번호 */}
-      <div className="myinfo_flex">
-        <span className="myinfo_title">전화번호</span>
-        <span className="myinfo_content">{user.phone}</span>
-      </div>
-
-      {/* 생년월일 */}
-      <div className="myinfo_flex">
-        <span className="myinfo_title">생년월일</span>
-        <span className="myinfo_content">{birth}</span>
-      </div>
-
-      {/* 성별 */}
-      <div className="myinfo_flex">
-        <span className="myinfo_title">성별</span>
-        <span className="myinfo_content">
-          {gender === "male" ? "남성" : "여성"}
-        </span>
-      </div>
-
-      {/* 희망 일급 */}
-      <div className="myinfo_flex">
-        <span className="myinfo_title">희망 일급</span>
-        <input
-          type="number"
-          name="desiredPay"
-          value={form.desiredPay}
-          onChange={handleChange}
-          className="myinfo_input"
-        />
-      </div>
-
-      {/* 경력 */}
-      <div className="myinfo_flex">
-        <span className="myinfo_title">경력</span>
-        <textarea
-          name="experience"
-          value={form.experience}
-          onChange={handleChange}
-          className="myinfo_input"
-        />
-      </div>
-
-      {/* 자격증명 */}
-      <div className="myinfo_flex">
-        <span className="myinfo_title">자격증 명</span>
-        <input
-          type="text"
-          name="certificateName"
-          value={form.certificateName}
-          onChange={handleChange}
-          className="myinfo_input"
-        />
-      </div>
-      {/* 자격증명2 */}
-      <div className="myinfo_flex">
-        <span className="myinfo_title">자격증 명2</span>
-        <input
-          type="text"
-          name="certificateName2"
-          value={form.certificateName2 ?? ""}
-          onChange={handleChange}
-          className="myinfo_input"
-        />
-      </div>
-      {/* 자격증명3 */}
-      <div className="myinfo_flex">
-        <span className="myinfo_title">자격증 명3</span>
-        <input
-          type="text"
-          name="certificateName3"
-          value={form.certificateName3 ?? ""}
-          onChange={handleChange}
-          className="myinfo_input"
-        />
-      </div>
-
-      {/* 자격증 PDF */}
-      <div className="myinfo_flex">
-        {certificate && <span className="myinfo_title">자격증 PDF</span>}
-        <div className="myinfo_pdf">
-          {certificate && (
-            <>
-              <a
-                className="myinfo_content"
-                href={`${process.env.NEXT_PUBLIC_API_URL}/uploads/file/${certificate}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                기존 파일 보기
-              </a>
-              <input
-                type="file"
-                accept="application/pdf"
-                onChange={handleFileChange}
-                className="myinfo_input"
-              />
-            </>
-          )}
+      <div className="myinfo_bottom_box">
+        {/* 희망 일급 */}
+        <div className="myinfo_flex">
+          <span className="myinfo_title">희망 일급</span>
+          <input
+            type="number"
+            name="desiredPay"
+            value={form.desiredPay}
+            onChange={handleChange}
+            className="myinfo_input"
+          />
         </div>
-      </div>
 
-      <button onClick={handleUpdate} className="myinfo_button">
-        수정하기
-      </button>
+        {/* 경력 */}
+        <div className="myinfo_flex">
+          <span className="myinfo_title">경력</span>
+          <input
+            name="experience"
+            value={form.experience}
+            onChange={handleChange}
+            className="myinfo_input"
+          />
+        </div>
+
+        {/* 자격증명 */}
+        <div className="myinfo_flex">
+          <span className="myinfo_title">자격증 명</span>
+          <input
+            type="text"
+            name="certificateName"
+            value={form.certificateName}
+            onChange={handleChange}
+            className="myinfo_input"
+          />
+        </div>
+        {/* 자격증명2 */}
+        <div className="myinfo_flex">
+          <span className="myinfo_title">자격증 명2</span>
+          <input
+            type="text"
+            name="certificateName2"
+            value={form.certificateName2 ?? ""}
+            onChange={handleChange}
+            className="myinfo_input"
+          />
+        </div>
+        {/* 자격증명3 */}
+        <div className="myinfo_flex">
+          <span className="myinfo_title">자격증 명3</span>
+          <input
+            type="text"
+            name="certificateName3"
+            value={form.certificateName3 ?? ""}
+            onChange={handleChange}
+            className="myinfo_input"
+          />
+        </div>
+
+        {/* 자격증 PDF */}
+        <div className="myinfo_flex_pdf">
+          {certificate && <span className="myinfo_title">자격증 PDF</span>}
+          <div className="myinfo_pdf">
+            {certificate && (
+              <>
+                <a
+                  className="myinfo_origin_pdf"
+                  href={`${process.env.NEXT_PUBLIC_API_URL}/uploads/file/${certificate}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  기존 파일 보기
+                </a>
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  onChange={handleFileChange}
+                />
+              </>
+            )}
+          </div>
+        </div>
+        <ConfigProvider theme={GreenTheme}>
+          <div className="myinfo_button_box">
+            <Button onClick={handleUpdate}>수정하기</Button>
+          </div>
+        </ConfigProvider>
+      </div>
     </MyInfoStyled>
   );
 };
