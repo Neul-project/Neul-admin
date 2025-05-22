@@ -83,18 +83,18 @@ const MatchingPage = () => {
       console.log("신청한 user정보", data);
 
       const mapped = data.map((x: any) => ({
-        key: x.user_id,
+        key: x.id,
         status: x.status, //수락 여부
-        id: x.user_id,
-        email: x.user_email,
-        name: x.user_name,
-        phone: x.user_phone,
+        id: x.id,
+        email: x.email,
+        name: x.name,
+        phone: x.phone,
         patient_id: x.patient_id,
         patient_name: x.patient_name,
         patient_gender: x.patient_gender === "male" ? "남" : "여",
         patient_birth: x.patient_birth || "없음",
         patient_note: x.patient_note || "없음",
-        created_at: x.user_create,
+        created_at: x.created_at,
       }));
 
       setUsers(mapped);
@@ -199,7 +199,7 @@ const MatchingPage = () => {
       key: "matching",
       title: "관리",
       render: (data: any) =>
-        data.status !== "apply" ? (
+        data.status === "승인 대기" ? (
           // 신청만 왔을 경우
           <>
             <Button
