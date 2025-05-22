@@ -17,6 +17,11 @@ import axiosInstance from "@/lib/axios";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { GreenTheme } from "@/utill/antdtheme";
 import { formatPhoneNumber } from "@/utill/formatter";
+import koKR from "antd/locale/ko_KR";
+import "dayjs/locale/ko";
+dayjs.locale("ko");
+import { Calendar } from "antd";
+import dayjs, { Dayjs } from "dayjs";
 
 const MatchingPage = () => {
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -155,7 +160,13 @@ const MatchingPage = () => {
     {
       key: "dates",
       title: "신청날짜",
-      dataIndex: "dates",
+      render: (record: any) =>
+        record.dates.split(",").map((d: string, i: number) => (
+          <span key={i}>
+            {d.trim()}
+            <br />
+          </span>
+        )),
     },
     {
       key: "matching",
@@ -266,7 +277,6 @@ const MatchingPage = () => {
 
         {/* 특이사항 모달 */}
         <Modal
-          title="특이사항"
           open={modalOpen}
           onCancel={() => setModalOpen(false)}
           footer={null}
@@ -274,7 +284,53 @@ const MatchingPage = () => {
         >
           {selectedUser && (
             <div>
+              <h4>특이사항</h4>
               <p>{selectedUser.patient_note}</p>
+
+              <h4 style={{ marginTop: 20 }}>신청 날짜</h4>
+              <ConfigProvider locale={koKR}>
+                <Calendar
+                  fullscreen={false}
+                  value={
+                    selectedUser?.dates
+                      ? dayjs(
+                          selectedUser.dates
+                            .split(",")
+                            .map((d: string) => dayjs(d.trim()))
+                            .sort(
+                              (
+                                a: { unix: () => number },
+                                b: { unix: () => number }
+                              ) => a.unix() - b.unix()
+                            )[0] // 가장 빠른 날짜
+                        )
+                      : undefined
+                  }
+                  cellRender={(value: Dayjs) => {
+                    const dateString = selectedUser.dates || ""; // 문자열
+                    const selectedDates = dateString
+                      .split(",")
+                      .map((d: string) => dayjs(d.trim()).format("YYYY-MM-DD")); // 문자열 -> 배열
+
+                    const current = value.format("YYYY-MM-DD");
+
+                    if (selectedDates.includes(current)) {
+                      return (
+                        <div
+                          style={{
+                            color: "#5DA487",
+                            textAlign: "center",
+                          }}
+                        >
+                          신청
+                        </div>
+                      );
+                    }
+
+                    return null;
+                  }}
+                />
+              </ConfigProvider>
             </div>
           )}
         </Modal>
