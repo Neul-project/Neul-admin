@@ -57,7 +57,7 @@ const UserManage = () => {
 
       setUsers(mapped);
     } catch (err) {
-      console.error("유저 불러오기 실패", err);
+      console.error("담당 유저 불러오기 실패", err);
     }
   };
 
