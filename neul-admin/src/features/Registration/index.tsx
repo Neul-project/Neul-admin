@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   DatePicker,
   Checkbox,
@@ -29,9 +29,19 @@ const weekdayOptions = [
 ];
 
 type DateType = {
-  availableFrom: string;
-  availableTo: string;
-  date: string;
+  startDate: string;
+  endDate: string;
+  week: string;
+};
+
+const dayMap: Record<string, string> = {
+  mon: "월",
+  tue: "화",
+  wed: "수",
+  thu: "목",
+  fri: "금",
+  sat: "토",
+  sun: "일",
 };
 
 // 가능 날짜 등록
@@ -92,6 +102,17 @@ const Registration = ({
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (possibleDate) {
+      setRange([dayjs(possibleDate.startDate), dayjs(possibleDate.endDate)]);
+
+      const koreanWeekdays = possibleDate.week
+        .split(",")
+        .map((day) => dayMap[day.trim()]);
+      setWeekdays(koreanWeekdays);
+    }
+  }, [possibleDate]);
 
   return (
     <ConfigProvider theme={GreenTheme}>

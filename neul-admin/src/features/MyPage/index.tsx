@@ -8,9 +8,9 @@ import MyInfo from "../MyInfo";
 import axiosInstance from "@/lib/axios";
 
 type DateType = {
-  availableFrom: string;
-  availableTo: string;
-  date: string;
+  startDate: string;
+  endDate: string;
+  week: string;
 };
 
 // 마이페이지
@@ -42,10 +42,9 @@ const MyPage = () => {
       <div className="mypage_button">
         {possibleDate ? (
           <div>
-            근무 가능일 {possibleDate?.availableFrom} -{" "}
-            {possibleDate?.availableTo}
+            근무 가능일 {possibleDate?.startDate} - {possibleDate?.endDate}
             <br />
-            근무 가능 요일 {possibleDate?.date}
+            근무 가능 요일 {possibleDate?.week}
           </div>
         ) : (
           "근무 가능일을 등록해주세요"
