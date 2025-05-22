@@ -148,7 +148,7 @@ const MyInfo = () => {
           <span className="myinfo_title">전화번호</span>
           <span className="myinfo_title">생년월일</span>
           <span className="myinfo_title">성별</span>
-          <span className="myinfo_title">희망 시급</span>
+          <span className="myinfo_title">희망 일급</span>
           <span className="myinfo_title">경력</span>
           <span className="myinfo_title">자격증명</span>
           {certificate && <span className="myinfo_title">자격증 PDF</span>}

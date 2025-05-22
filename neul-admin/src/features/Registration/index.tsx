@@ -97,13 +97,6 @@ const Registration = ({
     <ConfigProvider theme={GreenTheme}>
       <RegistrationStyled className="registration_wrap">
         <div className="registration_title">근무 가능일 등록</div>
-
-        {/* <Alert
-          message="근무 가능한 날짜를 선택해주세요"
-          type="warning"
-          showIcon
-        /> */}
-
         <div>
           <div className="registration_date">근무 가능일 선택</div>
           <RangePicker
@@ -113,13 +106,9 @@ const Registration = ({
             format="YYYY-MM-DD"
             allowClear
             disabledDate={(date) => {
-              // 오늘 이후 ~ 이번 달 말
+              // 이전~오늘 날짜 막기
               const today = dayjs();
-              const endOfMonth = today.endOf("month");
-
-              return (
-                date.isBefore(today, "day") || date.isAfter(endOfMonth, "day")
-              );
+              return date.isSame(today, "day") || date.isBefore(today, "day");
             }}
           />
         </div>
