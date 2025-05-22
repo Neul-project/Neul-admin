@@ -27,6 +27,7 @@ interface Chatting {
   date: string;
   sender: string;
   created_at: string;
+  room: any;
 }
 
 interface ChatRoomPreview {
@@ -48,7 +49,7 @@ const ChatRoom = () => {
 
   // 무한스크롤에 필요한 것들
   const [currentRoom, setCurrentRoom] = useState<ChatRoomPreview>();
-  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
   const [chattings, setChattings] = useState<Chatting[]>([]);
 
   // 무한스크롤에 필요한 것들
@@ -71,8 +72,8 @@ const ChatRoom = () => {
   // 맨 밑 감지
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // 선택한 방의 userid
-  const selectedUserIdRef = useRef<number | null>(null);
+  // 선택한 방의 roomid
+  const selectedRoomIdRef = useRef<number | null>(null);
 
   // 메모리 접근
   const adminId = useAuthStore((state) => state.user?.id);
@@ -92,12 +93,12 @@ const ChatRoom = () => {
   // 채팅창 위쪽 감지해서 요청
   const fetchNextPage = async () => {
     if (loading || !hasMore || isFetching.current) return;
-    if (selectedUserIdRef.current === null) return;
+    if (selectedRoomIdRef.current === null) return;
 
     isFetching.current = true;
     const nextPage = page + 1;
 
-    await handleSelectUser(nextPage, selectedUserIdRef.current);
+    await handleSelectRoom(nextPage, selectedRoomIdRef.current);
     setPage(nextPage);
     isFetching.current = false;
   };
@@ -185,22 +186,23 @@ const ChatRoom = () => {
   };
 
   // 채팅 목록 가져오기 요청
-  const handleSelectUser = async (pageToFetch = 1, userId: number) => {
+  const handleSelectRoom = async (pageToFetch = 1, roomId: number) => {
     const container = scrollContainerRef.current;
     const prevScrollHeight = container?.scrollHeight ?? 0;
 
-    setSelectedUserId(userId);
-    selectedUserIdRef.current = userId;
+    setSelectedRoomId(roomId);
+    selectedRoomIdRef.current = roomId;
 
     setLoading(true);
 
     // 선택된 방 정보
-    const selectedRoom = chatRoomList.find((room) => room.userId === userId);
+    const selectedRoom = chatRoomList.find((room) => room.id === roomId);
     setCurrentRoom(selectedRoom);
+    console.log(roomId, "선택한 방의 id");
 
     try {
       const res = await axiosInstance.get(`/chat/list`, {
-        params: { userId, page: pageToFetch, limit: chatLimit },
+        params: { roomId, page: pageToFetch, limit: chatLimit },
       });
 
       // 데이터 가공
@@ -222,14 +224,13 @@ const ChatRoom = () => {
 
       // 읽음 처리 요청
       axiosInstance.post("/chat/read", {
-        userId,
-        adminId,
+        roomId,
       });
 
       // 선택 시 unreadCount 초기화
       setChatRoomList((prevRooms) =>
         prevRooms.map((room) =>
-          room.userId === userId ? { ...room, unreadCount: 0 } : room
+          room.id === roomId ? { ...room, unreadCount: 0 } : room
         )
       );
 
@@ -291,26 +292,25 @@ const ChatRoom = () => {
           time,
         };
 
-        // 현재 보고 있는 유저의 방일 때만 메시지 추가
-        if (message.user.id === selectedUserIdRef.current) {
+        // 현재 보고 있는 방일 때만 메시지 추가
+        if (message.room.id === selectedRoomIdRef.current) {
           setChattings((prev) => [...prev, parsedMessage]);
 
           // 읽음 처리 요청
           axiosInstance.post("/chat/read", {
-            userId: selectedUserIdRef.current,
-            adminId,
+            roomId: selectedRoomIdRef.current,
           });
         }
 
         setChatRoomList((prevRooms) =>
           prevRooms.map((room) =>
-            room.userId === message.user.id
+            room.id === message.room.id
               ? {
                   ...room,
                   lastMessage: message.message,
                   lastTime: message.created_at,
                   unreadCount:
-                    message.user.id === selectedUserId
+                    message.room.id === selectedRoomId
                       ? 0
                       : (room.unreadCount || 0) + 1,
                 }
@@ -325,7 +325,7 @@ const ChatRoom = () => {
       socketRef.current?.off("receive_message");
       socketRef.current?.disconnect();
     };
-  }, [selectedUserId]);
+  }, [selectedRoomId]);
 
   useEffect(() => {
     if (!loading && !isFetching.current) {
@@ -345,11 +345,11 @@ const ChatRoom = () => {
 
   // 채팅 보내기
   const sendMessage = async () => {
-    if (!inputValue.trim() || selectedUserId === null) return;
+    if (!inputValue.trim() || selectedRoomId === null) return;
 
     // 채팅 객체
     const messageToSend = {
-      userId: selectedUserId, // 상대방 id
+      roomId: selectedRoomId, // 채팅방 id
       message: inputValue, // 보낼 메시지 내용
       sender: "admin",
     };
@@ -376,8 +376,7 @@ const ChatRoom = () => {
 
   const onClickDeleteChattingRoom = (
     e: React.MouseEvent<HTMLDivElement>,
-    roomId: number,
-    userId: number
+    roomId: number
   ) => {
     e.preventDefault();
 
@@ -405,8 +404,8 @@ const ChatRoom = () => {
             description: `해당 채팅방이 삭제되었습니다.`,
           });
           fetchChatRoomList();
-          setSelectedUserId(null);
-          if (selectedUserId === userId) {
+          setSelectedRoomId(null);
+          if (selectedRoomId === roomId) {
             setChattings([]);
           }
         } catch (e) {
@@ -428,15 +427,15 @@ const ChatRoom = () => {
           <>
             {chatRoomList.map((room) => (
               <div
-                key={room.userId}
+                key={room.id}
                 className={`chatroom_item ${
-                  selectedUserId === room.userId ? "selected" : ""
+                  selectedRoomId === room.id ? "selected" : ""
                 }`}
-                onClick={() => handleSelectUser(1, room.userId)}
+                onClick={() => handleSelectRoom(1, room.id)}
                 onContextMenu={
                   room.isMatched
                     ? undefined
-                    : (e) => onClickDeleteChattingRoom(e, room.id, room.userId)
+                    : (e) => onClickDeleteChattingRoom(e, room.id)
                 }
               >
                 <div className="chatroom_name_box">
@@ -483,7 +482,7 @@ const ChatRoom = () => {
           </div>
         )}
         <div className="chatroom_content" ref={scrollContainerRef}>
-          {selectedUserId ? (
+          {selectedRoomId ? (
             <div className="chat-scroll-wrapper">
               {/* 채팅창 위쪽 감지 */}
               {hasMore && (
@@ -522,7 +521,7 @@ const ChatRoom = () => {
           )}
         </div>
         {/* 보내는 메시지 */}
-        {selectedUserId && (
+        {selectedRoomId && (
           <div className="chatroom_message_box">
             <div className="chatroom_message">
               <input
