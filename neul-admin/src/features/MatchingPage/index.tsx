@@ -50,6 +50,7 @@ const MatchingPage = () => {
         patient_birth: x.patient_birth || "없음",
         patient_note: x.patient_note || "없음",
         created_at: x.created_at,
+        dates: x.dates, // 사용자가 신청한 날짜
       }));
 
       setUsers(mapped);
@@ -93,6 +94,7 @@ const MatchingPage = () => {
       피보호자_성별: user.patient_gender,
       피보호자_생년월일: user.patient_birth,
       피보호자_특이사항: user.patient_note,
+      신청날짜: user.dates,
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(excelData);
@@ -149,6 +151,11 @@ const MatchingPage = () => {
       key: "patient_birth",
       title: "생년월일",
       dataIndex: "patient_birth",
+    },
+    {
+      key: "dates",
+      title: "신청날짜",
+      dataIndex: "dates",
     },
     {
       key: "matching",
