@@ -28,8 +28,14 @@ const weekdayOptions = [
   { label: "일", value: "sun" },
 ];
 
+type DateType = {
+  availableFrom: string;
+  availableTo: string;
+  date: string;
+};
+
 // 가능 날짜 등록
-const Registration = () => {
+const Registration = (possibleDate: { possibleDate?: DateType }) => {
   const [range, setRange] = useState<[Dayjs | null, Dayjs | null]>([
     null,
     null,
@@ -46,18 +52,29 @@ const Registration = () => {
       return message.warning("가능한 요일을 선택해주세요.");
     }
 
+    const payload = {
+      startDate: range[0].format("YYYY-MM-DD"), // 가능 시작 날짜
+      endDate: range[1].format("YYYY-MM-DD"), // 가능 끝 날짜
+      week: weekdays, // 가능 요일 배열
+    };
+
     try {
       setLoading(true);
-      // 가능 날짜 및 요일 등록 요청
-      await axiosInstance.post("/helper/posibledate", {
-        startDate: range[0].format("YYYY-MM-DD"), // 가능 시작 날짜
-        endDate: range[1].format("YYYY-MM-DD"), // 가능 끝 날짜
-        week: weekdays, // 가능 요일 배열
-      });
-      notification.success({
-        message: `날짜 등록 성공`,
-        description: "메인페이지에 등록되었습니다.",
-      });
+
+      // possibleDate가 있으면 patch, 없으면 post
+      if (possibleDate) {
+        await axiosInstance.patch("/helper/posibledate", payload);
+        notification.success({
+          message: "날짜 수정 성공",
+          description: "근무 가능일이 수정되었습니다.",
+        });
+      } else {
+        await axiosInstance.post("/helper/posibledate", payload);
+        notification.success({
+          message: "날짜 등록 성공",
+          description: "근무 가능일이 등록되었습니다.",
+        });
+      }
     } catch (e) {
       notification.error({
         message: `날짜 등록 실패`,
@@ -71,16 +88,16 @@ const Registration = () => {
   return (
     <ConfigProvider theme={GreenTheme}>
       <RegistrationStyled className="registration_wrap">
-        <div className="registration_title">근무 가능 날짜 등록</div>
+        <div className="registration_title">근무 가능일 등록</div>
 
-        <Alert
-          message="한 달마다 근무 가능 날짜를 선택할 수 있습니다."
+        {/* <Alert
+          message="근무 가능한 날짜를 선택해주세요"
           type="warning"
           showIcon
-        />
+        /> */}
 
         <div>
-          <div className="registration_date">근무 가능 날짜(한 달 이내)</div>
+          <div className="registration_date">근무 가능일 선택</div>
           <RangePicker
             value={range}
             onChange={(dates) => setRange(dates ?? [null, null])}

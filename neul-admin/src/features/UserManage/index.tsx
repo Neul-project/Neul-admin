@@ -15,7 +15,6 @@ import { saveAs } from "file-saver";
 import TitleCompo from "@/components/TitleCompo";
 import axiosInstance from "@/lib/axios";
 import { UserManageStyled } from "./styled";
-import { useAuthStore } from "@/stores/useAuthStore";
 import type { SearchProps } from "antd/es/input";
 import { GreenTheme } from "@/utill/antdtheme";
 import { formatPhoneNumber } from "@/utill/formatter";
@@ -30,7 +29,6 @@ const UserManage = () => {
   const [sortKey, setSortKey] = useState("matcing_at");
   const [sortedUsers, setSortedUsers] = useState<any[]>([]);
   const [selectSearch, setSelectSearch] = useState<string>("user_id");
-  const adminId = useAuthStore((state) => state.user?.id);
 
   const getUserList = async () => {
     try {
