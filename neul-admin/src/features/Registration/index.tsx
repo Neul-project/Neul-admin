@@ -35,7 +35,13 @@ type DateType = {
 };
 
 // 가능 날짜 등록
-const Registration = (possibleDate: { possibleDate?: DateType }) => {
+const Registration = ({
+  possibleDate,
+  setOpen,
+}: {
+  possibleDate?: DateType;
+  setOpen: any;
+}) => {
   const [range, setRange] = useState<[Dayjs | null, Dayjs | null]>([
     null,
     null,
@@ -68,12 +74,14 @@ const Registration = (possibleDate: { possibleDate?: DateType }) => {
           message: "날짜 수정 성공",
           description: "근무 가능일이 수정되었습니다.",
         });
+        setOpen(false);
       } else {
         await axiosInstance.post("/helper/posibledate", payload);
         notification.success({
           message: "날짜 등록 성공",
           description: "근무 가능일이 등록되었습니다.",
         });
+        setOpen(false);
       }
     } catch (e) {
       notification.error({

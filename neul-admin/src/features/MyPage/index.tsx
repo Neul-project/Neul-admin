@@ -61,7 +61,7 @@ const MyPage = () => {
         footer={null}
         destroyOnClose
       >
-        <Registration possibleDate={possibleDate} />
+        <Registration possibleDate={possibleDate} setOpen={setOpen} />
       </Modal>
     </MyPageStyled>
   );
