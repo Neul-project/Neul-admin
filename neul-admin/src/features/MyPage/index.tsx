@@ -13,6 +13,16 @@ type DateType = {
   week: string;
 };
 
+const dayMap: Record<string, string> = {
+  mon: "월",
+  tue: "화",
+  wed: "수",
+  thu: "목",
+  fri: "금",
+  sat: "토",
+  sun: "일",
+};
+
 // 마이페이지
 const MyPage = () => {
   const [open, setOpen] = useState(false);
@@ -42,9 +52,13 @@ const MyPage = () => {
       <div className="mypage_button">
         {possibleDate ? (
           <div>
-            근무 가능일 {possibleDate?.startDate} - {possibleDate?.endDate}
+            근무 가능일: {possibleDate?.startDate} - {possibleDate?.endDate}
             <br />
-            근무 가능 요일 {possibleDate?.week}
+            근무 가능 요일:
+            {possibleDate?.week
+              .split(",")
+              .map((day) => dayMap[day])
+              .join(", ")}
           </div>
         ) : (
           "근무 가능일을 등록해주세요"
