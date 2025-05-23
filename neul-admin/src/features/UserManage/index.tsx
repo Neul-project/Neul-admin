@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import {
   Button,
-  message,
   Modal,
   Select,
   Table,
@@ -34,14 +33,46 @@ const UserManage = () => {
   const [sortedUsers, setSortedUsers] = useState<any[]>([]);
   const [selectSearch, setSelectSearch] = useState<string>("user_id");
 
-  const getUserList = async () => {
+  // const getUserList = async () => {
+  //   try {
+  //     // 매칭된 user불러오기
+  //     const res = await axiosInstance.get("/matching/matchuser");
+  //     const data = res.data;
+  //     console.log(data);
+  //     const mapped = data.map((x: any) => ({
+  //       key: x.user_id,
+  //       id: x.user_id,
+  //       email: x.user_email,
+  //       name: x.user_name,
+  //       phone: x.user_phone,
+  //       patient_id: x.patient_id,
+  //       patient_name: x.patient_name,
+  //       patient_gender: x.patient_gender === "male" ? "남" : "여",
+  //       patient_birth: x.patient_birth || "없음",
+  //       patient_note: x.patient_note || "없음",
+  //       dates: x.dates,
+  //       matcing_at: x.matcing_at, // 매칭된 날짜
+  //     }));
+  //     setUsers(mapped);
+  //   } catch (err) {
+  //     console.error("담당 유저 불러오기 실패", err);
+  //   }
+  // };
+
+  // 검색으로 담당 유저 중 해당하는 사람만 불러오기(만약 검색단어가 없을시 전체 유저 불러오기)
+  const fetchUsers = async (word: string = "") => {
+    console.log("검색 기준:", selectSearch, ", 검색 단어:", word);
     try {
-      // 매칭된 user불러오기
-      const res = await axiosInstance.get("/matching/matchuser");
-      const data = res.data;
-      console.log(data);
-      const mapped = data.map((x: any) => ({
-        key: x.user_id,
+      const res = await axiosInstance.get("/matching/search", {
+        params: {
+          search: selectSearch, // 어떤 기준으로 검색하는지(user_id->보호자ID, user_name->보호자 이름, patient_name->피보호자 이름)
+          word: word.trim(), // 검색 단어
+        },
+      });
+      const searchData = res.data;
+
+      const mapped = searchData.map((x: any, i: number) => ({
+        key: i,
         id: x.user_id,
         email: x.user_email,
         name: x.user_name,
@@ -54,20 +85,25 @@ const UserManage = () => {
         dates: x.dates,
         matcing_at: x.matcing_at, // 매칭된 날짜
       }));
+
       setUsers(mapped);
-    } catch (err) {
-      console.error("담당 유저 불러오기 실패", err);
+    } catch (e) {
+      console.error("검색 실패: ", e);
+      notification.error({
+        message: "검색 실패",
+        description: "검색에 실패하였습니다.",
+      });
     }
   };
 
   useEffect(() => {
-    getUserList();
+    // 검색어 없이 전체 유저 로딩
+    fetchUsers("");
   }, []);
 
   // 유저 정렬하기
-  const sortUsers = () => {
-    let sorted = [...users];
-
+  useEffect(() => {
+    const sorted = [...users];
     if (sortKey === "matcing_at") {
       sorted.sort((a, b) =>
         userOrder === "DESC"
@@ -76,28 +112,41 @@ const UserManage = () => {
       );
     }
     setSortedUsers(sorted);
+  }, [users, userOrder, sortKey]);
+
+  const onSearch: SearchProps["onSearch"] = (value) => {
+    fetchUsers(value);
   };
 
-  // 유저정렬
-  useEffect(() => {
-    sortUsers();
-  }, [userOrder, sortKey, users]);
-
-  // 엑셀 다운 무조건 고쳐야함!!!!!!!!
+  // 엑셀 다운로드
   const handleDownloadExcel = () => {
-    const excelData = users.map((user) => ({
-      보호자ID: user.id,
-      보호자_아이디: user.email,
-      보호자명: user.user,
-      보호자_전화번호: user.phone,
-      피보호자ID: user.patient_id,
-      피보호자명: user.patient_name,
-      피보호자_성별: user.patient_gender,
-      피보호자_생년월일: user.patient_birth,
-      피보호자_특이사항: user.patient_note,
-    }));
+    const headers = [
+      "보호자ID",
+      "보호자_아이디",
+      "보호자명",
+      "보호자_전화번호",
+      "피보호자ID",
+      "피보호자명",
+      "피보호자_성별",
+      "피보호자_생년월일",
+      "피보호자_특이사항",
+    ];
 
-    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const rows = users.map((user) => [
+      user.id,
+      user.email,
+      user.user,
+      user.phone,
+      user.patient_id,
+      user.patient_name,
+      user.patient_gender,
+      user.patient_birth,
+      user.patient_note,
+    ]);
+
+    const sheetData = [headers, ...rows];
+
+    const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "회원목록");
 
@@ -107,7 +156,7 @@ const UserManage = () => {
     });
 
     const file = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(file, "회원목록.xlsx");
+    saveAs(file, "담당회원목록.xlsx");
   };
 
   // 테이블 rowSelection 설정
@@ -176,44 +225,6 @@ const UserManage = () => {
   const handleChange = (value: string) => {
     // 선택된 검색 셀렉트
     setSelectSearch(value);
-  };
-
-  const onSearch: SearchProps["onSearch"] = async (value) => {
-    console.log("검색 기준", selectSearch);
-    console.log("검색 단어", value);
-    try {
-      const res = await axiosInstance.get("/matching/search", {
-        params: {
-          search: selectSearch, // 어떤 기준으로 검색하는지(user_id->보호자ID, user_name->보호자 이름, patient_name->피보호자 이름)
-          word: value, // 검색 단어
-        },
-      });
-      const searchData = res.data;
-      console.log("검색된 유저들", searchData);
-
-      const mapped = searchData.map((x: any) => ({
-        key: x.user_id,
-        id: x.user_id,
-        email: x.user_email,
-        name: x.user_name,
-        phone: x.user_phone,
-        patient_id: x.patient_id,
-        patient_name: x.patient_name,
-        patient_gender: x.patient_gender === "male" ? "남" : "여",
-        patient_birth: x.patient_birth || "없음",
-        patient_note: x.patient_note || "없음",
-        dates: x.dates,
-        matcing_at: x.matcing_at, // 매칭된 날짜
-      }));
-
-      setUsers(mapped);
-    } catch (e) {
-      console.error("검색 실패: ", e);
-      notification.error({
-        message: `검색 실패`,
-        description: `검색에 실패하였습니다.`,
-      });
-    }
   };
 
   return (

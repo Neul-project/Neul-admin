@@ -92,24 +92,39 @@ const MatchingPage = () => {
     sortUsers();
   }, [userOrder, sortKey, users]);
 
-  // 엑셀 다운
+  // 엑셀 다운로드
   const handleDownloadExcel = () => {
-    const excelData = users.map((user) => ({
-      보호자ID: user.id,
-      보호자_아이디: user.email,
-      보호자명: user.name,
-      보호자_전화번호: user.phone,
-      피보호자ID: user.patient_id,
-      피보호자명: user.patient_name,
-      피보호자_성별: user.patient_gender,
-      피보호자_생년월일: user.patient_birth,
-      피보호자_특이사항: user.patient_note,
-      신청날짜: user.dates,
-    }));
+    const headers = [
+      "보호자ID",
+      "보호자_아이디",
+      "보호자명",
+      "보호자_전화번호",
+      "피보호자ID",
+      "피보호자명",
+      "피보호자_성별",
+      "피보호자_생년월일",
+      "피보호자_특이사항",
+      "신청날짜",
+    ];
 
-    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const rows = users.map((user) => [
+      user.id,
+      user.email,
+      user.user,
+      user.phone,
+      user.patient_id,
+      user.patient_name,
+      user.patient_gender,
+      user.patient_birth,
+      user.patient_note,
+      user.dates,
+    ]);
+
+    const sheetData = [headers, ...rows];
+
+    const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "신청목록");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "회원목록");
 
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",

@@ -211,6 +211,8 @@ const ChatRoom = () => {
         params: { roomId, page: pageToFetch, limit: chatLimit },
       });
 
+      console.log(res.data, "채팅창");
+
       // 데이터 가공
       const parsedChats: Chatting[] = res.data.map((chat: any) => {
         // 시간, 날짜
@@ -255,15 +257,6 @@ const ChatRoom = () => {
             if (pageToFetch === 1) scrollToBottom();
           }
         }, 30);
-        // setTimeout(() => {
-        //   if (container) {
-        //     const newScrollHeight = container.scrollHeight;
-        //     container.scrollTop = newScrollHeight - prevScrollHeight;
-
-        //     // 최초 로딩 시 맨 아래로
-        //     if (pageToFetch === 1) scrollToBottom();
-        //   }
-        // }, 0);
       });
     } catch (e) {
       console.error("선택한 유저의 채팅 불러오기 실패:", e);
