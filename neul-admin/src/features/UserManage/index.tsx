@@ -214,7 +214,7 @@ const UserManage = () => {
     console.log("검색 기준", selectSearch);
     console.log("검색 단어", value);
     try {
-      const res = await axiosInstance.get("/matching/searchuser", {
+      const res = await axiosInstance.get("/matching/search", {
         params: {
           search: selectSearch, // 어떤 기준으로 검색하는지(user_id->보호자ID, user_name->보호자 이름, patient_name->피보호자 이름)
           word: value, // 검색 단어
