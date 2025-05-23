@@ -45,20 +45,18 @@ export default function App({ Component, pageProps }: AppProps) {
       </Head>
 
       <ConfigProvider>
-        <AntdApp>
-          {notPc ? (
-            <NotPc />
-          ) : isLoginPage ? (
-            <Component {...pageProps} />
-          ) : (
-            <ThemeProvider theme={theme}>
-              <Header />
-              <Template>
-                <Component {...pageProps} />
-              </Template>
-            </ThemeProvider>
-          )}
-        </AntdApp>
+        {notPc ? (
+          <NotPc />
+        ) : isLoginPage ? (
+          <Component {...pageProps} />
+        ) : (
+          <ThemeProvider theme={theme}>
+            <Header />
+            <Template>
+              <Component {...pageProps} />
+            </Template>
+          </ThemeProvider>
+        )}
       </ConfigProvider>
     </>
   );

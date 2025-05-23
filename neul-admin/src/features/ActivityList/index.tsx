@@ -99,7 +99,7 @@ const ActivityList = () => {
         const mappedData: DataType[] = data.map((item: any, index: number) => ({
           key: item.id,
           num: index + 1,
-          name: item.patient.name + "(" + item.patient.id + ")" ?? "",
+          name: item.patient.name + "(" + item.patient.id + ")" || "",
           title: item.title,
           type: getActivityLabel(item.type ?? ""),
           recorded: formatDate(item.recorded_at) ?? "",
@@ -140,15 +140,17 @@ const ActivityList = () => {
         //console.log("activity selectlist res", res.data);
         const data = res.data.reverse();
 
-        const mappedData: DataType[] = data.map((item: any, index: number) => ({
-          key: item.id,
-          num: index + 1,
-          name: item.patient.name + "(" + item.patient.id + ")" ?? "",
-          title: item.title,
-          type: getActivityLabel(item.type ?? ""),
-          recorded: formatDate(item.recorded_at) ?? "",
-          original: item,
-        }));
+        const mappedData: DataType[] = data?.map(
+          (item: any, index: number) => ({
+            key: item.id,
+            num: index + 1,
+            name: item?.patient?.name + "(" + item.patient.id + ")",
+            title: item?.title,
+            type: getActivityLabel(item?.type),
+            recorded: formatDate(item?.recorded_at),
+            original: item,
+          })
+        );
 
         setDataSource(mappedData);
       });

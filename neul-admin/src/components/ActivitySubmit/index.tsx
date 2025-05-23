@@ -29,26 +29,28 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { AntdGlobalTheme } from "@/utill/antdtheme";
 import { activityValidationSchema } from "./activityValidation";
 
-//활동 기록 등록 컴포넌트 - formik 작성
-const ActivitySubmit = (props: {
+interface DataProps {
   com_type: string;
-  rowcontent: any;
-  setIsModalOpen: (open: boolean) => void;
-  getUserlist: any;
-  getTargetlist: any;
-  selectlist: any;
+  rowcontent?: any;
+  setIsModalOpen?: any;
+  getUserlist?: any;
+  getTargetlist?: any;
+  selectlist?: any;
   patientId?: number;
-}) => {
+}
+
+//활동 기록 등록 컴포넌트 - formik 작성
+const ActivitySubmit = ({
+  com_type,
+  rowcontent,
+  setIsModalOpen,
+  getUserlist,
+  getTargetlist,
+  selectlist,
+  patientId,
+}: DataProps) => {
   //변수 선언
-  const {
-    com_type,
-    rowcontent,
-    setIsModalOpen,
-    getUserlist,
-    getTargetlist,
-    selectlist,
-    patientId,
-  } = props;
+
   const router = useRouter();
   const { user } = useAuthStore();
   //console.log("Res", rowcontent);

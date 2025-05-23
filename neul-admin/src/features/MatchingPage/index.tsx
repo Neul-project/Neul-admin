@@ -163,17 +163,6 @@ const MatchingPage = () => {
       dataIndex: "patient_birth",
     },
     {
-      key: "dates",
-      title: "신청날짜",
-      render: (record: any) =>
-        record.dates.split(",").map((d: string, i: number) => (
-          <span key={i}>
-            {d.trim()}
-            <br />
-          </span>
-        )),
-    },
-    {
       key: "matching",
       title: "관리",
       render: (data: any) =>

@@ -83,7 +83,7 @@ const UserManage = () => {
     sortUsers();
   }, [userOrder, sortKey, users]);
 
-  // 엑셀 다운
+  // 엑셀 다운 무조건 고쳐야함!!!!!!!!
   const handleDownloadExcel = () => {
     const excelData = users.map((user) => ({
       보호자ID: user.id,
@@ -185,14 +185,6 @@ const UserManage = () => {
       title: "생년월일",
       dataIndex: "patient_birth",
     },
-    {
-      key: "matching",
-      title: "배정일",
-      render: (record: any) =>
-        record.availableFrom && record.availableTo
-          ? `${record.availableFrom} - ${record.availableTo}`
-          : `없음`,
-    },
   ];
 
   const sortOption = [
@@ -235,8 +227,7 @@ const UserManage = () => {
         patient_gender: x.patient_gender === "male" ? "남" : "여",
         patient_birth: x.patient_birth || "없음",
         patient_note: x.patient_note || "없음",
-        availableFrom: x.availableFrom, // 'YYYY-MM-DD'
-        availableTo: x.availableTo, // 'YYYY-MM-DD'
+        dates: x.dates,
         matcing_at: x.matcing_at, // 매칭된 날짜
       }));
 
