@@ -59,7 +59,10 @@ const MatchingPage = () => {
       }));
 
       setUsers(
-        mapped.filter((item: { status: string }) => item.status !== "승인 반려")
+        mapped.filter(
+          (item: { status: string }) =>
+            item.status !== "승인 반려" && item.status !== "결제 완료"
+        )
       );
     } catch (err) {
       console.error("신청 정보 불러오기 실패", err);
@@ -67,9 +70,8 @@ const MatchingPage = () => {
   };
 
   useEffect(() => {
-    if (!adminId) return;
     getApplyList();
-  }, [adminId]);
+  }, []);
 
   // 유저 정렬하기
   const sortUsers = () => {
@@ -195,9 +197,11 @@ const MatchingPage = () => {
                     style: { color: "#5DA487" },
                   },
                   async onOk() {
+                    console.log("AAAAAAAa", data);
                     try {
                       // 수락
                       await axiosInstance.post(`/matching/accept`, {
+                        // 신청(apply) id
                         adminId, // 도우미 id
                         userId: data.id, // 보호자 id
                       });
@@ -229,9 +233,11 @@ const MatchingPage = () => {
               거절
             </Button>
           </>
-        ) : (
+        ) : data.status === "결제 대기" ? (
           // 결제 대기(수락은 한 상태)
           <>결제 대기중</>
+        ) : (
+          <></>
         ),
     },
   ];

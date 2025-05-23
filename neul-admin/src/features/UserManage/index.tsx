@@ -339,16 +339,7 @@ const UserManage = () => {
               const isMatched = datesArray.includes(value.format("YYYY-MM-DD"));
 
               return isMatched ? (
-                <div
-                  style={{
-                    backgroundColor: "#79b79d",
-                    borderRadius: 6,
-                    color: "#fff",
-                    padding: 2,
-                  }}
-                >
-                  배정일
-                </div>
+                <div style={{ color: "#79b79d" }}>배정일</div>
               ) : null;
             }}
           />
