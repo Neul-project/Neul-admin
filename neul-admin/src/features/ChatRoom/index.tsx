@@ -397,7 +397,7 @@ const ChatRoom = () => {
         if (roomId == null) return;
         try {
           await axiosInstance.delete(`/chat/exitRoom`, {
-            params: { roomId },
+            params: { roomId, type: "admin" },
           });
           notification.success({
             message: `채팅방 삭제완료`,
