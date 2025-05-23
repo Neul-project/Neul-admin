@@ -33,14 +33,18 @@ export const MyInfoStyled = styled.div`
     }
 
     .myinfo_input {
-      width: 100%;
+      width: 80%;
       height: 32px;
-
       margin-bottom: 10px;
       border: none;
-      background-color: #f6f6f8;
-      border-radius: 3px;
+      background-color: white;
+      //background-color: #f6f6f8;
       font-size: 16px;
+    }
+    .myinfo_input:focus {
+      border: none;
+      background-color: #f6f6f8;
+      outline: none;
     }
 
     .myinfo_name_box {
@@ -55,6 +59,7 @@ export const MyInfoStyled = styled.div`
     .myinfo_flexs {
       display: flex;
       justify-content: space-between;
+
       .myinfo_email {
         font-size: 14px;
         color: #848896;
@@ -71,22 +76,32 @@ export const MyInfoStyled = styled.div`
     .myinfo_title,
     .myinfo_content {
       font-size: 18px;
-      width: fit-content;
+      //width: fit-content;
+    }
+
+    .myinfo_title {
+      width: 180px;
     }
 
     .myinfo_flex {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
     }
 
     .myinfo_flex_pdf {
       display: flex;
       flex-direction: row;
-      justify-content: space-between;
+      //justify-content: space-between;
+      align-items: end;
+
       .myinfo_pdf {
         display: flex;
-        flex-direction: column;
+        //justify-content: space-between;
+        //flex-direction: column;
+
         .myinfo_origin_pdf {
+          width: 260px;
+
           &:hover {
             color: ${(props) => props.theme.colors.pointGreen};
           }
@@ -118,7 +133,7 @@ export const MyInfoStyled = styled.div`
     .myinfo_button_box {
       display: flex;
       justify-content: flex-end;
-      margin-top: 20px;
+      margin-top: 50px;
     }
   }
 `;

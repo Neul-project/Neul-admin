@@ -11,6 +11,7 @@ import * as S from "@/components/ModalCompo/ModalContent";
 import { Button, ConfigProvider, notification } from "antd";
 import { GreenTheme } from "@/utill/antdtheme";
 import { HelperInfo } from "./info";
+import { formatPrice } from "@/utill/formatter";
 
 // 로그인한 도우미 정보
 const MyInfo = () => {
@@ -311,6 +312,7 @@ const MyInfo = () => {
             value={form.desiredPay}
             onChange={handleChange}
             className="myinfo_input"
+            disabled
           />
         </div>
 

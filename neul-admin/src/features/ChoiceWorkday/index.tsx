@@ -36,14 +36,22 @@ const ChoiceWorkday = () => {
         </ConfigProvider>
       </div>
       {possibleDate ? (
-        <div>
-          근무 가능일: {possibleDate?.startDate} - {possibleDate?.endDate}
-          <br />
-          근무 가능 요일:
-          {possibleDate?.week
-            .split(",")
-            .map((day) => dayMap[day])
-            .join(", ")}
+        <div className="ChoiceWorkday_main">
+          <div className="ChoiceWorkday_days">
+            <div className="ChoiceWorkday_title">근무 가능일</div>
+            <div>
+              {possibleDate?.startDate} ~ {possibleDate?.endDate}
+            </div>
+          </div>
+          <div className="ChoiceWorkday_we">
+            <div className="ChoiceWorkday_title">근무 가능 요일</div>
+            <div>
+              {possibleDate?.week
+                .split(",")
+                .map((day) => dayMap[day])
+                .join(", ")}
+            </div>
+          </div>
         </div>
       ) : (
         "근무 가능일을 등록해주세요"
