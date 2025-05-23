@@ -44,6 +44,7 @@ const MatchingPage = () => {
 
       const mapped = data.map((x: any, i: number) => ({
         key: i,
+        applyId: x.apply_id,
         status: x.status, //수락 여부
         id: x.id,
         email: x.email,
@@ -57,7 +58,6 @@ const MatchingPage = () => {
         created_at: x.created_at,
         dates: x.dates, // 사용자가 신청한 날짜
       }));
-
       setUsers(
         mapped.filter(
           (item: { status: string }) =>
@@ -201,7 +201,7 @@ const MatchingPage = () => {
                     try {
                       // 수락
                       await axiosInstance.post(`/matching/accept`, {
-                        // 신청(apply) id
+                        applyId: data.applyId, // 신청(apply) id
                         adminId, // 도우미 id
                         userId: data.id, // 보호자 id
                       });
@@ -362,6 +362,7 @@ const MatchingPage = () => {
 
             try {
               await axiosInstance.post(`/matching/cancel`, {
+                applyId: selectedUser.applyId, // 신청(apply) id
                 adminId, // 도우미 id
                 userId: selectedUser.id, // 보호자 id
                 content: refuseReason, // 거절 사유
