@@ -48,8 +48,7 @@ const UserManage = () => {
         patient_gender: x.patient_gender === "male" ? "남" : "여",
         patient_birth: x.patient_birth || "없음",
         patient_note: x.patient_note || "없음",
-        availableFrom: x.availableFrom, // 'YYYY-MM-DD'
-        availableTo: x.availableTo, // 'YYYY-MM-DD'
+        dates: x.dates,
         matcing_at: x.matcing_at, // 매칭된 날짜
       }));
 

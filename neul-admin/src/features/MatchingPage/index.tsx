@@ -67,8 +67,9 @@ const MatchingPage = () => {
   };
 
   useEffect(() => {
+    if (!adminId) return;
     getApplyList();
-  }, []);
+  }, [adminId]);
 
   // 유저 정렬하기
   const sortUsers = () => {

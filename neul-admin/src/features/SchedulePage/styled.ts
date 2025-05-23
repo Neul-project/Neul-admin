@@ -30,7 +30,7 @@ export const SchedulePageStyled = styled.div`
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background-color: #1890ff;
+          background-color: ${(props) => props.theme.colors.softGreen};
           margin-right: 4px;
         }
 

@@ -13,6 +13,7 @@ import { SchedulePageStyled } from "./styled";
 import clsx from "clsx";
 import { CalendarOutlined } from "@ant-design/icons";
 import axiosInstance from "@/lib/axios";
+import { GreenTheme } from "@/utill/antdtheme";
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -35,6 +36,7 @@ const SchedulePage = () => {
   const fetchSchedules = async () => {
     try {
       const res = await axiosInstance.get("/matching/schedule");
+      console.log(res.data, "일정");
       setSchedules(res.data);
     } catch (e) {
       console.error("일정 조회 실패:", e);
@@ -99,7 +101,7 @@ const SchedulePage = () => {
   };
 
   return (
-    <ConfigProvider locale={koKR}>
+    <ConfigProvider locale={koKR} theme={GreenTheme}>
       <SchedulePageStyled className={clsx("schedule_wrap")}>
         <TitleCompo title="일정표" />
 
