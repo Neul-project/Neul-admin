@@ -305,7 +305,7 @@ const MyInfo = () => {
       <div className="myinfo_bottom_box">
         {/* 희망 일급 */}
         <div className="myinfo_flex">
-          <span className="myinfo_title">희망 일급</span>
+          <span className="myinfo_title">희망 일당</span>
           <input
             type="number"
             name="desiredPay"
