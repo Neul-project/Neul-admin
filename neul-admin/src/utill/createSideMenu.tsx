@@ -29,7 +29,7 @@ export const createSidebarMenus = (menus: MenuProps["items"]): any => {
  */
 export const sidebarMenus = createSidebarMenus([
   {
-    key: "/users",
+    key: "/",
     label: "담당 회원",
   },
   {

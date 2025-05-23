@@ -8,6 +8,7 @@ import {
   Input,
   notification,
   ConfigProvider,
+  Calendar,
 } from "antd";
 import clsx from "clsx";
 import * as XLSX from "xlsx";
@@ -18,6 +19,9 @@ import { UserManageStyled } from "./styled";
 import type { SearchProps } from "antd/es/input";
 import { GreenTheme } from "@/utill/antdtheme";
 import { formatPhoneNumber } from "@/utill/formatter";
+import dayjs, { Dayjs } from "dayjs";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+dayjs.extend(isSameOrBefore);
 const { Search } = Input;
 
 const UserManage = () => {
@@ -36,7 +40,6 @@ const UserManage = () => {
       const res = await axiosInstance.get("/matching/matchuser");
       const data = res.data;
       console.log(data);
-
       const mapped = data.map((x: any) => ({
         key: x.user_id,
         id: x.user_id,
@@ -51,7 +54,6 @@ const UserManage = () => {
         dates: x.dates,
         matcing_at: x.matcing_at, // 매칭된 날짜
       }));
-
       setUsers(mapped);
     } catch (err) {
       console.error("담당 유저 불러오기 실패", err);
@@ -302,17 +304,54 @@ const UserManage = () => {
           })}
         />
         <Modal
-          title="특이사항"
           open={modalOpen}
           onCancel={() => setModalOpen(false)}
           footer={null}
           centered
         >
+          <h3>특이사항</h3>
           {selectedUser && (
             <div>
               <p>{selectedUser.patient_note}</p>
             </div>
           )}
+          <br />
+          <h3>배정일</h3>
+          <Calendar
+            fullscreen={false}
+            cellRender={(value: Dayjs) => {
+              const datesArray =
+                selectedUser?.dates?.split(",").flatMap((range: string) => {
+                  const [startStr, endStr] = range.trim().split("/");
+                  const start = dayjs(startStr);
+                  const end = endStr ? dayjs(endStr) : start;
+                  const result = [];
+                  let curr = start;
+
+                  while (curr.isSameOrBefore(end)) {
+                    result.push(curr.format("YYYY-MM-DD"));
+                    curr = curr.add(1, "day");
+                  }
+
+                  return result;
+                }) || [];
+
+              const isMatched = datesArray.includes(value.format("YYYY-MM-DD"));
+
+              return isMatched ? (
+                <div
+                  style={{
+                    backgroundColor: "#79b79d",
+                    borderRadius: 6,
+                    color: "#fff",
+                    padding: 2,
+                  }}
+                >
+                  배정일
+                </div>
+              ) : null;
+            }}
+          />
         </Modal>
       </UserManageStyled>
     </ConfigProvider>
