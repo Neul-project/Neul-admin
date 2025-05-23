@@ -5,16 +5,19 @@ import { Button, ConfigProvider, Modal } from "antd";
 import { GreenTheme } from "@/utill/antdtheme";
 import Registration from "../Registration";
 import { DateType, dayMap } from "./info";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 //마이페이지 > 근무일 컴포넌트
 const ChoiceWorkday = () => {
   const [open, setOpen] = useState(false);
   const [possibleDate, setPossibleDate] = useState<DateType>();
 
+  const helperId = useAuthStore((state) => state.user?.id);
+
   // 근무 가능일 가져오기 요청
   const getDate = async () => {
     try {
-      const res = await axiosInstance.get("/helper/posibledate");
+      const res = await axiosInstance.get(`/helper/time/${helperId}`);
       setPossibleDate(res.data);
     } catch (e) {
       console.error("근무 가능일 가져오기 실패: ", e);
