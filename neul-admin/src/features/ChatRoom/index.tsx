@@ -39,6 +39,7 @@ interface ChatRoomPreview {
   lastTime: string; // "2025-04-29 17:09"
   unreadCount?: number;
   isMatched?: boolean;
+  roomDel?: boolean; // 삭제한 채팅방인지 판단
 }
 
 // 채팅 전체 화면
@@ -162,9 +163,14 @@ const ChatRoom = () => {
         params: { adminId, page: pageToFetch, limit: chatRoomLimit },
       });
 
-      setChatRoomList((prev) =>
-        pageToFetch === 1 ? res.data : [...prev, ...res.data]
-      );
+      console.log(res.data, "채팅방 목록");
+
+      setChatRoomList((prev) => {
+        const filteredRooms = res.data.filter(
+          (room: ChatRoomPreview) => !room.roomDel
+        );
+        return pageToFetch === 1 ? filteredRooms : [...prev, ...filteredRooms];
+      });
 
       // hasMore는 데이터 개수가 limit보다 작으면 false
       setHasMoreRoom(res.data.length >= chatRoomLimit);

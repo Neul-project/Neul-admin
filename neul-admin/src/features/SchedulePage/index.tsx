@@ -45,35 +45,6 @@ const SchedulePage = () => {
 
   useEffect(() => {
     fetchSchedules();
-    // setSchedules([
-    //   {
-    //     id: 1,
-    //     userId: 101,
-    //     userName: "김선",
-    //     phone: "010-1234-5678",
-    //     patientId: 201,
-    //     patientName: "이수",
-    //     availableDate: "2025-05-21,2025-05-23",
-    //   },
-    //   {
-    //     id: 2,
-    //     userId: 101,
-    //     userName: "김길",
-    //     phone: "010-1234-5678",
-    //     patientId: 202,
-    //     patientName: "박박",
-    //     availableDate: "2025-05-21,2025-05-23",
-    //   },
-    //   {
-    //     id: 3,
-    //     userId: 101,
-    //     userName: "김백",
-    //     phone: "010-1234-5678",
-    //     patientId: 203,
-    //     patientName: "최현",
-    //     availableDate: "2025-05-21,2025-05-23",
-    //   },
-    // ]);
   }, []);
 
   // 날짜 범위 내에 포함된 일정만 필터링
