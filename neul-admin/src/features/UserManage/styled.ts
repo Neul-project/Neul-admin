@@ -29,9 +29,6 @@ export const UserManageStyled = styled.div`
         }
       }
     }
-    .usermanage_delete_button {
-      margin-right: 3px;
-    }
     tr:hover {
       cursor: pointer;
     }

@@ -110,31 +110,6 @@ const UserManage = () => {
     saveAs(file, "회원목록.xlsx");
   };
 
-  // 회원삭제(userId들 보냄)
-  const WithdrawUser = async () => {
-    if (selectedRowKeys.length === 0) {
-      message.warning("삭제할 회원을 선택해주세요.");
-      return;
-    }
-    try {
-      await axiosInstance.delete("/matching/userdelete", {
-        data: { ids: selectedRowKeys },
-      });
-      notification.success({
-        message: `선택한 회원 삭제 성공`,
-        description: `선택한 회원을 완전히 삭제했습니다.`,
-      });
-      getUserList(); // 목록 다시 불러오기
-      setSelectedRowKeys([]); // 선택 초기화
-    } catch (e) {
-      console.error("회원 삭제 실패:", e);
-      notification.error({
-        message: `선택한 회원 삭제 실패`,
-        description: `선택한 회원 삭제에 실패했습니다.`,
-      });
-    }
-  };
-
   // 테이블 rowSelection 설정
   const rowSelection = {
     selectedRowKeys,
@@ -247,9 +222,6 @@ const UserManage = () => {
         <div className="usermanage_title_box">
           <TitleCompo title="담당 회원" />
           <div>
-            <Button className="usermanage_delete_button" onClick={WithdrawUser}>
-              회원삭제
-            </Button>
             <Button onClick={handleDownloadExcel}>엑셀 다운로드</Button>
           </div>
         </div>
