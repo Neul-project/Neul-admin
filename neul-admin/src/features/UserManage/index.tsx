@@ -14,15 +14,29 @@ import { saveAs } from "file-saver";
 import TitleCompo from "@/components/TitleCompo";
 import axiosInstance from "@/lib/axios";
 import { UserManageStyled } from "./styled";
-import type { SearchProps } from "antd/es/input";
 import { formatPhoneNumber } from "@/utill/formatter";
 import dayjs, { Dayjs } from "dayjs";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 dayjs.extend(isSameOrBefore);
 const { Search } = Input;
 
+interface UserType {
+  id: number;
+  email: string;
+  name: string;
+  phone: string;
+  patient_id: number;
+  patient_name: string;
+  patient_gender: string;
+  patient_birth: string;
+  patient_note: string;
+  dates: string;
+  matcing_at: string;
+  key: number;
+}
+
 const UserManage = () => {
-  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [users, setUsers] = useState<any[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -67,6 +81,7 @@ const UserManage = () => {
     [selectSearch]
   );
 
+  // 날짜 달력에 표시
   const matchedDates = useMemo(() => {
     if (!selectedUser?.dates) return [];
     return selectedUser.dates.split(",").flatMap((range: string) => {
@@ -82,6 +97,17 @@ const UserManage = () => {
       return result;
     });
   }, [selectedUser]);
+
+  // 첫 날짜
+  const earliestMatchedDate = useMemo(() => {
+    if (matchedDates.length === 0) return undefined;
+
+    const minDateStr = matchedDates.reduce(
+      (min, curr) => (curr < min ? curr : min),
+      matchedDates[0]
+    );
+    return dayjs(minDateStr);
+  }, [matchedDates]);
 
   useEffect(() => {
     // 검색어 없이 전체 유저 로딩
@@ -153,49 +179,52 @@ const UserManage = () => {
     },
   };
 
-  const columns = [
-    {
-      key: "number",
-      title: "번호",
-      render: (_: any, __: any, index: number) => index + 1,
-    },
-    {
-      key: "email",
-      title: "아이디",
-      dataIndex: "email",
-    },
-    {
-      key: "user",
-      title: "보호자명 (ID)",
-      render: (record: any) =>
-        record.name
-          ? `${record.name} (${record.id})`
-          : `없음 (${record.id || "없음"})`,
-    },
-    {
-      key: "phone",
-      title: "전화번호",
-      render: (record: any) => formatPhoneNumber(record.phone),
-    },
-    {
-      key: "patient_name",
-      title: "피보호자명 (ID)",
-      render: (record: any) =>
-        record.patient_name
-          ? `${record.patient_name} (${record.patient_id})`
-          : `없음 (${record.patient_id || "없음"})`,
-    },
-    {
-      key: "patient_gender",
-      title: "성별",
-      dataIndex: "patient_gender",
-    },
-    {
-      key: "patient_birth",
-      title: "생년월일",
-      dataIndex: "patient_birth",
-    },
-  ];
+  const columns = useMemo(
+    () => [
+      {
+        key: "number",
+        title: "번호",
+        render: (_: any, __: any, index: number) => index + 1,
+      },
+      {
+        key: "email",
+        title: "아이디",
+        dataIndex: "email",
+      },
+      {
+        key: "user",
+        title: "보호자명 (ID)",
+        render: (record: any) =>
+          record.name
+            ? `${record.name} (${record.id})`
+            : `없음 (${record.id || "없음"})`,
+      },
+      {
+        key: "phone",
+        title: "전화번호",
+        render: (record: any) => formatPhoneNumber(record.phone),
+      },
+      {
+        key: "patient_name",
+        title: "피보호자명 (ID)",
+        render: (record: any) =>
+          record.patient_name
+            ? `${record.patient_name} (${record.patient_id})`
+            : `없음 (${record.patient_id || "없음"})`,
+      },
+      {
+        key: "patient_gender",
+        title: "성별",
+        dataIndex: "patient_gender",
+      },
+      {
+        key: "patient_birth",
+        title: "생년월일",
+        dataIndex: "patient_birth",
+      },
+    ],
+    []
+  );
 
   const sortOption = [
     { value: "DESC", label: "최신순" },
@@ -275,25 +304,9 @@ const UserManage = () => {
         <h3>배정일</h3>
         <Calendar
           fullscreen={false}
+          value={earliestMatchedDate}
           cellRender={(value: Dayjs) => {
-            const datesArray =
-              selectedUser?.dates?.split(",").flatMap((range: string) => {
-                const [startStr, endStr] = range.trim().split("/");
-                const start = dayjs(startStr);
-                const end = endStr ? dayjs(endStr) : start;
-                const result = [];
-                let curr = start;
-
-                while (curr.isSameOrBefore(end)) {
-                  result.push(curr.format("YYYY-MM-DD"));
-                  curr = curr.add(1, "day");
-                }
-
-                return result;
-              }) || [];
-
             const isMatched = matchedDates.includes(value.format("YYYY-MM-DD"));
-
             return isMatched ? (
               <div style={{ color: "#79b79d" }}>배정일</div>
             ) : null;

@@ -22,10 +22,26 @@ dayjs.locale("ko");
 import { Calendar } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 
+interface UserType {
+  applyId: number;
+  status: string;
+  id: number;
+  email: string;
+  name: string;
+  phone: string;
+  patient_id: number;
+  patient_name: string;
+  patient_gender: string;
+  patient_birth: string;
+  patient_note: string;
+  created_at: string;
+  dates: string;
+}
+
 const MatchingPage = () => {
-  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<UserType[]>([]);
   const [userOrder, setUserOrder] = useState("DESC");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [refuseReason, setRefuseReason] = useState("");
@@ -33,7 +49,7 @@ const MatchingPage = () => {
   const adminId = useAuthStore((state) => state.user?.id);
 
   // 해당 도우미에게 신청한 user 불러오기
-  const getApplyList = async () => {
+  const getApplyList = useCallback(async () => {
     try {
       const res = await axiosInstance.get("/matching/applyuser");
 
@@ -57,11 +73,45 @@ const MatchingPage = () => {
     } catch (err) {
       console.error("신청 정보 불러오기 실패", err);
     }
-  };
+  }, []);
 
   useEffect(() => {
     getApplyList();
   }, []);
+
+  // 첫날짜
+  const earliestDate = useMemo(() => {
+    if (!selectedUser?.dates) return undefined;
+
+    let minDate: string | undefined = undefined;
+
+    selectedUser.dates.split(",").forEach((range: string) => {
+      const [startStr] = range.trim().split("/"); // 시작 날짜만 사용
+      if (!minDate || startStr < minDate) {
+        minDate = startStr;
+      }
+    });
+
+    return minDate ? dayjs(minDate) : undefined;
+  }, [selectedUser]);
+
+  // 달력에 날짜 표시
+  const selectedDates = useMemo(() => {
+    if (!selectedUser?.dates) return [];
+    return selectedUser.dates.split(",").flatMap((range: string) => {
+      const [startStr, endStr] = range.trim().split("/");
+      const start = dayjs(startStr);
+      const end = endStr ? dayjs(endStr) : start;
+
+      const result: string[] = [];
+      let curr = start;
+      while (curr.isSameOrBefore(end)) {
+        result.push(curr.format("YYYY-MM-DD"));
+        curr = curr.add(1, "day");
+      }
+      return result;
+    });
+  }, [selectedUser]);
 
   // 유저 정렬하기
   const sortedUsers = useMemo(() => {
@@ -90,7 +140,7 @@ const MatchingPage = () => {
     const rows = users.map((user) => [
       user.id,
       user.email,
-      user.user,
+      user.name,
       user.phone,
       user.patient_id,
       user.patient_name,
@@ -182,7 +232,6 @@ const MatchingPage = () => {
                       style: { color: "#5DA487" },
                     },
                     async onOk() {
-                      console.log("AAAAAAAa", data);
                       try {
                         // 수락
                         await axiosInstance.post(`/matching/accept`, {
@@ -224,7 +273,7 @@ const MatchingPage = () => {
           ),
       },
     ],
-    [getApplyList]
+    [getApplyList, adminId]
   );
 
   const sortOption = [
@@ -284,32 +333,14 @@ const MatchingPage = () => {
               <ConfigProvider locale={koKR}>
                 <Calendar
                   fullscreen={false}
-                  value={dayjs(
-                    selectedUser.dates
-                      .split(",")
-                      .map((d: string) => dayjs(d.trim()))
-                      .sort(
-                        (
-                          a: { unix: () => number },
-                          b: { unix: () => number }
-                        ) => a.unix() - b.unix()
-                      )[0]
-                  )}
+                  value={earliestDate}
                   cellRender={(value: Dayjs) => {
-                    const selectedDates = selectedUser.dates
-                      .split(",")
-                      .map((d: string) => dayjs(d.trim()).format("YYYY-MM-DD"));
                     const current = value.format("YYYY-MM-DD");
-
-                    if (selectedDates.includes(current)) {
-                      return (
-                        <div style={{ color: "#5DA487", textAlign: "center" }}>
-                          신청
-                        </div>
-                      );
-                    }
-
-                    return null;
+                    return selectedDates.includes(current) ? (
+                      <div style={{ color: "#5DA487", textAlign: "center" }}>
+                        신청
+                      </div>
+                    ) : null;
                   }}
                 />
               </ConfigProvider>
@@ -336,9 +367,9 @@ const MatchingPage = () => {
 
           try {
             await axiosInstance.post(`/matching/cancel`, {
-              applyId: selectedUser.applyId, // 신청(apply) id
+              applyId: selectedUser?.applyId, // 신청(apply) id
               adminId, // 도우미 id
-              userId: selectedUser.id, // 보호자 id
+              userId: selectedUser?.id, // 보호자 id
               content: refuseReason, // 거절 사유
             });
 
