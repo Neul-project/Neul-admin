@@ -90,16 +90,12 @@ const Header = ({ className }: HeaderProps) => {
           // onOk={handleOk}
           //onCancel={handleCancel}
           footer={[
-            <ConfigProvider theme={GreenTheme}>
-              <Button key="close" onClick={handleCancel}>
-                취소
-              </Button>
-            </ConfigProvider>,
-            <ConfigProvider theme={GreenTheme}>
-              <Button key="complete" type="primary" onClick={handleOk}>
-                로그아웃
-              </Button>
-            </ConfigProvider>,
+            <Button key="close" onClick={handleCancel}>
+              취소
+            </Button>,
+            <Button key="complete" type="primary" onClick={handleOk}>
+              로그아웃
+            </Button>,
           ]}
         >
           <div>정말로 로그아웃 하시겠습니까?</div>
