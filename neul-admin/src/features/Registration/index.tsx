@@ -1,17 +1,9 @@
-import { useState } from "react";
-import {
-  DatePicker,
-  Checkbox,
-  Button,
-  message,
-  notification,
-  ConfigProvider,
-} from "antd";
+import { useMemo, useState } from "react";
+import { DatePicker, Checkbox, Button, message, notification } from "antd";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import { RegistrationStyled } from "./styled";
 import axiosInstance from "@/lib/axios";
-import { GreenTheme } from "@/utill/antdtheme";
 
 const { RangePicker } = DatePicker;
 
@@ -46,6 +38,12 @@ const Registration = ({
   ]);
   const [weekdays, setWeekdays] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const today = useMemo(() => dayjs(), []);
+
+  const handleSuccess = (message: string, description: string) => {
+    notification.success({ message, description });
+    setOpen(false);
+  };
 
   // 등록버튼 클릭시
   const posibleDateSubmit = async () => {
@@ -66,21 +64,15 @@ const Registration = ({
       setLoading(true);
 
       // possibleDate가 있으면 patch, 없으면 post
-      if (possibleDate) {
-        await axiosInstance.patch("/helper/posibledate", payload);
-        notification.success({
-          message: "날짜 수정 성공",
-          description: "근무 가능일이 수정되었습니다.",
-        });
-        setOpen(false);
-      } else {
-        await axiosInstance.post("/helper/posibledate", payload);
-        notification.success({
-          message: "날짜 등록 성공",
-          description: "근무 가능일이 등록되었습니다.",
-        });
-        setOpen(false);
-      }
+      const method = possibleDate ? "patch" : "post";
+      const url = "/helper/posibledate";
+      await axiosInstance[method](url, payload);
+      handleSuccess(
+        possibleDate ? "날짜 수정 성공" : "날짜 등록 성공",
+        possibleDate
+          ? "근무 가능일이 수정되었습니다."
+          : "근무 가능일이 등록되었습니다."
+      );
     } catch (e) {
       notification.error({
         message: `날짜 등록 실패`,
@@ -92,46 +84,42 @@ const Registration = ({
   };
 
   return (
-    <ConfigProvider theme={GreenTheme}>
-      <RegistrationStyled className="registration_wrap">
-        <div className="registration_title">근무 가능일 등록</div>
-        <div>
-          <div className="registration_date">근무 가능일 선택</div>
-          <RangePicker
-            value={range}
-            onChange={(dates) => setRange(dates ?? [null, null])}
-            picker="date"
-            format="YYYY-MM-DD"
-            allowClear
-            disabledDate={(date) => {
-              // 이전~오늘 날짜 막기
-              const today = dayjs();
-              return date.isSame(today, "day") || date.isBefore(today, "day");
-            }}
-          />
-        </div>
+    <RegistrationStyled className="registration_wrap">
+      <div className="registration_title">근무 가능일 등록</div>
+      <div>
+        <div className="registration_date">근무 가능일 선택</div>
+        <RangePicker
+          value={range}
+          onChange={(dates) => setRange(dates ?? [null, null])}
+          picker="date"
+          format="YYYY-MM-DD"
+          allowClear
+          disabledDate={(date) =>
+            date.isSame(today, "day") || date.isBefore(today, "day")
+          }
+        />
+      </div>
 
-        <div>
-          <div className="registration_date">가능 요일 선택</div>
-          <Checkbox.Group
-            options={weekdayOptions}
-            value={weekdays}
-            onChange={setWeekdays}
-          />
-        </div>
+      <div>
+        <div className="registration_date">가능 요일 선택</div>
+        <Checkbox.Group
+          options={weekdayOptions}
+          value={weekdays}
+          onChange={setWeekdays}
+        />
+      </div>
 
-        <div className="registration_button_box">
-          <Button
-            className="registration_button"
-            type="primary"
-            onClick={posibleDateSubmit}
-            loading={loading}
-          >
-            등록하기
-          </Button>
-        </div>
-      </RegistrationStyled>
-    </ConfigProvider>
+      <div className="registration_button_box">
+        <Button
+          className="registration_button"
+          type="primary"
+          onClick={posibleDateSubmit}
+          loading={loading}
+        >
+          등록하기
+        </Button>
+      </div>
+    </RegistrationStyled>
   );
 };
 
