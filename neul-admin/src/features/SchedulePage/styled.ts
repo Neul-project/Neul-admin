@@ -80,7 +80,12 @@ export const SchedulePageStyled = styled.div`
               color: #999;
             }
             .schedule_patient {
-              margin-left: 10px;
+              margin: 0 0 5px 10px;
+
+              .schedule_user {
+                margin-left: 5px;
+                font-size: 14px;
+              }
             }
           }
         }
