@@ -90,13 +90,11 @@ const UserManage = () => {
 
   // 유저 정렬하기
   const sortedUsers = useMemo(() => {
-    const sorted = [...users];
-    sorted.sort((a, b) => {
-      const aDate = a.matcing_at ? new Date(a.matcing_at).getTime() : -Infinity;
-      const bDate = b.matcing_at ? new Date(b.matcing_at).getTime() : -Infinity;
-      return userOrder === "DESC" ? bDate - aDate : aDate - bDate;
+    return [...users].sort((a, b) => {
+      const timeA = new Date(a.matcing_at).getTime();
+      const timeB = new Date(b.matcing_at).getTime();
+      return userOrder === "DESC" ? timeB - timeA : timeA - timeB;
     });
-    return sorted;
   }, [users, userOrder]);
 
   const onSearch = useCallback(
