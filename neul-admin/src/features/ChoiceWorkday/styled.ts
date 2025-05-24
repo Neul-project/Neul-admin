@@ -20,4 +20,12 @@ export const ChoiceWorkdayStyled = styled.div`
       width: 150px;
     }
   }
+
+  .ChoiceWorkday_content {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 15px;
+  }
 `;

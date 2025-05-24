@@ -1,20 +1,30 @@
 import { useEffect, useState } from "react";
 import { ChoiceWorkdayStyled } from "./styled";
 import axiosInstance from "@/lib/axios";
-import { Button, ConfigProvider, Modal } from "antd";
+import { Button, ConfigProvider, Modal, Calendar } from "antd";
 import { GreenTheme } from "@/utill/antdtheme";
 import Registration from "../Registration";
 import { DateType, dayMap } from "./info";
 import { useAuthStore } from "@/stores/useAuthStore";
+import dayjs, { Dayjs } from "dayjs";
+
+const weekStringToNumberMap: { [key: string]: number } = {
+  sun: 0,
+  mon: 1,
+  tue: 2,
+  wed: 3,
+  thu: 4,
+  fri: 5,
+  sat: 6,
+};
 
 //마이페이지 > 근무일 컴포넌트
 const ChoiceWorkday = () => {
-  const [open, setOpen] = useState(false);
-  const [possibleDate, setPossibleDate] = useState<DateType>();
+  const [open, setOpen] = useState(false); //근무 가능일 등록 모달 여부
+  const [possibleDate, setPossibleDate] = useState<DateType>(); //근무일 데이터 가져오기
 
   const helperId = useAuthStore((state) => state.user?.id);
 
-  // 근무 가능일 가져오기 요청
   const getDate = async () => {
     try {
       const res = await axiosInstance.get(`/helper/time/${helperId}`);
@@ -26,11 +36,53 @@ const ChoiceWorkday = () => {
 
   useEffect(() => {
     getDate();
-  }, [possibleDate]);
+  }, [open]);
+
+  // 날짜가 possibleDate 범위 내인지 확인
+  const isInRange = (date: Dayjs) => {
+    if (!possibleDate) return false;
+    const start = dayjs(possibleDate.startDate);
+    const end = dayjs(possibleDate.endDate);
+    return (
+      date.isSame(start, "day") ||
+      date.isSame(end, "day") ||
+      (date.isAfter(start, "day") && date.isBefore(end, "day"))
+    );
+  };
+
+  // 날짜가 가능한 요일인지 확인
+  const isWorkday = (date: Dayjs) => {
+    if (!possibleDate) return false;
+    const allowedDays = possibleDate.week.split(","); // ["mon","tue","thu"]
+    const dayNum = date.day(); // 0 (일) ~ 6 (토)
+    // allowedDays에는 영문 소문자 3자리임. map에서 숫자로 바꿔서 비교
+    return allowedDays.some((d) => weekStringToNumberMap[d] === dayNum);
+  };
+
+  // 달력의 각 날짜 셀에 표시할 내용
+  const dateCellRender = (value: Dayjs) => {
+    if (isInRange(value) && isWorkday(value)) {
+      return (
+        <div
+          style={{
+            margin: 2,
+            padding: 4,
+            backgroundColor: "#5DA487",
+            color: "white",
+            borderRadius: 4,
+            textAlign: "center",
+            cursor: "pointer",
+          }}
+        >
+          근무 가능
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <ChoiceWorkdayStyled>
-      {/* 근무 가능일 */}
       <div className="ChoiceWorkday_submit">
         <ConfigProvider theme={GreenTheme}>
           <Button className="mypage_btn" onClick={() => setOpen(true)}>
@@ -38,24 +90,23 @@ const ChoiceWorkday = () => {
           </Button>
         </ConfigProvider>
       </div>
+
       {possibleDate ? (
-        <div className="ChoiceWorkday_main">
-          <div className="ChoiceWorkday_days">
-            <div className="ChoiceWorkday_title">근무 가능일</div>
+        <>
+          <Calendar dateCellRender={dateCellRender} fullscreen={false} />
+          <div className="ChoiceWorkday_content">
             <div>
-              {possibleDate?.startDate} ~ {possibleDate?.endDate}
+              근무 가능 기간 : {possibleDate.startDate} ~ {possibleDate.endDate}
             </div>
-          </div>
-          <div className="ChoiceWorkday_we">
-            <div className="ChoiceWorkday_title">근무 가능 요일</div>
             <div>
-              {possibleDate?.week
+              근무 가능 요일 :
+              {possibleDate.week
                 .split(",")
                 .map((day) => dayMap[day])
                 .join(", ")}
             </div>
           </div>
-        </div>
+        </>
       ) : (
         "근무 가능일을 등록해주세요"
       )}

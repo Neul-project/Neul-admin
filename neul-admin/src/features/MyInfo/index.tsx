@@ -11,7 +11,6 @@ import * as S from "@/components/ModalCompo/ModalContent";
 import { Button, ConfigProvider, notification } from "antd";
 import { GreenTheme } from "@/utill/antdtheme";
 import { HelperInfo } from "./info";
-import { formatPrice } from "@/utill/formatter";
 
 // 로그인한 도우미 정보
 const MyInfo = () => {
@@ -61,7 +60,7 @@ const MyInfo = () => {
         params: { id: adminId },
       });
 
-      console.log("res", res.data);
+      //console.log("res", res.data);
       setInfo(res.data);
     } catch (e) {
       console.error("해당 도우미 정보 불러오기 실패: ", e);
@@ -153,17 +152,22 @@ const MyInfo = () => {
       updateData.append("profileImage", form.profileImageFile);
     }
     if (form.desiredPay !== desiredPay)
-      updateData.append("desiredPay", String(form.desiredPay));
+      updateData.append("desiredPay", String(form.desiredPay) || "");
     if (form.experience !== experience)
-      updateData.append("experience", form.experience);
+      updateData.append("experience", form.experience || "");
     if (form.certificateName !== certificateName)
-      updateData.append("certificateName", form.certificateName);
+      updateData.append("certificateName", form.certificateName || "");
     if (form.certificateFile)
-      updateData.append("certificate", form.certificateFile);
+      updateData.append("certificate", form.certificateFile || "");
     if (form.certificateName2 !== certificateName2)
-      updateData.append("certificateName2", form.certificateName2 ?? "");
+      updateData.append("certificateName2", form.certificateName2 || "");
     if (form.certificateName3 !== certificateName3)
-      updateData.append("certificateName3", form.certificateName3 ?? "");
+      updateData.append("certificateName3", form.certificateName3 || "");
+
+    for (const [key, value] of updateData.entries()) {
+      console.log(`${key}:`, value);
+    }
+    console.log("ad", adminId);
 
     try {
       await axiosInstance.patch("/helper/edit-profile", updateData, {
@@ -201,7 +205,11 @@ const MyInfo = () => {
           <div className="myinfo_img_box">
             <img
               className="myinfo_img"
-              src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/image/${profileImage}`}
+              src={
+                form.profileImageFile
+                  ? URL.createObjectURL(form.profileImageFile)
+                  : `${process.env.NEXT_PUBLIC_API_URL}/uploads/image/${profileImage}`
+              }
               alt="프로필"
             />
           </div>
@@ -312,7 +320,6 @@ const MyInfo = () => {
             value={form.desiredPay}
             onChange={handleChange}
             className="myinfo_input"
-            disabled
           />
         </div>
 
