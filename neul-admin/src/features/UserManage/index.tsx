@@ -38,7 +38,7 @@ interface UserType {
 const UserManage = () => {
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<UserType[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [userOrder, setUserOrder] = useState("DESC");
   const [selectSearch, setSelectSearch] = useState<string>("user_id");
@@ -84,30 +84,44 @@ const UserManage = () => {
   // 날짜 달력에 표시
   const matchedDates = useMemo(() => {
     if (!selectedUser?.dates) return [];
-    return selectedUser.dates.split(",").flatMap((range: string) => {
-      const [startStr, endStr] = range.trim().split("/");
-      const start = dayjs(startStr);
-      const end = endStr ? dayjs(endStr) : start;
-      const result = [];
-      let curr = start;
-      while (curr.isSameOrBefore(end)) {
-        result.push(curr.format("YYYY-MM-DD"));
-        curr = curr.add(1, "day");
-      }
-      return result;
+
+    const groups = selectedUser.dates.split("/"); // 신청 그룹별 분리
+    const dateSet = new Set<string>();
+
+    groups.forEach((group) => {
+      group.split(",").forEach((dateStr) => {
+        dateSet.add(dayjs(dateStr.trim()).format("YYYY-MM-DD"));
+      });
     });
+
+    return Array.from(dateSet); // 중복 제거
   }, [selectedUser]);
 
   // 첫 날짜
-  const earliestMatchedDate = useMemo(() => {
-    if (matchedDates.length === 0) return undefined;
+  const earliestDates = useMemo(() => {
+    if (!selectedUser?.dates) return [];
 
-    const minDateStr = matchedDates.reduce(
-      (min, curr) => (curr < min ? curr : min),
-      matchedDates[0]
+    // '/' 기준으로 그룹 분리
+    const groups = selectedUser.dates.split("/");
+
+    // 각 그룹별로 ',' 기준으로 날짜 분리 후 가장 빠른 날짜 구하기
+    return groups.map((group) => {
+      const dates = group.split(",").map((d) => dayjs(d.trim()));
+      return dates.reduce(
+        (min, curr) => (curr.isBefore(min) ? curr : min),
+        dates[0]
+      );
+    });
+  }, [selectedUser]);
+
+  // 그룹별 가장 빠른 날짜 중에서도 가장 빠른 날짜 하나만 골라내기
+  const earliestMatchedDate = useMemo(() => {
+    if (earliestDates.length === 0) return undefined;
+    return earliestDates.reduce(
+      (min, curr) => (curr.isBefore(min) ? curr : min),
+      earliestDates[0]
     );
-    return dayjs(minDateStr);
-  }, [matchedDates]);
+  }, [earliestDates]);
 
   useEffect(() => {
     // 검색어 없이 전체 유저 로딩
@@ -147,7 +161,7 @@ const UserManage = () => {
     const rows = users.map((user) => [
       user.id,
       user.email,
-      user.user,
+      user.name,
       user.phone,
       user.patient_id,
       user.patient_name,
@@ -171,12 +185,15 @@ const UserManage = () => {
     saveAs(file, "담당회원목록.xlsx");
   };
 
+  // 선택된 키가 변경될 때마다 새로운 함수가 생성안되도록
+  const onRowSelectionChange = useCallback((keys: React.Key[]) => {
+    setSelectedRowKeys(keys);
+  }, []);
+
   // 테이블 rowSelection 설정
   const rowSelection = {
     selectedRowKeys,
-    onChange: (keys: React.Key[]) => {
-      setSelectedRowKeys(keys);
-    },
+    onChange: onRowSelectionChange,
   };
 
   const columns = useMemo(

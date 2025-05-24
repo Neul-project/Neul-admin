@@ -80,37 +80,46 @@ const MatchingPage = () => {
   }, []);
 
   // 첫날짜
-  const earliestDate = useMemo(() => {
-    if (!selectedUser?.dates) return undefined;
+  // 첫 날짜
+  const earliestDates = useMemo(() => {
+    if (!selectedUser?.dates) return [];
 
-    let minDate: string | undefined = undefined;
+    // '/' 기준으로 그룹 분리
+    const groups = selectedUser.dates.split("/");
 
-    selectedUser.dates.split(",").forEach((range: string) => {
-      const [startStr] = range.trim().split("/"); // 시작 날짜만 사용
-      if (!minDate || startStr < minDate) {
-        minDate = startStr;
-      }
+    // 각 그룹별로 ',' 기준으로 날짜 분리 후 가장 빠른 날짜 구하기
+    return groups.map((group) => {
+      const dates = group.split(",").map((d) => dayjs(d.trim()));
+      return dates.reduce(
+        (min, curr) => (curr.isBefore(min) ? curr : min),
+        dates[0]
+      );
     });
-
-    return minDate ? dayjs(minDate) : undefined;
   }, [selectedUser]);
 
-  // 달력에 날짜 표시
-  const selectedDates = useMemo(() => {
-    if (!selectedUser?.dates) return [];
-    return selectedUser.dates.split(",").flatMap((range: string) => {
-      const [startStr, endStr] = range.trim().split("/");
-      const start = dayjs(startStr);
-      const end = endStr ? dayjs(endStr) : start;
+  // 그룹별 가장 빠른 날짜 중에서도 가장 빠른 날짜 하나만 골라내기
+  const earliestMatchedDate = useMemo(() => {
+    if (earliestDates.length === 0) return undefined;
+    return earliestDates.reduce(
+      (min, curr) => (curr.isBefore(min) ? curr : min),
+      earliestDates[0]
+    );
+  }, [earliestDates]);
 
-      const result: string[] = [];
-      let curr = start;
-      while (curr.isSameOrBefore(end)) {
-        result.push(curr.format("YYYY-MM-DD"));
-        curr = curr.add(1, "day");
-      }
-      return result;
+  // 달력에 날짜 표시
+  const matchedDates = useMemo(() => {
+    if (!selectedUser?.dates) return [];
+
+    const groups = selectedUser.dates.split("/"); // 신청 그룹별 분리
+    const dateSet = new Set<string>();
+
+    groups.forEach((group) => {
+      group.split(",").forEach((dateStr) => {
+        dateSet.add(dayjs(dateStr.trim()).format("YYYY-MM-DD"));
+      });
     });
+
+    return Array.from(dateSet); // 중복 제거
   }, [selectedUser]);
 
   // 유저 정렬하기
@@ -333,10 +342,10 @@ const MatchingPage = () => {
               <ConfigProvider locale={koKR}>
                 <Calendar
                   fullscreen={false}
-                  value={earliestDate}
+                  value={earliestMatchedDate}
                   cellRender={(value: Dayjs) => {
                     const current = value.format("YYYY-MM-DD");
-                    return selectedDates.includes(current) ? (
+                    return matchedDates.includes(current) ? (
                       <div style={{ color: "#5DA487", textAlign: "center" }}>
                         신청
                       </div>
