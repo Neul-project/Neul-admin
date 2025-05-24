@@ -26,7 +26,7 @@ const ChoiceWorkday = () => {
 
   useEffect(() => {
     getDate();
-  }, [possibleDate]);
+  }, []); // 원래는 possibleDate게 있었으나 무한 렌더링 되고 있음
 
   return (
     <ChoiceWorkdayStyled>
