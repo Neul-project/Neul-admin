@@ -10,6 +10,7 @@ import theme from "../styles/theme";
 import { useRouter } from "next/router";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { App as AntdApp, ConfigProvider } from "antd";
+import { GreenTheme } from "@/utill/antdtheme";
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
@@ -44,7 +45,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <title>도우미</title>
       </Head>
 
-      <ConfigProvider>
+      <ConfigProvider theme={GreenTheme}>
         {notPc ? (
           <NotPc />
         ) : isLoginPage ? (

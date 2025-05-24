@@ -163,8 +163,6 @@ const ChatRoom = () => {
         params: { adminId, page: pageToFetch, limit: chatRoomLimit },
       });
 
-      console.log(res.data, "채팅방 목록");
-
       setChatRoomList((prev) => {
         const filteredRooms = res.data.filter(
           (room: ChatRoomPreview) => !room.roomDel
@@ -204,14 +202,11 @@ const ChatRoom = () => {
     // 선택된 방 정보
     const selectedRoom = chatRoomList.find((room) => room.id === roomId);
     setCurrentRoom(selectedRoom);
-    console.log(roomId, "선택한 방의 id");
 
     try {
       const res = await axiosInstance.get(`/chat/list`, {
         params: { roomId, page: pageToFetch, limit: chatLimit },
       });
-
-      console.log(res.data, "채팅창");
 
       // 데이터 가공
       const parsedChats: Chatting[] = res.data.map((chat: any) => {
@@ -378,8 +373,6 @@ const ChatRoom = () => {
     roomId: number
   ) => {
     e.preventDefault();
-
-    console.log(roomId, "삭제할 방");
 
     Modal.confirm({
       title: "채팅방을 나가겠습니까?",
