@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { StatusListStyled, StatusTheme, StyledModal } from "./styled";
 import { useRouter } from "next/router";
 import {
@@ -20,11 +20,12 @@ interface PatientType {
   name: string;
 }
 
+type PatientSelectValue = number | "all";
+
 const StatusList = () => {
   const [statusList, setStatusList] = useState<any[]>([]);
-  const [selectedPatient, setSelectedPatient] = useState<string | number>(
-    "all"
-  );
+  const [selectedPatient, setSelectedPatient] =
+    useState<PatientSelectValue>("all");
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [patient, setPatient] = useState<PatientType[]>([]);
   const [modalData, setModalData] = useState<any | null>(null);
@@ -40,11 +41,7 @@ const StatusList = () => {
   };
 
   const mapAndSetStatusList = (data: any[]) => {
-    const sorted = data.sort(
-      (a, b) => dayjs(b.recorded_at).valueOf() - dayjs(a.recorded_at).valueOf()
-    );
-
-    const mapped = sorted.map((x: any, i: number) => ({
+    const mapped = data.map((x: any, i: number) => ({
       key: x.id,
       id: x.id,
       num: i + 1,
@@ -77,46 +74,60 @@ const StatusList = () => {
     }
   };
 
-  // 전체 상태 리스트 불러오는 요청
-  const getStatusList = async () => {
+  // 전체 리스트라면 patientId가 undefined
+  const fetchStatusList = async (patientId?: number) => {
     try {
-      const res = await axiosInstance.get("/status/allList", {
-        params: {
-          adminId,
-        },
-      });
-      mapAndSetStatusList(res.data);
-    } catch (e) {
-      console.error("상태 리스트 불러오기 실패", e);
-    }
-  };
-
-  // 선택한 피보호자의 상태 리스트 불러오기
-  const getPatientStatusList = async (patientId: number) => {
-    try {
-      const res = await axiosInstance.get(`/status/selectList`, {
+      const res = await axiosInstance.get("/status/selectList", {
         params: { adminId, patientId },
       });
+
       mapAndSetStatusList(res.data);
     } catch (e) {
-      console.error("특정 피보호자 리스트 실패", e);
+      console.error("상태 리스트 조회 실패", e);
     }
   };
+
+  // 전체 상태 리스트 불러오는 요청
+  // const getStatusList = async () => {
+  //   try {
+  //     const res = await axiosInstance.get("/status/allList", {
+  //       params: {
+  //         adminId,
+  //       },
+  //     });
+  //     mapAndSetStatusList(res.data);
+  //   } catch (e) {
+  //     console.error("상태 리스트 불러오기 실패", e);
+  //   }
+  // };
+
+  // 선택한 피보호자의 상태 리스트 불러오기
+  // const getPatientStatusList = async (patientId: number) => {
+  //   try {
+  //     const res = await axiosInstance.get(`/status/selectList`, {
+  //       params: { adminId, patientId },
+  //     });
+  //     mapAndSetStatusList(res.data);
+  //   } catch (e) {
+  //     console.error("특정 피보호자 리스트 실패", e);
+  //   }
+  // };
 
   useEffect(() => {
+    if (!adminId) return;
     getPatient();
-    getStatusList();
-  }, []);
+    fetchStatusList();
+  }, [adminId]);
 
-  const refetchListBySelectedPatient = () => {
-    // 전체 선택시
+  const refetchListBySelectedPatient = useCallback(() => {
+    // 전체선택
     if (selectedPatient === "all") {
-      getStatusList();
+      fetchStatusList();
     } else {
-      // 각 피보호자 선택시
-      getPatientStatusList(Number(selectedPatient));
+      // 각 피보호자 선택
+      fetchStatusList(Number(selectedPatient));
     }
-  };
+  }, [selectedPatient]);
 
   useEffect(() => {
     refetchListBySelectedPatient();
@@ -124,13 +135,14 @@ const StatusList = () => {
 
   // 리스트 삭제
   const WithdrawList = async () => {
-    if (selectedRowKeys.length === 0) {
+    const hasSelected = selectedRowKeys.length > 0;
+
+    if (!hasSelected) {
       message.warning("삭제할 리스트를 선택해주세요.");
       return;
     }
 
     try {
-      console.log("삭제할 리스트 id:", selectedRowKeys);
       await axiosInstance.delete("/status/delete", {
         data: selectedRowKeys,
       });
@@ -140,7 +152,7 @@ const StatusList = () => {
       });
 
       setSelectedRowKeys([]);
-      getStatusList();
+      fetchStatusList();
     } catch (e) {
       notification.error({
         message: `선택한 상태리스트 삭제 실패`,
