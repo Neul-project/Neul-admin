@@ -66,7 +66,7 @@ const DashBoard = () => {
   const formattedDate = `${year}년 ${month}월 ${day}일`;
 
   useEffect(() => {
-    axiosInstance.get("/activity/targetlist").then((res) => {
+    axiosInstance.get("/status/patient").then((res) => {
       //console.log("전체 admin당 피보호자 리스트", res.data);
 
       //성비 - 남성

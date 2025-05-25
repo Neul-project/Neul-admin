@@ -76,7 +76,7 @@ const ActivitySubmit = ({
 
     //도우미에 따른 피보호자 내용 전체 가져오기
     axiosInstance
-      .get("/activity/targetlist", { params: { adminId } })
+      .get("/status/patient", { params: { adminId } })
       .then((res) => {
         console.log("activity targetlist res", res.data);
         const data = res.data;
