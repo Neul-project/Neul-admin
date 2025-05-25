@@ -44,8 +44,6 @@ const ActivitySubmit = ({
   com_type,
   rowcontent,
   setIsModalOpen,
-  getUserlist,
-  getTargetlist,
   selectlist,
   patientId,
 }: DataProps) => {
@@ -201,24 +199,16 @@ const ActivitySubmit = ({
               message: `수정 완료`,
               description: `성공적으로 수정이 완료 되었습니다.`,
             });
-            //getUserlist();
-
             if (patientId) {
               //select로 선택해서 들어온 경우 처리
               selectlist(patientId);
             } else {
-              getUserlist();
+              selectlist();
             }
             setIsModalOpen(false);
           });
       } else {
         //기록하기
-
-        // console.log("values", values);
-
-        // for (let [key, value] of formData.entries()) {
-        //   console.log(`${key}: ${value}`);
-        // }
 
         //백엔드 저장 요청
         axiosInstance

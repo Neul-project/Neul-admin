@@ -148,26 +148,61 @@ const MyInfo = () => {
 
   const handleUpdate = async () => {
     const formData = new FormData();
-    if (form.profileImageFile) {
-      formData.append("profileImage", form.profileImageFile);
-    }
-    if (form.desiredPay !== desiredPay)
-      formData.append("desiredPay", String(form.desiredPay) || "");
-    if (form.experience !== experience)
-      formData.append("experience", form.experience || "");
-    if (form.certificateName !== certificateName)
-      formData.append("certificateName_01", form.certificateName || "");
-    if (form.certificateFile)
-      formData.append("certificate", form.certificateFile || "");
-    if (form.certificateName2 !== certificateName2)
-      formData.append("certificateName_02", form.certificateName2 || "");
-    if (form.certificateName3 !== certificateName3)
-      formData.append("certificateName_03", form.certificateName3 || "");
+    // if (form.profileImageFile) {
+    //   formData.append("profileImage", form.profileImageFile);
+    // }
+    // if (form.desiredPay !== desiredPay)
+    //   formData.append("desiredPay", String(form.desiredPay) || "");
+    // if (form.experience !== experience)
+    //   formData.append("experience", form.experience || "");
+    // if (form.certificateName !== certificateName)
+    //   formData.append("certificateName_01", form.certificateName || "");
+    // if (form.certificateFile)
+    //   formData.append("certificate", form.certificateFile || "");
+    // if (form.certificateName2 !== certificateName2)
+    //   formData.append("certificateName_02", form.certificateName2 || "");
+    // if (form.certificateName3 !== certificateName3)
+    //   formData.append("certificateName_03", form.certificateName3 || "");
 
-    for (const [key, value] of formData.entries()) {
-      console.log(`${key}:`, value);
+    // for (const [key, value] of formData.entries()) {
+    //   console.log(`${key}:`, value);
+    // }
+    // console.log("ad", adminId);
+
+    const values = {
+      desiredPay: form.desiredPay,
+      experience: form.experience,
+      certificateName_01: form.certificateName,
+      certificateName_02: form.certificateName2,
+      certificateName_03: form.certificateName3,
+      certificate: form.certificateFile,
+      profileImage: form.profileImageFile,
+    };
+
+    Object.entries(values).forEach(([key, val]: [string, unknown]) => {
+      if (typeof val === "object" && val instanceof File) {
+        formData.append(key, val);
+      } else if (val !== undefined && val !== null && val !== "") {
+        formData.append(key, String(val));
+      }
+    });
+
+    // 사용자 id같이 전송
+    if (adminId) {
+      formData.append("userId", String(adminId));
     }
-    console.log("ad", adminId);
+
+    // 파일을 새로 업로드하지 않은 경우 기존 파일명 유지
+    if (!values.profileImage && info?.profileImage) {
+      formData.append("existingProfileImage", info.profileImage);
+    }
+    if (!values.certificate && info?.certificate) {
+      formData.append("existingCertificate", info.certificate);
+    }
+
+    // for (const [key, value] of formData.entries()) {
+    //   console.log(`${key}:`, value);
+    // }
 
     try {
       await axiosInstance.patch("/helper/edit-profile", formData, {
@@ -176,7 +211,7 @@ const MyInfo = () => {
       alert("수정되었습니다!");
       getMyInfo(); // 최신 데이터 다시 가져오기
     } catch (e) {
-      console.error("수정 실패", e);
+      //console.error("수정 실패", e);
       alert("수정 실패");
     }
   };

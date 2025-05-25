@@ -65,17 +65,13 @@ const ChoiceWorkday = () => {
       return (
         <div
           style={{
-            margin: 2,
-            padding: 4,
+            width: 8,
+            height: 8,
+            margin: "0 auto",
+            borderRadius: "50%",
             backgroundColor: "#5DA487",
-            color: "white",
-            borderRadius: 4,
-            textAlign: "center",
-            cursor: "pointer",
           }}
-        >
-          근무 가능
-        </div>
+        />
       );
     }
     return null;

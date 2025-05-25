@@ -85,29 +85,29 @@ const ActivityList = () => {
     }
   }, [user]);
 
-  const getUserlist = () => {
-    if (!user?.id) return;
-    const adminId = user?.id;
+  // const getUserlist = () => {
+  //   if (!user?.id) return;
+  //   const adminId = user?.id;
 
-    //console.log("adminId", adminId);
-    //도우미 id에 따른 활동기록 전체 가져오기
-    axiosInstance
-      .get("/activity/selectlistall", { params: { adminId } })
-      .then((res) => {
-        //console.log("activity targetlist res", res.data);
-        const data = res.data.reverse();
-        const mappedData: DataType[] = data.map((item: any, index: number) => ({
-          key: item.id,
-          num: index + 1,
-          name: item.patient.name + "(" + item.patient.id + ")" || "",
-          title: item.title,
-          type: getActivityLabel(item.type ?? ""),
-          recorded: formatDate(item.recorded_at) ?? "",
-          original: item,
-        }));
-        setDataSource(mappedData);
-      });
-  };
+  //   //console.log("adminId", adminId);
+  //   //도우미 id에 따른 활동기록 전체 가져오기
+  //   axiosInstance
+  //     .get("/activity/selectlistall", { params: { adminId } })
+  //     .then((res) => {
+  //       //console.log("activity targetlist res", res.data);
+  //       const data = res.data.reverse();
+  //       const mappedData: DataType[] = data.map((item: any, index: number) => ({
+  //         key: item.id,
+  //         num: index + 1,
+  //         name: item.patient.name + "(" + item.patient.id + ")" || "",
+  //         title: item.title,
+  //         type: getActivityLabel(item.type ?? ""),
+  //         recorded: formatDate(item.recorded_at) ?? "",
+  //         original: item,
+  //       }));
+  //       setDataSource(mappedData);
+  //     });
+  // };
 
   //타켓 리스트
   const getTargetlist = (adminId: number) => {
@@ -133,7 +133,7 @@ const ActivityList = () => {
   };
 
   //피보호자아이디에 따른 리스트
-  const selectlist = (patientId: number) => {
+  const selectlist = (patientId?: number) => {
     axiosInstance
       .get("/activity/selectlist", { params: { adminId, patientId } })
       .then((res) => {
@@ -163,7 +163,7 @@ const ActivityList = () => {
     if (patientId) {
       selectlist(patientId);
     } else {
-      getUserlist();
+      selectlist();
     }
   }, [user]);
 
@@ -175,7 +175,7 @@ const ActivityList = () => {
 
     //전체 클릭 시
     if (option.value === 0) {
-      getUserlist();
+      selectlist();
     } else {
       //select 선택
       if (!user?.id) return;
@@ -198,7 +198,7 @@ const ActivityList = () => {
     }
 
     try {
-      console.log("삭제할 리스트 id:", selectedRowKeys);
+      //console.log("삭제할 리스트 id:", selectedRowKeys);
 
       //리스트 삭제 요청
       await axiosInstance.delete("/activity/delete", {
@@ -213,7 +213,7 @@ const ActivityList = () => {
       setSelectedRowKeys([]);
     } catch (e) {
       message.error("리스트 삭제에 실패했습니다:");
-      console.error("리스트 삭제 실패: ", e);
+      //console.error("리스트 삭제 실패: ", e);
     }
   };
 
@@ -283,7 +283,6 @@ const ActivityList = () => {
             com_type={"modify"}
             rowcontent={rowid}
             setIsModalOpen={setIsModalOpen}
-            getUserlist={getUserlist}
             getTargetlist={getTargetlist}
             selectlist={selectlist}
             patientId={patientId}
