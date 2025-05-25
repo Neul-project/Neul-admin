@@ -1,5 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Button, Modal, Select, Table, Input, notification } from "antd";
+import {
+  Button,
+  Modal,
+  Select,
+  Table,
+  Input,
+  notification,
+  Calendar,
+} from "antd";
 import clsx from "clsx";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -9,14 +17,9 @@ import { UserManageStyled } from "./styled";
 import { formatPhoneNumber } from "@/utill/formatter";
 import dayjs, { Dayjs } from "dayjs";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
-import dynamic from "next/dynamic";
 import { useAuthStore } from "@/stores/useAuthStore";
 dayjs.extend(isSameOrBefore);
 const { Search } = Input;
-
-const Calendar = dynamic(() => import("antd").then((mod) => mod.Calendar), {
-  ssr: false,
-});
 
 interface UserType {
   id: number;
@@ -79,7 +82,7 @@ const UserManage = () => {
         });
       }
     },
-    [selectSearch]
+    [selectSearch, adminId]
   );
 
   // 날짜 달력에 표시
@@ -297,7 +300,6 @@ const UserManage = () => {
         </div>
       </div>
       <Table
-        pagination={{ pageSize: 20 }}
         rowSelection={rowSelection}
         columns={columns}
         dataSource={sortedUsers}
