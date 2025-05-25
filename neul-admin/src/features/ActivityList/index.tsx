@@ -116,7 +116,7 @@ const ActivityList = () => {
         params: { adminId: adminId, patientId: patientId },
       })
       .then((res) => {
-        console.log("activity selectlist res", res.data);
+        //console.log("activity selectlist res", res.data);
         const data = res.data;
 
         const mappedData: DataType[] = data?.map(

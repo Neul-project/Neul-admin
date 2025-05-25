@@ -58,8 +58,8 @@ const Feedback = () => {
 
   //활동기록 검색
   const onSearch: SearchProps["onSearch"] = (value?: any, _e?, info?) => {
-    console.log("value", value, _e, info);
-    console.log("sele", selectedAdmin);
+    // console.log("value", value, _e, info);
+    // console.log("sele", selectedAdmin);
     //피드백 : 활동기록 제목(title) 검색에 따른 행(피드백) 반환 요청
     feedbackview(selectedAdmin, value);
   };
