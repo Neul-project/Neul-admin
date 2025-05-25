@@ -147,30 +147,30 @@ const MyInfo = () => {
   };
 
   const handleUpdate = async () => {
-    const updateData = new FormData();
+    const formData = new FormData();
     if (form.profileImageFile) {
-      updateData.append("profileImage", form.profileImageFile);
+      formData.append("profileImage", form.profileImageFile);
     }
     if (form.desiredPay !== desiredPay)
-      updateData.append("desiredPay", String(form.desiredPay) || "");
+      formData.append("desiredPay", String(form.desiredPay) || "");
     if (form.experience !== experience)
-      updateData.append("experience", form.experience || "");
+      formData.append("experience", form.experience || "");
     if (form.certificateName !== certificateName)
-      updateData.append("certificateName_01", form.certificateName || "");
+      formData.append("certificateName_01", form.certificateName || "");
     if (form.certificateFile)
-      updateData.append("certificate", form.certificateFile || "");
+      formData.append("certificate", form.certificateFile || "");
     if (form.certificateName2 !== certificateName2)
-      updateData.append("certificateName_02", form.certificateName2 || "");
+      formData.append("certificateName_02", form.certificateName2 || "");
     if (form.certificateName3 !== certificateName3)
-      updateData.append("certificateName_03", form.certificateName3 || "");
+      formData.append("certificateName_03", form.certificateName3 || "");
 
-    for (const [key, value] of updateData.entries()) {
+    for (const [key, value] of formData.entries()) {
       console.log(`${key}:`, value);
     }
     console.log("ad", adminId);
 
     try {
-      await axiosInstance.patch("/helper/edit-profile", updateData, {
+      await axiosInstance.patch("/helper/edit-profile", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       alert("수정되었습니다!");
