@@ -25,4 +25,8 @@ export const HeaderStyled = styled.div`
   :hover {
     color: white;
   }
+
+  .header_userinfo {
+    cursor: pointer;
+  }
 `;
