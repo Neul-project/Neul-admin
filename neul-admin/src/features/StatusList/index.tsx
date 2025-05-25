@@ -60,7 +60,7 @@ const StatusList = () => {
       const res = await axiosInstance.get("/status/patient", {
         params: { adminId },
       });
-
+      console.log(res.data, "sss");
       // 필요한 데이터로 가공
       const formatted = res.data.map((item: any) => ({
         patient_id: item.id,
@@ -88,32 +88,6 @@ const StatusList = () => {
       console.error("상태 리스트 조회 실패", e);
     }
   };
-
-  // 전체 상태 리스트 불러오는 요청
-  // const getStatusList = async () => {
-  //   try {
-  //     const res = await axiosInstance.get("/status/allList", {
-  //       params: {
-  //         adminId,
-  //       },
-  //     });
-  //     mapAndSetStatusList(res.data);
-  //   } catch (e) {
-  //     console.error("상태 리스트 불러오기 실패", e);
-  //   }
-  // };
-
-  // 선택한 피보호자의 상태 리스트 불러오기
-  // const getPatientStatusList = async (patientId: number) => {
-  //   try {
-  //     const res = await axiosInstance.get(`/status/selectList`, {
-  //       params: { adminId, patientId },
-  //     });
-  //     mapAndSetStatusList(res.data);
-  //   } catch (e) {
-  //     console.error("특정 피보호자 리스트 실패", e);
-  //   }
-  // };
 
   useEffect(() => {
     if (!adminId) return;

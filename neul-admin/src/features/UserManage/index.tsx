@@ -53,7 +53,7 @@ const UserManage = () => {
             word: word.trim(), // 검색 단어
           },
         });
-        console.log("REs", res.data);
+
         const mapped = res.data.map((x: any, i: number) => ({
           key: i,
           id: x.user.id,

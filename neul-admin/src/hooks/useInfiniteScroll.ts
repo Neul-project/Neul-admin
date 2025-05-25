@@ -8,6 +8,7 @@ interface Props {
   threshold?: number;
 }
 
+// 무한 스크롤
 export default function useInfiniteScroll({
   hasMore,
   loading,
