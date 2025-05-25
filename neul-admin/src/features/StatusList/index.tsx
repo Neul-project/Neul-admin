@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { StatusListStyled, StatusTheme, StyledModal } from "./styled";
 import { useRouter } from "next/router";
 import {
@@ -14,33 +14,29 @@ import axiosInstance from "@/lib/axios";
 import StatusWrite from "../../components/StatusWrite";
 import dayjs from "dayjs";
 import { useAuthStore } from "@/stores/useAuthStore";
-
-interface PatientType {
-  patient_id: number;
-  name: string;
-}
+import { usePatients } from "@/hooks/usePatients";
 
 type PatientSelectValue = number | "all";
+
+const medicationMap: any = {
+  yes: "예",
+  no: "아니요",
+  none: "없음",
+};
 
 const StatusList = () => {
   const [statusList, setStatusList] = useState<any[]>([]);
   const [selectedPatient, setSelectedPatient] =
     useState<PatientSelectValue>("all");
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const [patient, setPatient] = useState<PatientType[]>([]);
   const [modalData, setModalData] = useState<any | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
   const router = useRouter();
   const adminId = useAuthStore((state) => state.user?.id);
+  const patientList = usePatients(adminId);
 
-  const medicationMap: any = {
-    yes: "예",
-    no: "아니요",
-    none: "없음",
-  };
-
-  const mapAndSetStatusList = (data: any[]) => {
+  const mapAndSetStatusList = useCallback((data: any[]) => {
     const mapped = data.map((x: any, i: number) => ({
       key: x.id,
       id: x.id,
@@ -52,48 +48,28 @@ const StatusList = () => {
       fullData: x,
     }));
     setStatusList(mapped);
-  };
-
-  // 로그인한 관리자의 담당 피보호자 불러오기(기록하는 페이지에 이미 있는 요청임)
-  const getPatient = async () => {
-    try {
-      const res = await axiosInstance.get("/status/patient", {
-        params: { adminId },
-      });
-      console.log(res.data, "sss");
-      // 필요한 데이터로 가공
-      const formatted = res.data.map((item: any) => ({
-        patient_id: item.id,
-        name: item.name,
-      }));
-
-      // 담당 피보호자 id, name저장
-      setPatient(formatted);
-    } catch (e) {
-      console.error("담당 피보호자 불러오기 실패", e);
-    }
-  };
+  }, []);
 
   // 전체 리스트라면 patientId가 undefined
-  const fetchStatusList = async (patientId?: number) => {
-    try {
-      const res = await axiosInstance.get("/status/selectList", {
-        params: { adminId, patientId },
-      });
+  const fetchStatusList = useCallback(
+    async (patientId?: number) => {
+      try {
+        const res = await axiosInstance.get("/status/selectList", {
+          params: { adminId, patientId },
+        });
 
-      console.log(res.data);
-
-      mapAndSetStatusList(res.data);
-    } catch (e) {
-      console.error("상태 리스트 조회 실패", e);
-    }
-  };
+        mapAndSetStatusList(res.data);
+      } catch (e) {
+        console.error("상태 리스트 조회 실패", e);
+      }
+    },
+    [adminId, mapAndSetStatusList]
+  );
 
   useEffect(() => {
     if (!adminId) return;
-    getPatient();
     fetchStatusList();
-  }, [adminId]);
+  }, [adminId, fetchStatusList]);
 
   const refetchListBySelectedPatient = useCallback(() => {
     // 전체선택
@@ -103,17 +79,15 @@ const StatusList = () => {
       // 각 피보호자 선택
       fetchStatusList(Number(selectedPatient));
     }
-  }, [selectedPatient]);
+  }, [selectedPatient, fetchStatusList]);
 
   useEffect(() => {
     refetchListBySelectedPatient();
-  }, [selectedPatient]);
+  }, [selectedPatient, refetchListBySelectedPatient]);
 
   // 리스트 삭제
   const WithdrawList = async () => {
-    const hasSelected = selectedRowKeys.length > 0;
-
-    if (!hasSelected) {
+    if (selectedRowKeys.length === 0) {
       message.warning("삭제할 리스트를 선택해주세요.");
       return;
     }
@@ -128,7 +102,7 @@ const StatusList = () => {
       });
 
       setSelectedRowKeys([]);
-      fetchStatusList();
+      refetchListBySelectedPatient();
     } catch (e) {
       notification.error({
         message: `선택한 상태리스트 삭제 실패`,
@@ -145,63 +119,69 @@ const StatusList = () => {
   };
 
   // 표 컬럼
-  const col = [
-    {
-      key: "num",
-      title: "번호",
-      dataIndex: "num",
-    },
-    {
-      key: "patient",
-      title: "피보호자(ID)",
-      dataIndex: "patient",
-    },
-    {
-      key: "condition",
-      title: "컨디션",
-      dataIndex: "condition",
-    },
-    {
-      key: "medication",
-      title: "약 복용 여부",
-      dataIndex: "medication",
-    },
-    {
-      key: "recorded_at",
-      title: "기록시간",
-      dataIndex: "recorded_at",
-    },
-    {
-      key: "typeBtn",
-      title: "상세",
-      render: (data: any) => {
-        return (
-          <Button
-            onClick={() => {
-              // 수정을 안 했을때 그 내용 유지하도록
-              const original = statusList.find(
-                (x) => x.id === data.id
-              )?.fullData;
-
-              setModalData(original ? { ...original } : null);
-              setModalVisible(true);
-            }}
-          >
-            상세
-          </Button>
-        );
+  const col = useMemo(
+    () => [
+      {
+        key: "num",
+        title: "번호",
+        dataIndex: "num",
       },
-    },
-  ];
+      {
+        key: "patient",
+        title: "피보호자(ID)",
+        dataIndex: "patient",
+      },
+      {
+        key: "condition",
+        title: "컨디션",
+        dataIndex: "condition",
+      },
+      {
+        key: "medication",
+        title: "약 복용 여부",
+        dataIndex: "medication",
+      },
+      {
+        key: "recorded_at",
+        title: "기록시간",
+        dataIndex: "recorded_at",
+      },
+      {
+        key: "typeBtn",
+        title: "상세",
+        render: (data: any) => {
+          return (
+            <Button
+              onClick={() => {
+                // 수정을 안 했을때 그 내용 유지하도록
+                const original = statusList.find(
+                  (x) => x.id === data.id
+                )?.fullData;
+
+                setModalData(original ? { ...original } : null);
+                setModalVisible(true);
+              }}
+            >
+              상세
+            </Button>
+          );
+        },
+      },
+    ],
+    [statusList]
+  );
 
   // 셀렉트 옵션
-  const PatientOptions = [
-    { label: "전체", value: "all" },
-    ...patient.map((p) => ({
-      label: `${p.name}(${p.patient_id})`,
-      value: p.patient_id,
-    })),
-  ];
+  const PatientOptions = useMemo(
+    () => [
+      { label: "전체", value: "all" },
+      ...patientList?.map((p) => ({
+        label: `${p.name}(${p.patient_id})`,
+        value: p.patient_id,
+      })),
+    ],
+    [patientList]
+  );
 
   return (
     <StatusListStyled className={clsx("statuslist_wrap")}>

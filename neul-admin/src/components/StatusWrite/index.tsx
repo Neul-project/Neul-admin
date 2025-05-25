@@ -1,26 +1,13 @@
-import { useEffect, useState } from "react";
-import {
-  Button,
-  Form,
-  Radio,
-  Select,
-  ConfigProvider,
-  notification,
-  Input,
-} from "antd";
+import { useEffect } from "react";
+import { Button, Form, Radio, Select, notification, Input } from "antd";
 import { StatusWriteStyled } from "./styled";
 import axiosInstance from "@/lib/axios";
 import clsx from "clsx";
 import TitleCompo from "@/components/TitleCompo";
 import { useRouter } from "next/router";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { GreenTheme } from "@/utill/antdtheme";
+import { usePatients } from "@/hooks/usePatients";
 const { TextArea } = Input;
-
-interface PatientType {
-  patient_id: number;
-  name: string;
-}
 
 interface DataProps {
   _data?: any;
@@ -31,45 +18,23 @@ interface DataProps {
 // 상태 등록하는 모달
 const StatusWrite = ({ _data, getStatusList, setModalVisible }: DataProps) => {
   const [form] = Form.useForm();
-  const [patient, setPatient] = useState<PatientType[]>([]);
   const router = useRouter();
   const adminId = useAuthStore((state) => state.user?.id);
 
-  // 로그인한 관리자의 담당 피보호자 불러오기
-  const getPatient = async () => {
-    try {
-      const res = await axiosInstance.get("/status/patient", {
-        params: { adminId },
-      });
-
-      // 필요한 데이터로 가공
-      const formatted = res.data.map((item: any) => ({
-        patient_id: item.id,
-        name: item.name,
-      }));
-
-      // 담당 피보호자 id, name저장
-      setPatient(formatted);
-    } catch (e) {
-      console.error("담당 피보호자 불러오기 실패: ", e);
-    }
-  };
-
-  useEffect(() => {
-    getPatient();
-  }, []);
+  // 피보호자 정보 가져오기 (기존 useState + useEffect → usePatients 로 대체)
+  const patientList = usePatients(adminId);
 
   useEffect(() => {
     if (_data) {
       const { meal, patient, ...rest } = _data;
-      console.log(patient);
+      const [meal1, meal2, meal3] = meal?.split(",") || [];
       form.setFieldsValue({
         patient_id: patient.id,
         patient_name: patient.name,
         ...rest,
-        meal1: meal?.split(",")[0],
-        meal2: meal?.split(",")[1],
-        meal3: meal?.split(",")[2],
+        meal1,
+        meal2,
+        meal3,
       });
     }
   }, [_data, form]);
@@ -83,8 +48,6 @@ const StatusWrite = ({ _data, getStatusList, setModalVisible }: DataProps) => {
         ...rest,
         meal: [meal1, meal2, meal3],
       };
-
-      console.log("등록된 상태:", formatValues);
 
       if (_data) {
         // 수정(해당 리스트의 id)
@@ -120,7 +83,6 @@ const StatusWrite = ({ _data, getStatusList, setModalVisible }: DataProps) => {
 
   // 해당 리스트 삭제
   const WithdrawList = async () => {
-    console.log("삭제할거다", _data.id);
     try {
       await axiosInstance.delete("/status/delete", {
         data: [_data.id],
@@ -140,8 +102,25 @@ const StatusWrite = ({ _data, getStatusList, setModalVisible }: DataProps) => {
     }
   };
 
+  // 식사량 렌더링
+  const renderMealRadioGroup = (name: string, label: string) => (
+    <Form.Item
+      name={name}
+      label={label}
+      rules={[{ required: true, message: `${label}을 선택해주세요` }]}
+    >
+      <Radio.Group optionType="button" buttonStyle="solid">
+        {mealOptions.map(({ label, value }) => (
+          <Radio.Button key={value} value={value}>
+            {label}
+          </Radio.Button>
+        ))}
+      </Radio.Group>
+    </Form.Item>
+  );
+
   // 피보호자 정보
-  const PatientOptions = patient.map((item) => ({
+  const PatientOptions = patientList.map((item) => ({
     label: `${item.name}(${item.patient_id})`,
     value: item.patient_id,
   }));
@@ -171,119 +150,86 @@ const StatusWrite = ({ _data, getStatusList, setModalVisible }: DataProps) => {
           title={_data ? `${_data?.patient.name}님의 상태 상세` : "상태 기록"}
         />
         <br />
-        <ConfigProvider theme={GreenTheme}>
-          <Form.Item
-            name="patient_id"
-            label="피보호자"
-            rules={[{ required: true, message: "피보호자를 선택해주세요" }]}
-          >
-            <Select
-              disabled={_data ? true : false}
-              options={PatientOptions}
-              placeholder="피보호자를 선택해주세요"
-            />
-          </Form.Item>
-        </ConfigProvider>
+        <Form.Item
+          name="patient_id"
+          label="피보호자"
+          rules={[{ required: true, message: "피보호자를 선택해주세요" }]}
+        >
+          <Select
+            disabled={_data ? true : false}
+            options={PatientOptions}
+            placeholder="피보호자를 선택해주세요"
+          />
+        </Form.Item>
 
         {/* 컨디션 */}
-        <ConfigProvider theme={GreenTheme}>
-          <Form.Item
-            name="condition"
-            label="컨디션"
-            rules={[{ required: true, message: "컨디션을 선택해주세요" }]}
-          >
-            <Select
-              options={conditionOptions}
-              placeholder="컨디션을 선택해주세요"
-            />
-          </Form.Item>
-        </ConfigProvider>
+        <Form.Item
+          name="condition"
+          label="컨디션"
+          rules={[{ required: true, message: "컨디션을 선택해주세요" }]}
+        >
+          <Select
+            options={conditionOptions}
+            placeholder="컨디션을 선택해주세요"
+          />
+        </Form.Item>
 
         {/* 식사량 */}
-        <ConfigProvider theme={GreenTheme}>
-          {["아침 식사량", "점심 식사량", "저녁 식사량"].map((meal, i) => (
-            <Form.Item
-              key={i}
-              name={`meal${i + 1}`}
-              label={meal}
-              rules={[
-                { required: true, message: `${meal} 식사량을 선택해주세요` },
-              ]}
-            >
-              <Radio.Group optionType="button" buttonStyle="solid">
-                {mealOptions.map((option, idx) => (
-                  <Radio.Button key={idx} value={option.value}>
-                    {option.label}
-                  </Radio.Button>
-                ))}
-              </Radio.Group>
-            </Form.Item>
-          ))}
-        </ConfigProvider>
+        {["아침", "점심", "저녁"].map((meal, idx) =>
+          renderMealRadioGroup(`meal${idx + 1}`, `${meal} 식사량`)
+        )}
 
         {/* 약 복용 여부 */}
-        <ConfigProvider theme={GreenTheme}>
-          <Form.Item
-            name="medication"
-            label="약 복용 여부"
-            rules={[{ required: true, message: "복용 여부를 선택해주세요" }]}
-          >
-            <Radio.Group optionType="button" buttonStyle="solid">
-              <Radio.Button value="yes">예</Radio.Button>
-              <Radio.Button value="no">아니요</Radio.Button>
-              <Radio.Button value="none">없음</Radio.Button>
-            </Radio.Group>
-          </Form.Item>
-        </ConfigProvider>
+        <Form.Item
+          name="medication"
+          label="약 복용 여부"
+          rules={[{ required: true, message: "복용 여부를 선택해주세요" }]}
+        >
+          <Radio.Group optionType="button" buttonStyle="solid">
+            <Radio.Button value="yes">예</Radio.Button>
+            <Radio.Button value="no">아니요</Radio.Button>
+            <Radio.Button value="none">없음</Radio.Button>
+          </Radio.Group>
+        </Form.Item>
 
         {/* 수면시간 */}
-        <ConfigProvider theme={GreenTheme}>
-          <Form.Item
-            name="sleep"
-            label="수면 시간"
-            rules={[{ required: true, message: "수면 시간을 입력해주세요" }]}
-          >
-            <TextArea placeholder="수면 시간을 입력해주세요" autoSize />
-          </Form.Item>
-        </ConfigProvider>
+        <Form.Item
+          name="sleep"
+          label="수면 시간"
+          rules={[{ required: true, message: "수면 시간을 입력해주세요" }]}
+        >
+          <TextArea placeholder="수면 시간을 입력해주세요" autoSize />
+        </Form.Item>
 
         {/* 통증여부 */}
-        <ConfigProvider theme={GreenTheme}>
-          <Form.Item
-            name="pain"
-            label="통증 여부"
-            rules={[{ required: true, message: "통증 여부를 입력해주세요" }]}
-          >
-            <TextArea placeholder="통증 여부를 입력해주세요" autoSize />
-          </Form.Item>
-        </ConfigProvider>
+        <Form.Item
+          name="pain"
+          label="통증 여부"
+          rules={[{ required: true, message: "통증 여부를 입력해주세요" }]}
+        >
+          <TextArea placeholder="통증 여부를 입력해주세요" autoSize />
+        </Form.Item>
 
         {/* 특이사항 */}
-        <ConfigProvider theme={GreenTheme}>
-          <Form.Item name="note" label="특이사항">
-            <TextArea placeholder="특이사항을 입력해주세요" autoSize />
-          </Form.Item>
-        </ConfigProvider>
+        <Form.Item name="note" label="특이사항">
+          <TextArea placeholder="특이사항을 입력해주세요" autoSize />
+        </Form.Item>
 
         {/* 등록 버튼 */}
-        <ConfigProvider theme={GreenTheme}>
-          <Form.Item>
-            <Button type="primary" htmlType="submit" block>
-              {_data ? "수정" : "등록"}
+        <Form.Item>
+          <Button type="primary" htmlType="submit" block>
+            {_data ? "수정" : "등록"}
+          </Button>
+          {_data && (
+            <Button
+              className="statuswrite_delete_btn"
+              onClick={WithdrawList}
+              block
+            >
+              삭제
             </Button>
-            {_data ? (
-              <Button
-                className="statuswrite_delete_btn"
-                onClick={WithdrawList}
-                block
-              >
-                삭제
-              </Button>
-            ) : (
-              <></>
-            )}
-          </Form.Item>
-        </ConfigProvider>
+          )}
+        </Form.Item>
       </Form>
     </StatusWriteStyled>
   );
