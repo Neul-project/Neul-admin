@@ -156,13 +156,13 @@ const MyInfo = () => {
     if (form.experience !== experience)
       updateData.append("experience", form.experience || "");
     if (form.certificateName !== certificateName)
-      updateData.append("certificateName", form.certificateName || "");
+      updateData.append("certificateName_01", form.certificateName || "");
     if (form.certificateFile)
       updateData.append("certificate", form.certificateFile || "");
     if (form.certificateName2 !== certificateName2)
-      updateData.append("certificateName2", form.certificateName2 || "");
+      updateData.append("certificateName_02", form.certificateName2 || "");
     if (form.certificateName3 !== certificateName3)
-      updateData.append("certificateName3", form.certificateName3 || "");
+      updateData.append("certificateName_03", form.certificateName3 || "");
 
     for (const [key, value] of updateData.entries()) {
       console.log(`${key}:`, value);
