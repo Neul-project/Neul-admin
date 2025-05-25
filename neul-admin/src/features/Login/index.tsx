@@ -9,7 +9,7 @@ import logo from "@/assets/images/logo.png";
 import axiosInstance from "@/lib/axios";
 import { useRouter } from "next/router";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { loginSchema } from "@/utill/joinValidation";
+import { loginSchema } from "@/utill/userValidation";
 
 //login 컴포넌트
 const Login = () => {

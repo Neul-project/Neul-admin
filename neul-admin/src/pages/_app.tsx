@@ -1,6 +1,3 @@
-import Header from "@/features/Header";
-import NotPc from "@/features/NotPc";
-import Template from "@/layouts/Template";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import Head from "next/head";
@@ -9,8 +6,14 @@ import { ThemeProvider } from "styled-components";
 import theme from "../styles/theme";
 import { useRouter } from "next/router";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { App as AntdApp, ConfigProvider } from "antd";
+import { ConfigProvider } from "antd";
 import { GreenTheme } from "@/utill/antdtheme";
+import dynamic from "next/dynamic";
+
+// 렌더링 시점에서만 불러옴
+const Header = dynamic(() => import("@/features/Header"));
+const Template = dynamic(() => import("@/layouts/Template"));
+const NotPc = dynamic(() => import("@/features/NotPc"), { ssr: false });
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
