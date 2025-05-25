@@ -85,30 +85,6 @@ const ActivityList = () => {
     }
   }, [user]);
 
-  // const getUserlist = () => {
-  //   if (!user?.id) return;
-  //   const adminId = user?.id;
-
-  //   //console.log("adminId", adminId);
-  //   //도우미 id에 따른 활동기록 전체 가져오기
-  //   axiosInstance
-  //     .get("/activity/selectlistall", { params: { adminId } })
-  //     .then((res) => {
-  //       //console.log("activity targetlist res", res.data);
-  //       const data = res.data.reverse();
-  //       const mappedData: DataType[] = data.map((item: any, index: number) => ({
-  //         key: item.id,
-  //         num: index + 1,
-  //         name: item.patient.name + "(" + item.patient.id + ")" || "",
-  //         title: item.title,
-  //         type: getActivityLabel(item.type ?? ""),
-  //         recorded: formatDate(item.recorded_at) ?? "",
-  //         original: item,
-  //       }));
-  //       setDataSource(mappedData);
-  //     });
-  // };
-
   //타켓 리스트
   const getTargetlist = (adminId: number) => {
     //console.log("ad", adminId);

@@ -59,61 +59,18 @@ const Feedback = () => {
   //활동기록 검색
   const onSearch: SearchProps["onSearch"] = (value?: any, _e?, info?) => {
     console.log("value", value, _e, info);
-
+    console.log("sele", selectedAdmin);
     //피드백 : 활동기록 제목(title) 검색에 따른 행(피드백) 반환 요청
-    axiosInstance
-      .get("/activity/search", { params: { data: value } })
-      .then((res) => {
-        const data = res.data;
-        //console.log("data", data);
-
-        const mappedList: DataType[] = data
-          .reverse()
-          .map((item: any, index: number) => ({
-            key: item.id,
-            number: index + 1,
-            activity: item.activity.title,
-            content: item.message,
-            date: formatDate(item.recorded_at),
-            // admin: item.activity.id,
-            origin: item,
-          }));
-
-        const filteredList =
-          selectedAdmin === 0
-            ? mappedList
-            : mappedList.filter(
-                (item) => item.origin.admin.id === selectedAdmin
-              );
-
-        setList(filteredList);
-        //setList(filteredList);
-        setSearchValue("");
-      });
+    feedbackview(selectedAdmin, value);
   };
 
-  //피드백 내용 전체 불러오기
-  // const feedbackviews = () => {
-  //   axiosInstance.get(`/activity/feedback/views`).then((res) => {
-  //     const data = res.data;
-  //     //console.log("data", data);
-  //     const mappedList: DataType[] = data.map((item: any, index: number) => ({
-  //       key: item.id,
-  //       number: index + 1,
-  //       content: item.message,
-  //       activity: item.activity.title,
-  //       date: formatDate(item.recorded_at),
-  //       // admin: item.activity.id,
-  //       origin: item,
-  //     }));
-  //     setList(mappedList);
-  //   });
-  // };
-
   //admin id에 해당하는 피드백 내용 가져오기
-  const feedbackview = (admin?: any) => {
+  const feedbackview = (admin?: any, search?: string) => {
+    //만약 admin이 0인 경우 전체 내용 반환 //search : 검색 내용
     axiosInstance
-      .get("/activity/feedback/view", { params: { adminId: admin } })
+      .get("/activity/feedback/view", {
+        params: { adminId: admin, search: search },
+      })
       .then((res) => {
         const data = res.data;
         const mappedList: DataType[] = data.map((item: any, index: number) => ({
