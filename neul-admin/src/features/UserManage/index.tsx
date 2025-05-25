@@ -129,7 +129,6 @@ const UserManage = () => {
 
   useEffect(() => {
     if (!adminId) return;
-    console.log(adminId, "!!!!!!!!!!!!!!!");
     // 검색어 없이 전체 유저 로딩
     fetchUsers("");
   }, [adminId, fetchUsers]);
