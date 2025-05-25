@@ -88,11 +88,12 @@ const ActivityList = () => {
   //타켓 리스트
   const getTargetlist = (adminId: number) => {
     //console.log("ad", adminId);
+
     //도우미 아이디 따른 피보호자 전체 리스트 가지고 오기
     axiosInstance
       .get("/status/patient", { params: { adminId } })
       .then((res) => {
-        console.log("targetREs", res.data);
+        //console.log("targetREs", res.data);
         const data = res.data;
         const mappedDate: UserType[] = data.map((item: any, index: number) => ({
           key: item.id,
