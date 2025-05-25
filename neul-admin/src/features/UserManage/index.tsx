@@ -1,13 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  Button,
-  Modal,
-  Select,
-  Table,
-  Input,
-  notification,
-  Calendar,
-} from "antd";
+import { Button, Modal, Select, Table, Input, notification } from "antd";
 import clsx from "clsx";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -17,8 +9,14 @@ import { UserManageStyled } from "./styled";
 import { formatPhoneNumber } from "@/utill/formatter";
 import dayjs, { Dayjs } from "dayjs";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import dynamic from "next/dynamic";
+import { useAuthStore } from "@/stores/useAuthStore";
 dayjs.extend(isSameOrBefore);
 const { Search } = Input;
+
+const Calendar = dynamic(() => import("antd").then((mod) => mod.Calendar), {
+  ssr: false,
+});
 
 interface UserType {
   id: number;
@@ -43,12 +41,15 @@ const UserManage = () => {
   const [userOrder, setUserOrder] = useState("DESC");
   const [selectSearch, setSelectSearch] = useState<string>("user_id");
 
+  const adminId = useAuthStore((state) => state.user?.id);
+
   // 검색으로 담당 유저 중 해당하는 사람만 불러오기(만약 검색단어가 없을시 전체 유저 불러오기)
   const fetchUsers = useCallback(
     async (word: string = "") => {
       try {
         const res = await axiosInstance.get("/matching/search", {
           params: {
+            adminId,
             search: selectSearch, // 어떤 기준으로 검색하는지(user_id->보호자ID, user_name->보호자 이름, patient_name->피보호자 이름)
             word: word.trim(), // 검색 단어
           },
@@ -124,9 +125,11 @@ const UserManage = () => {
   }, [earliestDates]);
 
   useEffect(() => {
+    if (!adminId) return;
+    console.log(adminId, "!!!!!!!!!!!!!!!");
     // 검색어 없이 전체 유저 로딩
     fetchUsers("");
-  }, [fetchUsers]);
+  }, [adminId, fetchUsers]);
 
   // 유저 정렬하기
   const sortedUsers = useMemo(() => {
@@ -294,6 +297,7 @@ const UserManage = () => {
         </div>
       </div>
       <Table
+        pagination={{ pageSize: 20 }}
         rowSelection={rowSelection}
         columns={columns}
         dataSource={sortedUsers}
@@ -311,24 +315,26 @@ const UserManage = () => {
         footer={null}
         centered
       >
-        <h3>특이사항</h3>
-        {selectedUser && (
-          <div>
+        {modalOpen && selectedUser && (
+          <>
+            <h3>특이사항</h3>
             <p>{selectedUser.patient_note}</p>
-          </div>
+            <br />
+            <h3>배정일</h3>
+            <Calendar
+              fullscreen={false}
+              value={earliestMatchedDate}
+              cellRender={(value: Dayjs) => {
+                const isMatched = matchedDates.includes(
+                  value.format("YYYY-MM-DD")
+                );
+                return isMatched ? (
+                  <div style={{ color: "#79b79d" }}>배정일</div>
+                ) : null;
+              }}
+            />
+          </>
         )}
-        <br />
-        <h3>배정일</h3>
-        <Calendar
-          fullscreen={false}
-          value={earliestMatchedDate}
-          cellRender={(value: Dayjs) => {
-            const isMatched = matchedDates.includes(value.format("YYYY-MM-DD"));
-            return isMatched ? (
-              <div style={{ color: "#79b79d" }}>배정일</div>
-            ) : null;
-          }}
-        />
       </Modal>
     </UserManageStyled>
   );
