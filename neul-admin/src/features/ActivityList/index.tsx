@@ -135,10 +135,12 @@ const ActivityList = () => {
   //피보호자아이디에 따른 리스트
   const selectlist = (patientId?: number) => {
     axiosInstance
-      .get("/activity/selectlist", { params: { adminId, patientId } })
+      .get("/activity/selectlist", {
+        params: { adminId: adminId, patientId: patientId },
+      })
       .then((res) => {
-        //console.log("activity selectlist res", res.data);
-        const data = res.data.reverse();
+        console.log("activity selectlist res", res.data);
+        const data = res.data;
 
         const mappedData: DataType[] = data?.map(
           (item: any, index: number) => ({

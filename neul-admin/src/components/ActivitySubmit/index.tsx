@@ -78,7 +78,7 @@ const ActivitySubmit = ({
     axiosInstance
       .get("/activity/targetlist", { params: { adminId } })
       .then((res) => {
-        //console.log("activity targetlist res", res.data);
+        console.log("activity targetlist res", res.data);
         const data = res.data;
         const mappedData: any[] = data.map((item: any, index: number) => ({
           value: item.id,
