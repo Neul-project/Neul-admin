@@ -45,7 +45,9 @@ export const SchedulePageStyled = styled.div`
     }
 
     .schedule_select {
+      padding-top: 24px;
       margin-top: 24px;
+      border-top: 1px solid #eee;
 
       .schedule_content_title {
         font-size: 20px;
