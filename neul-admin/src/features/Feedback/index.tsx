@@ -58,7 +58,7 @@ const Feedback = () => {
 
   //활동기록 검색
   const onSearch: SearchProps["onSearch"] = (value?: any, _e?, info?) => {
-    // console.log("value", value, _e, info);
+    //console.log("value", value, _e, info);
     // console.log("sele", selectedAdmin);
     //피드백 : 활동기록 제목(title) 검색에 따른 행(피드백) 반환 요청
     feedbackview(selectedAdmin, value);
@@ -66,10 +66,11 @@ const Feedback = () => {
 
   //admin id에 해당하는 피드백 내용 가져오기
   const feedbackview = (admin?: any, search?: string) => {
+    console.log("ad", admin, search);
     //만약 admin이 0인 경우 전체 내용 반환 //search : 검색 내용
     axiosInstance
       .get("/activity/feedback/view", {
-        params: { adminId: admin, search: search },
+        params: { adminId: Number(admin), search: search },
       })
       .then((res) => {
         const data = res.data;
@@ -92,7 +93,7 @@ const Feedback = () => {
       const data: AdminType[] = res.data;
       setAdminlist([{ value: 0, label: "전체" }, ...data]);
     });
-    feedbackview();
+    feedbackview(0, "");
   }, []);
 
   //select 선택
@@ -104,11 +105,11 @@ const Feedback = () => {
 
     if (admin === 0) {
       //sleect 전체 선택 - 전체 피드백 내용 보여주기
-      feedbackview();
+      feedbackview(0, "");
     } else {
       //도우미 id에 해당하는 feedback내용 보여지기
       //console.log("Ad", admin);
-      feedbackview(admin);
+      feedbackview(admin, "");
     }
   };
   return (
