@@ -1,4 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import clsx from "clsx";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import TitleCompo from "@/components/TitleCompo";
+import axiosInstance from "@/lib/axios";
+import { UserManageStyled } from "./styled";
+import { formatPhoneNumber } from "@/utill/formatter";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import { useAuthStore } from "@/stores/useAuthStore";
+import dayjs, { Dayjs } from "dayjs";
+import "dayjs/locale/ko";
+dayjs.locale("ko");
 import {
   Button,
   Modal,
@@ -7,17 +19,10 @@ import {
   Input,
   notification,
   Calendar,
+  ConfigProvider,
 } from "antd";
-import clsx from "clsx";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
-import TitleCompo from "@/components/TitleCompo";
-import axiosInstance from "@/lib/axios";
-import { UserManageStyled } from "./styled";
-import { formatPhoneNumber } from "@/utill/formatter";
-import dayjs, { Dayjs } from "dayjs";
-import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
-import { useAuthStore } from "@/stores/useAuthStore";
+import koKR from "antd/locale/ko_KR";
+
 dayjs.extend(isSameOrBefore);
 const { Search } = Input;
 
@@ -43,6 +48,7 @@ const UserManage = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [userOrder, setUserOrder] = useState("DESC");
   const [selectSearch, setSelectSearch] = useState<string>("user_id");
+  const [calendarValue, setCalendarValue] = useState<Dayjs | null>(null);
 
   const adminId = useAuthStore((state) => state.user?.id);
 
@@ -317,24 +323,27 @@ const UserManage = () => {
         centered
       >
         {modalOpen && selectedUser && (
-          <>
+          <ConfigProvider locale={koKR}>
             <h3>특이사항</h3>
             <p>{selectedUser.patient_note}</p>
             <br />
             <h3>배정일</h3>
             <Calendar
               fullscreen={false}
-              value={earliestMatchedDate}
+              value={calendarValue || (earliestMatchedDate ?? dayjs())}
+              onSelect={(date) => setCalendarValue(date)}
               cellRender={(value: Dayjs) => {
                 const isMatched = matchedDates.includes(
                   value.format("YYYY-MM-DD")
                 );
                 return isMatched ? (
-                  <div style={{ color: "#79b79d" }}>배정일</div>
+                  <div style={{ color: "#79b79d", textAlign: "center" }}>
+                    배정일
+                  </div>
                 ) : null;
               }}
             />
-          </>
+          </ConfigProvider>
         )}
       </Modal>
     </UserManageStyled>
