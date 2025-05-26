@@ -3,6 +3,14 @@ import { Modal } from "antd";
 
 export const StatusListStyled = styled.div`
   &.statuslist_wrap {
+    /* 테이블 가운데 정렬 */
+    .ant-table-thead > tr > th {
+      text-align: center;
+    }
+    .ant-table-cell {
+      text-align: center;
+    }
+
     .statuslist_box {
       display: flex;
       justify-content: space-between;

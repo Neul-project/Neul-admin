@@ -3,6 +3,15 @@ import styled from "styled-components";
 export const UserManageStyled = styled.div`
   &.usermanage_wrap {
     padding: 20px;
+
+    /* 테이블 가운데 정렬 */
+    .ant-table-thead > tr > th {
+      text-align: center;
+    }
+    .ant-table-cell {
+      text-align: center;
+    }
+
     .usermanage_title_box {
       display: flex;
       justify-content: space-between;
@@ -16,7 +25,7 @@ export const UserManageStyled = styled.div`
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 3px;
+      margin-bottom: 10px;
       .usermanage_sort_box {
         display: flex;
         align-items: center;

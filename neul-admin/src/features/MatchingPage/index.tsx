@@ -296,18 +296,18 @@ const MatchingPage = () => {
 
   return (
     <MatchingPageStyled className={clsx("matching_wrap")}>
-      <div className="usermanage_title_box">
+      <div className="matching_title_box">
         <TitleCompo title="매칭 관리" />
         <div>
           <Button onClick={handleDownloadExcel}>엑셀 다운로드</Button>
         </div>
       </div>
 
-      <div className="usermanage_info">
-        <div className="usermanage_sort_box">
-          <div className="usermanage_total_num">총 {users.length}명</div>
+      <div className="matching_info">
+        <div className="matching_sort_box">
+          <div className="matching_total_num">총 {users.length}명</div>
           <Select
-            className="usermanage_order"
+            className="matching_order"
             value={userOrder}
             options={sortOption}
             onChange={(e) => {
