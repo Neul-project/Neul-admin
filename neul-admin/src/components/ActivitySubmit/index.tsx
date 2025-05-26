@@ -78,7 +78,7 @@ const ActivitySubmit = ({
     axiosInstance
       .get("/status/patient", { params: { adminId } })
       .then((res) => {
-        console.log("activity targetlist res", res.data);
+        //console.log("activity targetlist res", res.data);
         const data = res.data;
         const mappedData: any[] = data.map((item: any, index: number) => ({
           value: item.id,
@@ -91,7 +91,7 @@ const ActivitySubmit = ({
   useEffect(() => {
     //수정하기로 들어 온 경우 상태 업데이트
     if (rowcontent) {
-      console.log("res", rowcontent);
+      //console.log("res", rowcontent);
       setWard(rowcontent.patient.name ?? "");
       setType(rowcontent.type ?? "");
       setRehabilitation(rowcontent.rehabilitation ?? "");

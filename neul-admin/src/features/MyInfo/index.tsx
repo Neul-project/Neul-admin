@@ -99,7 +99,7 @@ const MyInfo = () => {
           });
         }
       } catch (error) {
-        console.error("비밀번호 변경 오류:", error);
+        //console.error("비밀번호 변경 오류:", error);
         notification.error({
           message: "변경 실패",
           description: "서버 오류가 발생했습니다.",
@@ -116,7 +116,7 @@ const MyInfo = () => {
     try {
       const res = await axiosInstance.delete("/user/withdraw");
 
-      console.log("회원탈퇴", res.data);
+      //console.log("회원탈퇴", res.data);
 
       if (res.data) {
         // access_token, refresh_token 제거 및 zustand 상태 초기화
@@ -188,7 +188,11 @@ const MyInfo = () => {
       await axiosInstance.patch("/helper/edit-profile", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      alert("수정되었습니다!");
+      //alert("수정되었습니다!");
+      notification.success({
+        message: `개인정보 수정`,
+        description: `성공적으로 개인정보가 수정 되었습니다.`,
+      });
       getMyInfo(); // 최신 데이터 다시 가져오기
     } catch (e) {
       //console.error("수정 실패", e);

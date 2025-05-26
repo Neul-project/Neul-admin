@@ -89,7 +89,7 @@ const ChoiceWorkday = () => {
 
       {possibleDate ? (
         <>
-          <Calendar dateCellRender={dateCellRender} fullscreen={false} />
+          <Calendar cellRender={dateCellRender} fullscreen={false} />
           <div className="ChoiceWorkday_content">
             <div>
               근무 가능 기간 : {possibleDate.startDate} ~ {possibleDate.endDate}

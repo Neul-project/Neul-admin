@@ -73,6 +73,7 @@ const Feedback = () => {
         params: { adminId: Number(admin), search: search },
       })
       .then((res) => {
+        //console.log("da", res.data);
         const data = res.data;
         const mappedList: DataType[] = data.map((item: any, index: number) => ({
           key: item.id,
@@ -105,11 +106,13 @@ const Feedback = () => {
 
     if (admin === 0) {
       //sleect 전체 선택 - 전체 피드백 내용 보여주기
-      feedbackview(0, "");
+      setSearchValue("");
+      feedbackview(0);
     } else {
       //도우미 id에 해당하는 feedback내용 보여지기
       //console.log("Ad", admin);
-      feedbackview(admin, "");
+      setSearchValue("");
+      feedbackview(admin);
     }
   };
   return (
