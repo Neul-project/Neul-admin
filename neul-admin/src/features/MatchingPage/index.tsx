@@ -230,8 +230,9 @@ const MatchingPage = () => {
                   e.stopPropagation();
 
                   Modal.confirm({
-                    title: "해당 유저와 매칭하시겠습니까?",
-                    content: "해당 유저의 담당 도우미가 됩니다.",
+                    title: "해당 유저의 도우미 신청을 승인하시겠습니까?",
+                    content:
+                      "해당 유저가 결제를 완료하면 담당 도우미가 됩니다.",
                     cancelText: "아니요",
                     okText: "예",
                     okButtonProps: {
@@ -249,15 +250,15 @@ const MatchingPage = () => {
                           userId: data.id, // 보호자 id
                         });
                         notification.success({
-                          message: `매칭 성공`,
-                          description: `해당 유저와 매칭되었습니다.`,
+                          message: `승인 완료`,
+                          description: `도우미 신청 승인이 완료되었습니다.`,
                         });
                         getApplyList();
                       } catch (e) {
                         console.error("해당 유저와의 매칭 실패: ", e);
                         notification.error({
-                          message: `매칭 실패`,
-                          description: `해당 유저와의 매칭에 실패했습니다.`,
+                          message: `승인 실패`,
+                          description: `해당 유저의 도우미 신청 승인이 실패했습니다.`,
                         });
                       }
                     },
