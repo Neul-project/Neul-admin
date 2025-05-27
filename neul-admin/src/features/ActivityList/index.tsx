@@ -190,6 +190,7 @@ const ActivityList = () => {
 
       message.success("선택한 리스트를 삭제했습니다.");
       setSelectedRowKeys([]);
+      selectlist();
     } catch (e) {
       message.error("리스트 삭제에 실패했습니다:");
       //console.error("리스트 삭제 실패: ", e);
