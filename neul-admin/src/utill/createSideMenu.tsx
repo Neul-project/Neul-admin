@@ -27,6 +27,10 @@ export const sidebarMenus = createSidebarMenus([
     label: "담당 회원",
   },
   {
+    key: "/matching",
+    label: "매칭 관리",
+  },
+  {
     key: "/activity/write",
     label: "활동기록",
   },
@@ -37,10 +41,6 @@ export const sidebarMenus = createSidebarMenus([
   {
     key: "/feedback",
     label: "피드백",
-  },
-  {
-    key: "/matching",
-    label: "매칭 관리",
   },
   {
     key: "/schedule",

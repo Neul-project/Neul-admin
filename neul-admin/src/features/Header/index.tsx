@@ -81,16 +81,15 @@ const Header = ({ className }: HeaderProps) => {
           menu={{ items, onClick: handleMenuClick }}
           trigger={["click"]}
         >
-          <a className="header_userinfo" onClick={(e) => e.preventDefault()}>
-            {user?.name}님
-          </a>
+          <span className="header_userinfo">{user?.name}님</span>
+          <span className="header_userinfo" onClick={(e) => e.preventDefault()}>
+            로그아웃
+          </span>
         </Dropdown>
         <Modal
           title="로그아웃"
           closable={{ "aria-label": "Custom Close Button" }}
           open={isModalOpen}
-          // onOk={handleOk}
-          //onCancel={handleCancel}
           footer={[
             <Button key="close" onClick={handleCancel}>
               취소
