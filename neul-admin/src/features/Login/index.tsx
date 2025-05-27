@@ -66,36 +66,38 @@ const Login = () => {
 
   return (
     <LoginStyled className={clsx("Login_main_wrap")}>
-      <div className="Login_logo">
-        <img src={logo.src} alt="logo" className="Login_imgstyle" />
+      <div className="Login_main_box">
+        <div className="Login_logo">
+          <img src={logo.src} alt="logo" className="Login_imgstyle" />
+        </div>
+        <form onSubmit={loginformik.handleSubmit}>
+          <div className="Login_form">
+            <input
+              className="Login_input"
+              type="email"
+              name="email"
+              placeholder="이메일"
+              value={loginformik.values.email}
+              onChange={loginformik.handleChange}
+              onBlur={loginformik.handleBlur}
+            />
+            <input
+              className="Login_input"
+              type="password"
+              name="password"
+              placeholder="비밀번호"
+              value={loginformik.values.password}
+              onChange={loginformik.handleChange}
+              onBlur={loginformik.handleBlur}
+            />
+          </div>
+          <div>
+            <button type="submit" className="Login_btn">
+              로그인
+            </button>
+          </div>
+        </form>
       </div>
-      <form onSubmit={loginformik.handleSubmit}>
-        <div className="Login_form">
-          <input
-            className="Login_input"
-            type="email"
-            name="email"
-            placeholder="이메일"
-            value={loginformik.values.email}
-            onChange={loginformik.handleChange}
-            onBlur={loginformik.handleBlur}
-          />
-          <input
-            className="Login_input"
-            type="password"
-            name="password"
-            placeholder="비밀번호"
-            value={loginformik.values.password}
-            onChange={loginformik.handleChange}
-            onBlur={loginformik.handleBlur}
-          />
-        </div>
-        <div>
-          <button type="submit" className="Login_btn">
-            로그인
-          </button>
-        </div>
-      </form>
     </LoginStyled>
   );
 };
