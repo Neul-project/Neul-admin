@@ -5,12 +5,11 @@ export const LoginStyled = styled.div`
     max-width: 400px;
     display: flex;
     width: 100%;
-    height: 100%;
+    height: 100vh;
     justify-content: center;
     flex-direction: column;
     text-align: center;
-
-    margin: 238px auto;
+    margin: 0px auto;
     gap: 15px;
 
     .Login_main_box {
