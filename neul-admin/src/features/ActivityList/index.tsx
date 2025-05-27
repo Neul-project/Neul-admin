@@ -117,7 +117,7 @@ const ActivityList = () => {
       })
       .then((res) => {
         //console.log("activity selectlist res", res.data);
-        const data = res.data;
+        const data = res.data.reverse();
 
         const mappedData: DataType[] = data?.map(
           (item: any, index: number) => ({

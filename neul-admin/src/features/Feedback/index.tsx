@@ -66,7 +66,7 @@ const Feedback = () => {
 
   //admin id에 해당하는 피드백 내용 가져오기
   const feedbackview = (admin?: any, search?: string) => {
-    console.log("ad", admin, search);
+    //console.log("ad", admin, search);
     //만약 admin이 0인 경우 전체 내용 반환 //search : 검색 내용
     axiosInstance
       .get("/activity/feedback/view", {
