@@ -141,6 +141,7 @@ const ActivitySubmit = ({
     axiosInstance.delete("/activity/delete", {
       data: { ids: deleteIds },
     });
+    selectlist();
   };
 
   //formik
