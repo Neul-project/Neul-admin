@@ -60,18 +60,14 @@ const Header = ({ className }: HeaderProps) => {
           <Link href="/">도우미 페이지</Link>
         </div>
         <div className="right">
-          <span className="header_userinfo">{user?.name}님</span>
-          <span
-            className="header_userinfo logout"
-            style={{ cursor: "pointer", marginLeft: 8 }}
-            onClick={showModal}
-          >
+          <span>{user?.name}님</span>
+          <span className="header_userinfo" onClick={showModal}>
             로그아웃
           </span>
         </div>
         <Modal
           title="로그아웃"
-          closable={{ "aria-label": "Custom Close Button" }}
+          closable={false}
           open={isModalOpen}
           footer={[
             <Button key="close" onClick={handleCancel}>

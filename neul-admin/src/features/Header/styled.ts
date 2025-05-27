@@ -28,6 +28,6 @@ export const HeaderStyled = styled.div`
 
   .header_userinfo {
     cursor: pointer;
-    margin-left: 10px;
+    margin-left: 12px;
   }
 `;
