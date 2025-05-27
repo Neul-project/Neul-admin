@@ -222,6 +222,12 @@ const ActivitySubmit = ({
               message: `등록 완료`,
               description: `성공적으로 등록이 완료 되었습니다.`,
             });
+            if (patientId) {
+              //select로 선택해서 들어온 경우 처리
+              selectlist(patientId);
+            } else {
+              selectlist();
+            }
           });
 
         router.push("/activity/write");
