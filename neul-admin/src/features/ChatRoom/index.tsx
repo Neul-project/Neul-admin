@@ -80,7 +80,7 @@ const ChatRoom = () => {
   const adminId = useAuthStore((state) => state.user?.id);
 
   // 채팅방
-  const chatRoomLimit = 12;
+  const chatRoomLimit = 14;
 
   // 채팅창
   const chatLimit = 20;
