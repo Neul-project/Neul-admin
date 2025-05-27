@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
@@ -8,7 +8,6 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import type { MenuProps } from "antd";
 import { Button, ConfigProvider, Dropdown, Modal } from "antd";
 import Cookies from "js-cookie";
-import { GreenTheme } from "@/utill/antdtheme";
 
 export interface HeaderProps {
   className?: string;
@@ -16,13 +15,6 @@ export interface HeaderProps {
 
 //해당하는 URL은 Header가 표시되지 않습니다.
 export const nonePageObject = ["/login"];
-
-const items: MenuProps["items"] = [
-  {
-    label: "로그아웃",
-    key: "1",
-  },
-];
 
 const Header = ({ className }: HeaderProps) => {
   // 라우터
@@ -50,16 +42,6 @@ const Header = ({ className }: HeaderProps) => {
     setIsModalOpen(false);
   };
 
-  const handleLogout = () => {
-    showModal();
-  };
-
-  const handleMenuClick: MenuProps["onClick"] = (info) => {
-    if (info.key === "1") {
-      handleLogout();
-    }
-  };
-
   return (
     <HeaderStyled
       className={clsx(
@@ -77,15 +59,16 @@ const Header = ({ className }: HeaderProps) => {
         <div className="left">
           <Link href="/">도우미 페이지</Link>
         </div>
-        <Dropdown
-          menu={{ items, onClick: handleMenuClick }}
-          trigger={["click"]}
-        >
+        <div className="right">
           <span className="header_userinfo">{user?.name}님</span>
-          <span className="header_userinfo" onClick={(e) => e.preventDefault()}>
+          <span
+            className="header_userinfo logout"
+            style={{ cursor: "pointer", marginLeft: 8 }}
+            onClick={showModal}
+          >
             로그아웃
           </span>
-        </Dropdown>
+        </div>
         <Modal
           title="로그아웃"
           closable={{ "aria-label": "Custom Close Button" }}
