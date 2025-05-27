@@ -38,7 +38,7 @@ export const LoginStyled = styled.div`
 
         .Login_input {
           width: 100%;
-          padding: 12px 14px;
+          padding: 10px 14px;
           border: 1px solid rgb(189, 189, 189);
           border-radius: 8px;
           margin-bottom: 10px;

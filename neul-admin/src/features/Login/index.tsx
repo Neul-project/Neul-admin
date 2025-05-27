@@ -10,6 +10,8 @@ import axiosInstance from "@/lib/axios";
 import { useRouter } from "next/router";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { loginSchema } from "@/utill/userValidation";
+import React from "react";
+import { Input } from "antd";
 
 //login 컴포넌트
 const Login = () => {
@@ -72,7 +74,7 @@ const Login = () => {
         </div>
         <form onSubmit={loginformik.handleSubmit}>
           <div className="Login_form">
-            <input
+            <Input
               className="Login_input"
               type="email"
               name="email"
@@ -81,7 +83,7 @@ const Login = () => {
               onChange={loginformik.handleChange}
               onBlur={loginformik.handleBlur}
             />
-            <input
+            <Input.Password
               className="Login_input"
               type="password"
               name="password"
