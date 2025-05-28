@@ -56,9 +56,10 @@ const MatchingPage = () => {
     try {
       const res = await axiosInstance.get("/matching/applyuser");
 
-      const mapped = res.data.map((x: any) => ({
+      const mapped = res.data.map((x: any, i: number) => ({
         key: x.apply.id,
         applyId: x.apply.id,
+        number: i + 1,
         status: x.apply.status, //수락 여부
         id: x.user.id,
         email: x.user.email,
@@ -182,7 +183,8 @@ const MatchingPage = () => {
       {
         key: "number",
         title: "번호",
-        render: (_: any, __: any, index: number) => index + 1,
+        dataIndex: "number",
+        // render: (_: any, __: any, index: number) => index + 1,
       },
       {
         key: "email",

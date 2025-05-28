@@ -67,6 +67,7 @@ const UserManage = () => {
         const mapped = res.data.map((x: any, i: number) => ({
           key: i,
           id: x.user.id,
+          number: i + 1,
           email: x.user.email,
           name: x.user.name,
           phone: x.user.phone,
@@ -212,7 +213,8 @@ const UserManage = () => {
       {
         key: "number",
         title: "번호",
-        render: (_: any, __: any, index: number) => index + 1,
+        dataIndex: "number",
+        // render: (_: any, __: any, index: number) => index + 1,
       },
       {
         key: "email",
