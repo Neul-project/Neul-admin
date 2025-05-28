@@ -152,6 +152,7 @@ const Feedback = () => {
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={null}
+        centered
       >
         <FeedbackModal selectedRecord={selectedRecord} />
       </StyledModal>

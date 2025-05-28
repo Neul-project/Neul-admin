@@ -11,10 +11,9 @@ import { AntdGlobalTheme } from "@/utill/antdtheme";
 interface PaymentItem {
   id: number;
   userName: string;
-  adminName: string;
+  patientName: string;
   price: number;
   create_at: string;
-  orderId: string;
 }
 
 const Paylist = () => {
