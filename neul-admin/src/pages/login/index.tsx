@@ -1,4 +1,5 @@
 import Login from "@/features/Login";
+import { message } from "antd";
 import { useRouter } from "next/router";
 import { useEffect, useRef } from "react";
 
@@ -14,7 +15,7 @@ const LoginPage = () => {
     hasRun.current = true; // alert 한 번만 실행하기 위함
 
     if (reason === "auth") {
-      alert("로그인이 필요합니다.");
+      message.info("로그인이 필요합니다.");
     }
   }, [reason]);
 
