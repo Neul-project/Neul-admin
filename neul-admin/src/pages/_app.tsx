@@ -30,6 +30,9 @@ export default function App({ Component, pageProps }: AppProps) {
         `${process.env.NEXT_PUBLIC_API_URL}/auth/health`
       ); // 백엔드의 헬스 체크
       console.log(res.data, "1!!!!!!!!!!!!!!!!!");
+      if (res.status !== 200 || res.data.status !== "ok") {
+        setIsServerDown(true);
+      }
       setIsServerDown(false);
     } catch (error) {
       setIsServerDown(true);
