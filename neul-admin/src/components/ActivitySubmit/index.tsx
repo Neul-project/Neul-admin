@@ -15,6 +15,7 @@ import {
   Radio,
   ConfigProvider,
   notification,
+  Modal,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
@@ -33,10 +34,7 @@ interface DataProps {
   com_type: string;
   rowcontent?: any;
   setIsModalOpen?: any;
-  getUserlist?: any;
-  getTargetlist?: any;
   selectlist?: any;
-  patientId?: number;
 }
 
 //활동 기록 등록 컴포넌트 - formik 작성
@@ -45,7 +43,6 @@ const ActivitySubmit = ({
   rowcontent,
   setIsModalOpen,
   selectlist,
-  patientId,
 }: DataProps) => {
   //변수 선언
 
@@ -63,6 +60,7 @@ const ActivitySubmit = ({
   const [select_ward, setSelectWard] = useState<any[]>();
   const [adminId, setAdminId] = useState<number | null>(); //관리자id(===로그인한 userid)
   const [activityId, setActivityId] = useState();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //삭제하기 모달
 
   //userid useState넣기
   useEffect(() => {
@@ -91,7 +89,7 @@ const ActivitySubmit = ({
   useEffect(() => {
     //수정하기로 들어 온 경우 상태 업데이트
     if (rowcontent) {
-      //console.log("res", rowcontent);
+      console.log("res", rowcontent);
       setWard(rowcontent.patient.name ?? "");
       setType(rowcontent.type ?? "");
       setRehabilitation(rowcontent.rehabilitation ?? "");
@@ -139,17 +137,28 @@ const ActivitySubmit = ({
     maxCount: 5,
   };
 
-  //해당 행 삭제 클릭 함수
+  //해당 행 삭제 모달 오픈 함수
   const deleteRow = () => {
-    //console.log("activityId", [activityId]);
-    const deleteIds = [activityId];
-    // const ids = rowcontent.map((item: any) => item.id); //배열로 보내기
-    axiosInstance.delete("/activity/delete", {
-      data: { ids: deleteIds },
-    });
-    selectlist();
+    setIsDeleteModalOpen(true);
   };
 
+  //삭제 클릭 함수
+  const DeleteContente = () => {
+    //console.log("activityId", [activityId]);
+    const deleteIds = [activityId];
+    axiosInstance
+      .delete("/activity/delete", {
+        data: { ids: deleteIds },
+      })
+      .then((res) => {
+        notification.success({
+          message: "활동기록 삭제",
+          description: "선택한 활동기록을 삭제하였습니다.",
+        });
+        setIsModalOpen(false);
+        selectlist();
+      });
+  };
   //formik
   const activityformik = useFormik({
     initialValues: {
@@ -189,10 +198,9 @@ const ActivitySubmit = ({
       if (rowcontent) {
         // console.log("values", values);
 
-        // for (let [key, value] of formData.entries()) {
-        //   console.log(`${key}: ${value}`);
-        // }
-        // return;
+        for (let [key, value] of formData.entries()) {
+          console.log(`${key}: ${value}`);
+        }
 
         //수정하기
         axiosInstance
@@ -206,13 +214,9 @@ const ActivitySubmit = ({
               message: `수정 완료`,
               description: `성공적으로 수정이 완료 되었습니다.`,
             });
-            if (patientId) {
-              //select로 선택해서 들어온 경우 처리
-              selectlist(patientId);
-            } else {
-              selectlist();
-            }
+
             setIsModalOpen(false);
+            selectlist();
           });
       } else {
         //기록하기
@@ -229,12 +233,6 @@ const ActivitySubmit = ({
               message: `등록 완료`,
               description: `성공적으로 등록이 완료 되었습니다.`,
             });
-            if (patientId) {
-              //select로 선택해서 들어온 경우 처리
-              selectlist(patientId);
-            } else {
-              selectlist();
-            }
           });
 
         router.push("/activity/write");
@@ -244,6 +242,11 @@ const ActivitySubmit = ({
     validateOnChange: true,
     validateOnBlur: true,
   });
+
+  //모달 닫기
+  const handleCancel = () => {
+    setIsDeleteModalOpen(false);
+  };
 
   return (
     <ActivityStyled>
@@ -425,7 +428,7 @@ const ActivitySubmit = ({
 
         {/* 특이 사항 */}
         <div>
-          <div className="activitySubmit_text">특이 사항</div>
+          <div className="activitySubmit_text">특이사항</div>
           <div className="activitySubmit_toastEdit">
             <ConfigProvider theme={ActivityTheme}>
               <TextArea
@@ -472,6 +475,24 @@ const ActivitySubmit = ({
           )}
         </div>
       </form>
+
+      {/* 삭제하기 모달 */}
+      <Modal
+        width={600}
+        title={`활동기록 삭제하기`}
+        open={isDeleteModalOpen}
+        onCancel={handleCancel}
+        footer={
+          <>
+            <Button onClick={handleCancel}>취소하기</Button>
+            <Button type="primary" onClick={DeleteContente}>
+              삭제하기
+            </Button>
+          </>
+        }
+      >
+        <div>정말로 삭제하시겠습니까?</div>
+      </Modal>
     </ActivityStyled>
   );
 };
