@@ -8,6 +8,8 @@ import { useRouter } from "next/router";
 import { ConfigProvider } from "antd";
 import { GreenTheme } from "@/utill/antdtheme";
 import dynamic from "next/dynamic";
+import axiosInstance from "@/lib/axios";
+import SystemDown from "@/components/SystemDown";
 
 // 렌더링 시점에서만 불러옴
 const Header = dynamic(() => import("@/features/Header"));
@@ -17,6 +19,8 @@ const NotPc = dynamic(() => import("@/features/NotPc"), { ssr: false });
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const [notPc, setNotPc] = useState(false);
+  const [isServerDown, setIsServerDown] = useState(false); // 서버 상태 체크
+
   const isLoginPage = router.pathname === "/login"; // 현재 라우터 경로 체크
 
   useEffect(() => {
@@ -40,6 +44,24 @@ export default function App({ Component, pageProps }: AppProps) {
     };
   }, []);
 
+  // 서버 체크
+  const checkServer = async () => {
+    try {
+      await axiosInstance.get("/auth/health"); // 백엔드의 헬스 체크
+      setIsServerDown(false);
+    } catch (error) {
+      console.error("서버 점검 감지:", error);
+      setIsServerDown(true);
+    }
+  };
+
+  useEffect(() => {
+    checkServer();
+    // 30초마다 서버 상태 확인
+    const interval = setInterval(checkServer, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <>
       <Head>
@@ -47,7 +69,9 @@ export default function App({ Component, pageProps }: AppProps) {
       </Head>
 
       <ConfigProvider theme={GreenTheme}>
-        {notPc ? (
+        {isServerDown ? (
+          <SystemDown />
+        ) : notPc ? (
           <NotPc />
         ) : isLoginPage ? (
           <Component {...pageProps} />
