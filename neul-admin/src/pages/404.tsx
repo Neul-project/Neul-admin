@@ -1,34 +1,58 @@
+import { Button } from "antd";
+import { useRouter } from "next/router";
 import React from "react";
-import Link from "next/link";
+import notfound from "@/assets/images/404.png";
 
-const Custom404 = () => {
+const NotFoundPage = () => {
+  const router = useRouter();
+
   return (
     <div
       style={{
-        height: "100vh",
         display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
         alignItems: "center",
-        textAlign: "center",
-        padding: "0 20px",
+        justifyContent: "center",
+        height: "100vh",
+        padding: 20,
+        gap: 40,
       }}
     >
-      <h1>404 - 페이지를 찾을 수 없습니다.</h1>
-      <p>찾으시는 페이지가 삭제되었거나, 주소가 잘못되었습니다.</p>
-      <Link href="/">
-        <a
+      {/* 왼쪽 이미지 */}
+      <div style={{ flex: 1, textAlign: "center" }}>
+        <img
+          src={notfound.src}
+          alt="404"
+          style={{ maxWidth: "100%", maxHeight: "400px" }}
+        />
+      </div>
+
+      {/* 오른쪽 텍스트 & 버튼 */}
+      <div style={{ flex: 1 }}>
+        <h1 style={{ color: "#000", fontSize: "2.5rem", marginBottom: 16 }}>
+          죄송합니다. 현재 찾을 수 없는 페이지를 요청하셨습니다.
+        </h1>
+        <p
           style={{
-            color: "#0070f3",
-            textDecoration: "underline",
-            marginTop: 20,
+            color: "#666",
+            fontSize: "1rem",
+            lineHeight: "1.5rem",
+            marginBottom: 40,
           }}
         >
-          홈으로 돌아가기
-        </a>
-      </Link>
+          페이지의 주소가 잘못 입력되었거나,
+          <br />
+          주소가 변경 혹은 삭제되어 요청하신 페이지를 찾을 수 없습니다.
+        </p>
+
+        <div style={{ display: "flex", gap: 16 }}>
+          <Button type="primary" onClick={() => router.push("/")}>
+            메인으로
+          </Button>
+          <Button onClick={() => router.back()}>이전으로</Button>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default Custom404;
+export default NotFoundPage;
