@@ -36,7 +36,6 @@ export default function App({ Component, pageProps }: AppProps) {
         setIsServerDown(true);
       }
     } catch (error) {
-      console.error("헬스 체크 실패:", error);
       setIsServerDown(true);
     }
   };

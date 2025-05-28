@@ -39,9 +39,8 @@ const Paylist = () => {
   };
 
   useEffect(() => {
-    if (!adminId) return;
     fetchPaymentList();
-  }, [adminId]);
+  }, []);
 
   // 테이블 헤더
   const columns: ColumnsType<PaymentItem> = [
