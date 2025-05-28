@@ -4,6 +4,7 @@ export const Payliststyled = styled.div`
   display: flex;
   flex-direction: column;
   gap: 15px;
+  padding: 20px;
 
   tr:hover {
     cursor: pointer;
