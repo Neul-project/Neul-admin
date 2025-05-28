@@ -24,6 +24,8 @@ const Paylist = () => {
 
   // 결제리스트 요청
   const fetchPaymentList = async () => {
+    console.log("!!!!!!!!", adminId);
+
     try {
       const res = await axiosInstance.get<PaymentItem[]>(
         "/program/payment-list",

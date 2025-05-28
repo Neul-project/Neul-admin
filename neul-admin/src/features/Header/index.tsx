@@ -69,6 +69,7 @@ const Header = ({ className }: HeaderProps) => {
           title="로그아웃"
           closable={false}
           open={isModalOpen}
+          centered
           footer={[
             <Button key="close" onClick={handleCancel}>
               취소
