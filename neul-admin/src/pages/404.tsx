@@ -12,22 +12,18 @@ const NotFoundPage = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        height: "100vh",
+        height: "84vh",
         padding: 20,
         gap: 40,
       }}
     >
       {/* 왼쪽 이미지 */}
-      <div style={{ flex: 1, textAlign: "center" }}>
-        <img
-          src={notfound.src}
-          alt="404"
-          style={{ maxWidth: "100%", maxHeight: "400px" }}
-        />
+      <div style={{ width: "200px", textAlign: "center" }}>
+        <img src={notfound.src} alt="404" style={{ width: "100%" }} />
       </div>
 
       {/* 오른쪽 텍스트 & 버튼 */}
-      <div style={{ flex: 1 }}>
+      <div>
         <h1 style={{ color: "#000", fontSize: "2.5rem", marginBottom: 16 }}>
           죄송합니다. 현재 찾을 수 없는 페이지를 요청하셨습니다.
         </h1>
