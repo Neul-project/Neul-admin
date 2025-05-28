@@ -2,6 +2,10 @@ import styled from "styled-components";
 import { Modal } from "antd";
 
 export const StatusListStyled = styled.div`
+  .ant-table-wrapper .ant-table-pagination-right {
+    justify-content: center;
+  }
+
   &.statuslist_wrap {
     /* 테이블 가운데 정렬 */
     .ant-table-thead > tr > th {

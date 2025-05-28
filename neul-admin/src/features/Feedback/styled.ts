@@ -8,6 +8,9 @@ export const StyledModal = styled(Modal)`
 `;
 
 export const FeedbackStyled = styled.div`
+  .ant-table-wrapper .ant-table-pagination-right {
+    justify-content: center;
+  }
   .Feedback_admin_choice {
     display: flex;
     justify-content: space-between;
