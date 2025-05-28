@@ -13,7 +13,7 @@ interface PaymentItem {
   orderId: string;
   userName: string;
   price: number;
-  create_at: string;
+  created_at: string;
 }
 
 const Paylist = () => {
@@ -21,6 +21,25 @@ const Paylist = () => {
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
 
   const adminId = useAuthStore((state) => state.user?.id); //도우미 id
+
+  // 결제리스트 요청
+  const fetchPaymentList = async () => {
+    try {
+      const res = await axiosInstance.get<PaymentItem[]>(
+        "/program/payment-list",
+        { params: { type: "user", adminId } }
+      );
+      console.log("Da", res.data);
+      setData(res.data);
+    } catch (error) {
+      console.error("결제 리스트 불러오기 실패:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (!adminId) return;
+    fetchPaymentList();
+  }, [adminId]);
 
   // 테이블 헤더
   const columns: ColumnsType<PaymentItem> = [
@@ -49,8 +68,8 @@ const Paylist = () => {
     },
     {
       title: "결제일",
-      dataIndex: "create_at",
-      key: "create_at",
+      dataIndex: "created_at",
+      key: "created_at",
       render: (date: string) => dayjs(date).format("YYYY-MM-DD HH:mm"),
     },
     {
@@ -75,24 +94,6 @@ const Paylist = () => {
       },
     },
   ];
-
-  // 결제리스트 요청
-  useEffect(() => {
-    const fetchPaymentList = async () => {
-      try {
-        const res = await axiosInstance.get<PaymentItem[]>(
-          "/program/payment-list",
-          { params: { type: "user", adminId } }
-        );
-        console.log("Da", res.data);
-        setData(res.data);
-      } catch (error) {
-        console.error("결제 리스트 불러오기 실패:", error);
-      }
-    };
-
-    fetchPaymentList();
-  }, []);
 
   return (
     <Payliststyled>

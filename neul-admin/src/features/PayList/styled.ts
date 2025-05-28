@@ -6,6 +6,10 @@ export const Payliststyled = styled.div`
   gap: 15px;
   padding: 20px;
 
+  .ant-table-wrapper .ant-table-pagination-right {
+    justify-content: center;
+  }
+
   .ant-table-thead > tr > th {
     text-align: center;
   }
