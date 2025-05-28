@@ -10,8 +10,8 @@ import { AntdGlobalTheme } from "@/utill/antdtheme";
 
 interface PaymentItem {
   id: number;
+  orderId: string;
   userName: string;
-  patientName: string;
   price: number;
   create_at: string;
 }
@@ -32,14 +32,14 @@ const Paylist = () => {
         (pagination.current - 1) * pagination.pageSize + index + 1,
     },
     {
+      title: "주문번호",
+      dataIndex: "orderId",
+      key: "orderId",
+    },
+    {
       title: "보호자",
       dataIndex: "userName",
       key: "userName",
-    },
-    {
-      title: "피보호자",
-      dataIndex: "patientName",
-      key: "patientName",
     },
     {
       title: "결제금액",

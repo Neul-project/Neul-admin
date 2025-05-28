@@ -52,7 +52,7 @@ export const sidebarMenus = createSidebarMenus([
   },
   {
     key: "/paylist",
-    label: "정산하기",
+    label: "정산관리",
   },
   {
     key: "/mypage",

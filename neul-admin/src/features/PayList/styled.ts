@@ -6,10 +6,6 @@ export const Payliststyled = styled.div`
   gap: 15px;
   padding: 20px;
 
-  tr:hover {
-    cursor: pointer;
-  }
-
   .ant-table-thead > tr > th {
     text-align: center;
   }
