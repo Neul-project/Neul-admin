@@ -5,7 +5,15 @@ import { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axios";
 
 //antd
-import { Select, Button, Table, ConfigProvider, message } from "antd";
+import {
+  Select,
+  Button,
+  Table,
+  ConfigProvider,
+  message,
+  Modal,
+  notification,
+} from "antd";
 import type { TableColumnsType, TableProps } from "antd";
 
 //component
@@ -33,6 +41,7 @@ const ActivityList = () => {
   const [rowid, setRowId] = useState<any[]>(); //테이블 행 클릭 시 아이디(select요청 id와 비교할 때 사용)
   const [adminId, setAdminId] = useState<number | null>(); //관리자id(===로그인한 userid)
   const [patientId, setPatientId] = useState<number>();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //삭제하기 모달
 
   //table colums
   const columns: TableColumnsType<DataType> = [
@@ -80,8 +89,15 @@ const ActivityList = () => {
 
   //userid useState넣기
   useEffect(() => {
-    if (user?.id) {
-      setAdminId(user.id);
+    if (!user?.id) return;
+    const adminId = user?.id;
+    setAdminId(adminId);
+    getTargetlist(adminId);
+    //console.log("d", patientId);
+    if (patientId) {
+      selectlist(patientId);
+    } else {
+      selectlist();
     }
   }, [user]);
 
@@ -134,17 +150,6 @@ const ActivityList = () => {
         setDataSource(mappedData);
       });
   };
-  useEffect(() => {
-    if (!user?.id) return;
-    const adminId = user?.id;
-    getTargetlist(adminId);
-    //console.log("d", patientId);
-    if (patientId) {
-      selectlist(patientId);
-    } else {
-      selectlist();
-    }
-  }, [user]);
 
   //antd select handleChange
   const handleChange = (option: { value: number; label: string }) => {
@@ -171,29 +176,15 @@ const ActivityList = () => {
   //삭제하기 버튼 클릭 이벤트
   const DeleteRows = async () => {
     //console.log("selectedRowKeys", selectedRowKeys);
+
     if (selectedRowKeys.length === 0) {
-      message.warning("삭제할 리스트를 선택해주세요.");
-      return;
-    }
-
-    try {
-      //console.log("삭제할 리스트 id:", selectedRowKeys);
-
-      //리스트 삭제 요청
-      await axiosInstance.delete("/activity/delete", {
-        data: { ids: selectedRowKeys },
+      notification.error({
+        message: "활동기록 삭제 실패",
+        description: "삭제할 리스트를 선택해주세요.",
       });
-
-      setDataSource((prev) =>
-        prev?.filter((item) => !selectedRowKeys.includes(item.key))
-      );
-
-      message.success("선택한 리스트를 삭제했습니다.");
-      setSelectedRowKeys([]);
-      selectlist();
-    } catch (e) {
-      message.error("리스트 삭제에 실패했습니다:");
-      //console.error("리스트 삭제 실패: ", e);
+      return;
+    } else {
+      setIsDeleteModalOpen(true);
     }
   };
 
@@ -208,14 +199,37 @@ const ActivityList = () => {
     onChange: onSelectChange,
   };
 
-  //모달 열기
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
-
   //모달 닫기
   const handleCancel = () => {
     setIsModalOpen(false);
+    setIsDeleteModalOpen(false);
+  };
+
+  //모달 - 삭제하기 버튼
+  const activityDelete = async () => {
+    try {
+      //console.log("삭제할 리스트 id:", selectedRowKeys);
+
+      //리스트 삭제 요청
+      await axiosInstance.delete("/activity/delete", {
+        data: { ids: selectedRowKeys },
+      });
+
+      setDataSource((prev) =>
+        prev?.filter((item) => !selectedRowKeys.includes(item.key))
+      );
+
+      notification.success({
+        message: "활동기록 삭제",
+        description: "선택한 활동기록을 삭제하였습니다.",
+      });
+      setIsDeleteModalOpen(false);
+      setSelectedRowKeys([]);
+      selectlist();
+    } catch (e) {
+      message.error("리스트 삭제에 실패했습니다:");
+      //console.error("리스트 삭제 실패: ", e);
+    }
   };
 
   return (
@@ -250,8 +264,11 @@ const ActivityList = () => {
           dataSource={dataSource}
         />
       </ConfigProvider>
+
+      {/* 상세모달 */}
       <StyledModal
         width={600}
+        zIndex={0}
         key={isModalOpen ? rowid?.[0]?.id : "closed"}
         title={`${userName}님 활동 기록`}
         open={isModalOpen}
@@ -263,12 +280,28 @@ const ActivityList = () => {
             com_type={"modify"}
             rowcontent={rowid}
             setIsModalOpen={setIsModalOpen}
-            getTargetlist={getTargetlist}
             selectlist={selectlist}
-            patientId={patientId}
           />
         </div>
       </StyledModal>
+
+      {/* 삭제하기 모달 */}
+      <Modal
+        width={600}
+        title={`활동기록 삭제하기`}
+        open={isDeleteModalOpen}
+        onCancel={handleCancel}
+        footer={
+          <>
+            <Button onClick={handleCancel}>취소하기</Button>
+            <Button type="primary" onClick={activityDelete}>
+              삭제하기
+            </Button>
+          </>
+        }
+      >
+        <div>정말로 삭제하시겠습니까?</div>
+      </Modal>
     </ActivityListStyled>
   );
 };
