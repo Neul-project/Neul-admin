@@ -127,9 +127,10 @@ const ActivityList = () => {
 
   //피보호자아이디에 따른 리스트
   const selectlist = (patientId?: number) => {
+    //console.log("f", user?.id, patientId);
     axiosInstance
       .get("/activity/selectlist", {
-        params: { adminId: adminId, patientId: patientId },
+        params: { adminId: user?.id, patientId: patientId },
       })
       .then((res) => {
         //console.log("activity selectlist res", res.data);

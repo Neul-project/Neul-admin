@@ -397,13 +397,15 @@ const ActivitySubmit = ({
               <ConfigProvider theme={StatusTheme}>
                 <Radio.Group
                   buttonStyle="solid"
-                  value={activityformik.values.rehabilitation}
-                  onChange={(e) =>
+                  value={rehabilitation}
+                  onChange={(e) => {
+                    console.log("Selected:", e.target.value);
+                    setRehabilitation(e.target.value);
                     activityformik.setFieldValue(
                       "rehabilitation",
                       e.target.value
-                    )
-                  }
+                    );
+                  }}
                 >
                   <Radio.Button className="activitySubmit_radio" value="yes">
                     참여
