@@ -122,10 +122,16 @@ const MyInfo = () => {
         // access_token, refresh_token 제거 및 zustand 상태 초기화
         useAuthStore.getState().logout();
 
-        alert("탈퇴가 완료되었습니다.");
+        notification.success({
+          message: "회원탈퇴 성공",
+          description: "그동안 이용해주셔서 감사합니다.",
+        });
         router.push("/");
       } else {
-        alert("탈퇴에 실패했습니다. 다시 시도해주세요.");
+        notification.error({
+          message: "회원탈퇴 실패",
+          description: "탈퇴에 실패했습니다. 다시 시도해주세요.",
+        });
       }
     } catch (err: any) {
       console.error("회원탈퇴 오류:", err);
@@ -188,15 +194,17 @@ const MyInfo = () => {
       await axiosInstance.patch("/helper/edit-profile", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      //alert("수정되었습니다!");
       notification.success({
-        message: `개인정보 수정`,
+        message: `개인정보 수정 성공`,
         description: `성공적으로 개인정보가 수정 되었습니다.`,
       });
       getMyInfo(); // 최신 데이터 다시 가져오기
     } catch (e) {
       //console.error("수정 실패", e);
-      alert("수정 실패");
+      notification.error({
+        message: `개인정보 수정 실패`,
+        description: `개인정보 수정에 실패했습니다.`,
+      });
     }
   };
 
