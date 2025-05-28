@@ -56,25 +56,31 @@ const MatchingPage = () => {
     try {
       const res = await axiosInstance.get("/matching/applyuser");
 
-      console.log(res.data, "들어있나? 신청 정보");
-
-      const mapped = res.data.map((x: any, i: number) => ({
-        key: x.apply.id,
-        applyId: x.apply.id,
-        number: i + 1,
-        status: x.apply.status, //수락 여부
-        id: x.user.id,
-        email: x.user.email,
-        name: x.user.name,
-        phone: x.user.phone,
-        patient_id: x.patient.id,
-        patient_name: x.patient.name,
-        patient_gender: x.patient.gender === "male" ? "남" : "여",
-        patient_birth: x.patient.birth || "없음",
-        patient_note: x.patient.note || "없음",
-        created_at: x.apply.created_at, // 매칭 신청 날짜
-        dates: x.apply.dates, // 사용자가 신청한 날짜
-      }));
+      const mapped = res.data.map((x: any, i: number) => {
+        const patient = x.patient;
+        return {
+          key: x.apply.id,
+          applyId: x.apply.id,
+          number: i + 1,
+          status: x.apply.status, //수락 여부
+          id: x.user.id,
+          email: x.user.email,
+          name: x.user.name,
+          phone: x.user.phone,
+          patient_id: x.patient?.id || "없음",
+          patient_name: x.patient?.name || "없음",
+          patient_gender:
+            x.patient?.gender === "male"
+              ? "남"
+              : patient?.gender === "female"
+              ? "여"
+              : "-",
+          patient_birth: x.patient?.birth || "없음",
+          patient_note: x.patient?.note || "없음",
+          created_at: x.apply.created_at, // 매칭 신청 날짜
+          dates: x.apply.dates, // 사용자가 신청한 날짜
+        };
+      });
       setUsers(mapped);
     } catch (err) {
       console.error("신청 정보 불러오기 실패", err);
