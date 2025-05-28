@@ -3,6 +3,10 @@ import { Modal } from "antd";
 
 export const ActivityListStyled = styled.div`
   &.ActivityList_main_wrap {
+    .ant-table-wrapper .ant-table-pagination-right {
+      justify-content: center;
+    }
+
     .ant-table-cell {
       text-align: center;
     }

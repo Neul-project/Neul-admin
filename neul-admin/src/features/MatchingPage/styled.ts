@@ -4,6 +4,10 @@ export const MatchingPageStyled = styled.div`
   &.matching_wrap {
     padding: 20px;
 
+    .ant-table-wrapper .ant-table-pagination-right {
+      justify-content: center;
+    }
+
     /* 테이블 가운데 정렬 */
     .ant-table-thead > tr > th {
       text-align: center;
