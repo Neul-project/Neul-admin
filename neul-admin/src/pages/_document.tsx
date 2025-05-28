@@ -5,7 +5,9 @@ import { ServerStyleSheet } from "styled-components";
 const Document = () => {
   return (
     <Html lang="en">
-      <Head></Head>
+      <Head>
+        <link rel="icon" href="/favicon.png" type="image/png" />
+      </Head>
       <body>
         <Main />
         <NextScript />
