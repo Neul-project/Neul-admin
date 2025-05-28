@@ -30,11 +30,18 @@ export default function App({ Component, pageProps }: AppProps) {
         `${process.env.NEXT_PUBLIC_API_URL}/auth/health`
       ); // 백엔드의 헬스 체크
       console.log(res.data, "1!!!!!!!!!!!!!!!!!");
-      if (res.status !== 200 || res.data.status !== "ok") {
+      // 응답이 200이고 ok가 true일 때만 서버 정상으로 판단
+      if (res.status === 200 && res.data.ok === true) {
+        setIsServerDown(false);
+      } else {
+        console.warn(
+          "서버 응답은 있음, 하지만 ok 값이 false거나 이상함:",
+          res.data
+        );
         setIsServerDown(true);
       }
-      setIsServerDown(false);
     } catch (error) {
+      console.error("헬스 체크 실패:", error);
       setIsServerDown(true);
     }
   };
