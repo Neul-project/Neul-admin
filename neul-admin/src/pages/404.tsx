@@ -24,8 +24,17 @@ const NotFoundPage = () => {
 
       {/* 오른쪽 텍스트 & 버튼 */}
       <div>
-        <h1 style={{ color: "#000", fontSize: "2.5rem", marginBottom: 16 }}>
-          죄송합니다. 현재 찾을 수 없는 페이지를 요청하셨습니다.
+        <h1
+          style={{
+            marginLeft: "48px",
+            color: "#000",
+            fontSize: "2.5rem",
+            marginBottom: 16,
+          }}
+        >
+          죄송합니다.
+          <br />
+          현재 찾을 수 없는 페이지를 요청하셨습니다.
         </h1>
         <p
           style={{
