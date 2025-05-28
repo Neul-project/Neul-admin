@@ -9,7 +9,7 @@ import logo from "@/assets/images/logo.png";
 import axiosInstance from "@/lib/axios";
 import { useRouter } from "next/router";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { loginSchema } from "@/utill/userValidation";
+import { message } from "antd";
 import React from "react";
 import { Input } from "antd";
 
@@ -23,47 +23,62 @@ const Login = () => {
       password: "",
     },
     onSubmit: async (values) => {
-      //console.log("value", values);
-
-      const val_email = values.email;
-
-      if (val_email.split("@")[1] === "neul.com") {
-        try {
-          const res = await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}/auth/local`,
-            values,
-            {
-              withCredentials: true,
-            }
-          );
-
-          //console.log("로그인 응답 데이터", res.data);
-
-          const { user, token } = res.data;
-
-          // 1. access_token 쿠키 저장
-          Cookies.set("access_token", token);
-
-          // 2. 토큰 기반 유저 정보 요청
-          const meRes = await axiosInstance.get("/auth/me");
-
-          //console.log("유저 정보:", meRes.data);
-
-          // 3. zustand에 로그인 상태 저장
-          login(meRes.data); // user: { id }
-
-          // 4. 메인페이지 이동
-          router.push("/");
-        } catch (error) {
-          console.error("로그인 실패:", error);
-          alert("로그인 정보가 일치하지 않습니다.");
-        }
-      } else {
-        alert("유효하지 않은 계정입니다.");
+      if (!values.email && !values.password) {
+        message.error("아이디와 비밀번호는 필수입니다.");
         return;
       }
+
+      // email 빈 값 체크
+      if (!values.email) {
+        message.error("아이디는 필수입니다.");
+        return;
+      }
+
+      // password 빈 값 체크
+      if (!values.password) {
+        message.error("비밀번호는 필수입니다.");
+        return;
+      }
+
+      // password 길이 체크
+      if (values.password.length < 6) {
+        message.error("비밀번호는 최소 6자 이상이어야 합니다.");
+        return;
+      }
+
+      // 백엔드에 보낼 email 완성
+      const fullEmail = values.email + "@neul.com";
+
+      try {
+        const res = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/auth/local`,
+          {
+            email: fullEmail,
+            password: values.password,
+          },
+          {
+            withCredentials: true,
+          }
+        );
+
+        const { token } = res.data;
+
+        // 1. access_token 쿠키 저장
+        Cookies.set("access_token", token);
+
+        // 2. 토큰 기반 유저 정보 요청
+        const meRes = await axiosInstance.get("/auth/me");
+
+        // 3. zustand에 로그인 상태 저장
+        login(meRes.data);
+
+        // 4. 메인페이지 이동
+        router.push("/");
+      } catch (error) {
+        console.error("로그인 실패:", error);
+        message.error("로그인 정보가 일치하지 않습니다.");
+      }
     },
-    validationSchema: loginSchema,
   });
 
   return (
@@ -76,11 +91,16 @@ const Login = () => {
           <div className="Login_form">
             <Input
               className="Login_input"
-              type="email"
+              type="text"
               name="email"
-              placeholder="이메일"
+              placeholder="아이디"
               value={loginformik.values.email}
               onChange={loginformik.handleChange}
+              suffix={
+                <span style={{ userSelect: "none", color: "#999" }}>
+                  @neul.com
+                </span>
+              }
               onBlur={loginformik.handleBlur}
             />
             <Input.Password
