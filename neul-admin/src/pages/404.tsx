@@ -22,11 +22,10 @@ const NotFoundPage = () => {
         <img src={notfound.src} alt="404" style={{ width: "100%" }} />
       </div>
 
-      {/* 오른쪽 텍스트 & 버튼 */}
-      <div>
+      {/* 오른쪽 텍스트 + 버튼 */}
+      <div style={{ marginLeft: "48px" }}>
         <h1
           style={{
-            marginLeft: "48px",
             color: "#000",
             fontSize: "2.5rem",
             marginBottom: 16,
@@ -49,7 +48,7 @@ const NotFoundPage = () => {
           주소가 변경 혹은 삭제되어 요청하신 페이지를 찾을 수 없습니다.
         </p>
 
-        <div style={{ display: "flex", gap: 16 }}>
+        <div style={{ display: "flex", gap: 6 }}>
           <Button type="primary" onClick={() => router.push("/")}>
             메인으로
           </Button>
