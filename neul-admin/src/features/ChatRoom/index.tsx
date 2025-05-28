@@ -253,13 +253,19 @@ const ChatRoom = () => {
 
       // 렌더링이 끝난 뒤 scrollTop 조절
       requestAnimationFrame(() => {
+        const container = scrollContainerRef.current;
+        const prevScrollTop = container?.scrollTop ?? 0;
+        const prevScrollHeight = container?.scrollHeight ?? 0;
         setTimeout(() => {
           if (container) {
             const newScrollHeight = container.scrollHeight;
-            const scrollOffset = newScrollHeight - prevScrollHeight;
-            container.scrollTop = scrollOffset;
-            // 최초 로딩 시 맨 아래로
-            if (pageToFetch === 1) scrollToBottom();
+
+            if (pageToFetch !== 1) {
+              const addedHeight = newScrollHeight - prevScrollHeight;
+              container.scrollTop = prevScrollTop + addedHeight;
+            } else {
+              scrollToBottom(); // 처음 들어갔을 때는 맨 아래로
+            }
           }
         }, 30);
       });
