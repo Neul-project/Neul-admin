@@ -119,9 +119,15 @@ const ActivitySubmit = ({
 
   //파일 업로드
   const fileprops: UploadProps = {
-    beforeUpload: () => {
-      // 자동 업로드 방지
-      return false;
+    beforeUpload: (file) => {
+      const isLt500KB = file.size <= 500 * 1024;
+      if (!isLt500KB) {
+        notification.error({
+          message: "파일 크기 초과",
+          description: "이미지 크기는 500KB 이하만 업로드할 수 있습니다.",
+        });
+      }
+      return isLt500KB ? false : Upload.LIST_IGNORE;
     },
 
     onChange({ fileList }) {

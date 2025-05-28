@@ -240,6 +240,13 @@ const MyInfo = () => {
             onChange={(e) => {
               const file = e.target.files?.[0];
               if (file) {
+                if (file.size > 500 * 1024) {
+                  notification.info({
+                    message: `프로필 사진`,
+                    description: `이미지 크기는 500KB 이하만 가능합니다.`,
+                  });
+                  return;
+                }
                 setForm((prev) => ({ ...prev, profileImageFile: file }));
               }
             }}
