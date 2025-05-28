@@ -56,6 +56,8 @@ const MatchingPage = () => {
     try {
       const res = await axiosInstance.get("/matching/applyuser");
 
+      console.log(res.data, "들어있나? 신청 정보");
+
       const mapped = res.data.map((x: any, i: number) => ({
         key: x.apply.id,
         applyId: x.apply.id,
