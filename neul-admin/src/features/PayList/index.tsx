@@ -24,8 +24,6 @@ const Paylist = () => {
 
   // 결제리스트 요청
   const fetchPaymentList = async () => {
-    console.log("!!!!!!!!", adminId);
-
     try {
       const res = await axiosInstance.get<PaymentItem[]>(
         "/program/payment-list",
@@ -39,8 +37,10 @@ const Paylist = () => {
   };
 
   useEffect(() => {
+    console.log("!!!!!!!!", adminId);
+    if (!adminId) return;
     fetchPaymentList();
-  }, []);
+  }, [adminId]);
 
   // 테이블 헤더
   const columns: ColumnsType<PaymentItem> = [
