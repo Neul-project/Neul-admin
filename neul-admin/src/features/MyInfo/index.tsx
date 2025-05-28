@@ -8,7 +8,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useRouter } from "next/router";
 import ModalCompo from "@/components/ModalCompo";
 import * as S from "@/components/ModalCompo/ModalContent";
-import { Button, ConfigProvider, notification } from "antd";
+import { Button, ConfigProvider, Modal, notification } from "antd";
 import { GreenTheme } from "@/utill/antdtheme";
 import { HelperInfo } from "./info";
 
@@ -16,6 +16,7 @@ import { HelperInfo } from "./info";
 const MyInfo = () => {
   const [info, setInfo] = useState<HelperInfo>();
   const [pwOpen, setPwOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [form, setForm] = useState<{
     desiredPay: number;
     experience: string;
@@ -110,15 +111,17 @@ const MyInfo = () => {
 
   // 회원탈퇴 요청
   const handleWithdraw = async () => {
-    const confirmed = confirm("정말 회원을 탈퇴하시겠습니까?");
-    if (!confirmed) return;
+    // const confirmed = confirm("정말 회원을 탈퇴하시겠습니까?");
+    // if (!confirmed) return;
 
     try {
-      const res = await axiosInstance.delete("/user/withdraw");
+      const res = await axiosInstance.delete("/user/withdraw", {
+        data: { userId: adminId },
+      });
 
-      //console.log("회원탈퇴", res.data);
+      console.log("회원탈퇴", res.data);
 
-      if (res.data) {
+      if (res.data.ok) {
         // access_token, refresh_token 제거 및 zustand 상태 초기화
         useAuthStore.getState().logout();
 
@@ -126,12 +129,14 @@ const MyInfo = () => {
           message: "회원탈퇴 성공",
           description: "그동안 이용해주셔서 감사합니다.",
         });
-        router.push("/");
+        setIsModalOpen(false);
+        router.push("/login");
       } else {
         notification.error({
           message: "회원탈퇴 실패",
-          description: "탈퇴에 실패했습니다. 다시 시도해주세요.",
+          description: `매칭된 사용자가 있어 탈퇴를 할 수 없습니다.`,
         });
+        setIsModalOpen(false);
       }
     } catch (err: any) {
       console.error("회원탈퇴 오류:", err);
@@ -222,6 +227,18 @@ const MyInfo = () => {
     certificateName3,
     profileImage,
   } = info;
+
+  const userDelete = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteCancel = () => {
+    setIsModalOpen(false);
+  };
 
   return (
     <MyInfoStyled className={clsx("myinfo_wrap")}>
@@ -428,9 +445,30 @@ const MyInfo = () => {
         <ConfigProvider theme={GreenTheme}>
           <div className="myinfo_button_box">
             <Button onClick={handleUpdate}>수정하기</Button>
+            <Button onClick={userDelete}>탈퇴하기</Button>
           </div>
         </ConfigProvider>
       </div>
+
+      <Modal
+        title="도우미 탈퇴하기"
+        closable={{ "aria-label": "Custom Close Button" }}
+        open={isModalOpen}
+        onOk={handleOk}
+        onCancel={handleDeleteCancel}
+        footer={
+          <ConfigProvider theme={GreenTheme}>
+            <Button key="no" onClick={handleDeleteCancel}>
+              취소하기
+            </Button>
+            <Button key="yes" type="primary" onClick={handleWithdraw}>
+              삭제하기
+            </Button>
+          </ConfigProvider>
+        }
+      >
+        <div>정말로 탈퇴하실 건가요?</div>
+      </Modal>
     </MyInfoStyled>
   );
 };

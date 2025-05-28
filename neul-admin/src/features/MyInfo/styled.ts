@@ -133,7 +133,8 @@ export const MyInfoStyled = styled.div`
     .myinfo_button_box {
       display: flex;
       justify-content: flex-end;
-      margin-top: 50px;
+      margin-top: 60px;
+      gap: 10px;
     }
   }
 `;
