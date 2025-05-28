@@ -26,7 +26,8 @@ export default function App({ Component, pageProps }: AppProps) {
   // 서버 체크
   const checkServer = async () => {
     try {
-      await axios.get("/auth/health"); // 백엔드의 헬스 체크
+      const res = await axios.get("/auth/health"); // 백엔드의 헬스 체크
+      console.log(res.data, "1!!!!!!!!!!!!!!!!!");
       setIsServerDown(false);
     } catch (error) {
       setIsServerDown(true);
