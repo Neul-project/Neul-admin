@@ -8,8 +8,8 @@ import { useRouter } from "next/router";
 import { ConfigProvider } from "antd";
 import { GreenTheme } from "@/utill/antdtheme";
 import dynamic from "next/dynamic";
-import axiosInstance from "@/lib/axios";
 import SystemDown from "@/components/SystemDown";
+import axios from "axios";
 
 // 렌더링 시점에서만 불러옴
 const Header = dynamic(() => import("@/features/Header"));
@@ -22,6 +22,23 @@ export default function App({ Component, pageProps }: AppProps) {
   const [isServerDown, setIsServerDown] = useState(false); // 서버 상태 체크
 
   const isLoginPage = router.pathname === "/login"; // 현재 라우터 경로 체크
+
+  // 서버 체크
+  const checkServer = async () => {
+    try {
+      await axios.get("/auth/health"); // 백엔드의 헬스 체크
+      setIsServerDown(false);
+    } catch (error) {
+      setIsServerDown(true);
+    }
+  };
+
+  useEffect(() => {
+    checkServer();
+    // 30초마다 서버 상태 확인
+    const interval = setInterval(checkServer, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -42,24 +59,6 @@ export default function App({ Component, pageProps }: AppProps) {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, []);
-
-  // 서버 체크
-  const checkServer = async () => {
-    try {
-      await axiosInstance.get("/auth/health"); // 백엔드의 헬스 체크
-      setIsServerDown(false);
-    } catch (error) {
-      console.error("서버 점검 감지:", error);
-      setIsServerDown(true);
-    }
-  };
-
-  useEffect(() => {
-    checkServer();
-    // 30초마다 서버 상태 확인
-    const interval = setInterval(checkServer, 30000);
-    return () => clearInterval(interval);
   }, []);
 
   return (
