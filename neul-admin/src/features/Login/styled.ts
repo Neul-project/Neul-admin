@@ -3,13 +3,14 @@ import styled from "styled-components";
 export const LoginStyled = styled.div`
   &.Login_main_wrap {
     max-width: 400px;
-    display: flex;
     width: 100%;
     height: 100vh;
+    display: flex;
     justify-content: center;
     flex-direction: column;
     text-align: center;
     margin: 0px auto;
+    overflow: hidden;
     gap: 15px;
 
     .Login_main_box {
