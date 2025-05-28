@@ -256,16 +256,16 @@ const ChatRoom = () => {
         const container = scrollContainerRef.current;
         const prevScrollTop = container?.scrollTop ?? 0;
         const prevScrollHeight = container?.scrollHeight ?? 0;
-        setTimeout(() => {
-          if (container) {
-            const newScrollHeight = container.scrollHeight;
 
-            if (pageToFetch !== 1) {
-              const addedHeight = newScrollHeight - prevScrollHeight;
-              container.scrollTop = prevScrollTop + addedHeight;
-            } else {
-              scrollToBottom(); // 처음 들어갔을 때는 맨 아래로
-            }
+        setTimeout(() => {
+          if (!container) return;
+          const newScrollHeight = container.scrollHeight;
+
+          if (pageToFetch !== 1) {
+            const addedHeight = newScrollHeight - prevScrollHeight;
+            container.scrollTop = prevScrollTop + addedHeight; // 유지
+          } else {
+            scrollToBottom(); // 페이지 1일 때만 맨 아래로 이동
           }
         }, 30);
       });
