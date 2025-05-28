@@ -51,6 +51,10 @@ export const sidebarMenus = createSidebarMenus([
     label: "채팅",
   },
   {
+    key: "/paylist",
+    label: "정산하기",
+  },
+  {
     key: "/mypage",
     label: "마이페이지",
   },

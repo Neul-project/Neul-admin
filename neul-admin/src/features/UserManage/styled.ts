@@ -4,6 +4,12 @@ export const UserManageStyled = styled.div`
   &.usermanage_wrap {
     padding: 20px;
 
+    /* 테이블 페이지네이션 가운데 정렬 */
+    .ant-table-wrapper .ant-table-pagination.ant-pagination {
+      display: flex; /* 기본이 inline이므로 flex 설정 필요 */
+      justify-content: center;
+    }
+
     /* 테이블 가운데 정렬 */
     .ant-table-thead > tr > th {
       text-align: center;

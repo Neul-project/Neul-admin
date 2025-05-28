@@ -389,6 +389,7 @@ const ChatRoom = () => {
       content: "채팅방을 나가면 채팅내용을 복구할 수 없습니다.",
       okText: "나가기",
       cancelText: "취소",
+      centered: true,
       okButtonProps: {
         style: { backgroundColor: "#5DA487" },
       },
