@@ -8,6 +8,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import type { MenuProps } from "antd";
 import { Button, ConfigProvider, Dropdown, Modal } from "antd";
 import Cookies from "js-cookie";
+import { HomeFilled } from "@ant-design/icons";
 
 export interface HeaderProps {
   className?: string;
@@ -60,7 +61,15 @@ const Header = ({ className }: HeaderProps) => {
           <Link href="/">도우미 페이지</Link>
         </div>
         <div className="right">
-          <span>{user?.name}님</span>
+          <span
+            onClick={() => {
+              window.location.href =
+                process.env.NEXT_PUBLIC_BASE_URL + "/login";
+            }}
+          >
+            <HomeFilled />
+          </span>
+          <span className="header_userinfo">{user?.name}님</span>
           <span className="header_userinfo" onClick={showModal}>
             로그아웃
           </span>
