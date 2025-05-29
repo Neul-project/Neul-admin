@@ -37,8 +37,7 @@ const Paylist = () => {
   };
 
   useEffect(() => {
-    console.log("!!!!!!!!", adminId);
-    // if (!adminId) return;
+    if (!adminId) return;
     fetchPaymentList();
   }, [adminId]);
 
