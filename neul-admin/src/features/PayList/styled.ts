@@ -10,6 +10,7 @@ export const Payliststyled = styled.div`
     align-items: center;
     .paylist_popover {
       margin-left: 5px;
+      cursor: pointer;
     }
   }
 
