@@ -48,6 +48,10 @@ const MatchingPage = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [refuseReason, setRefuseReason] = useState("");
   const [calendarValue, setCalendarValue] = useState<Dayjs | null>(null);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+  });
 
   const adminId = useAuthStore((state) => state.user?.id);
 
@@ -191,8 +195,10 @@ const MatchingPage = () => {
       {
         key: "number",
         title: "번호",
-        dataIndex: "number",
-        // render: (_: any, __: any, index: number) => index + 1,
+        render: (_: any, __: any, index: number) => {
+          // 페이지네이션 기준 계산
+          return (pagination.current - 1) * pagination.pageSize + index + 1;
+        },
       },
       {
         key: "email",
