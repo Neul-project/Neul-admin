@@ -58,6 +58,8 @@ const StatusList = () => {
           params: { adminId, patientId },
         });
 
+        console.log(res.data, "상태리스트------------------");
+
         mapAndSetStatusList(res.data);
       } catch (e) {
         console.error("상태 리스트 조회 실패", e);
