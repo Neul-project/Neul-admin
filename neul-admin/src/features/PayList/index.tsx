@@ -1,12 +1,13 @@
 import { Payliststyled } from "./styled";
 import { useEffect, useState } from "react";
-import { Button, ConfigProvider, Modal, Table } from "antd";
+import { Button, ConfigProvider, Modal, Popover, Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import axiosInstance from "@/lib/axios";
 import dayjs from "dayjs";
 import TitleCompo from "@/components/TitleCompo";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { AntdGlobalTheme } from "@/utill/antdtheme";
+import { InfoCircleFilled } from "@ant-design/icons";
 
 interface PaymentItem {
   id: number;
@@ -96,7 +97,16 @@ const Paylist = () => {
 
   return (
     <Payliststyled>
-      <TitleCompo title="결제 목록" />
+      <div className="paylist_box">
+        <TitleCompo title="결제 목록" />
+        <Popover
+          className="paylist_popover"
+          placement="bottom"
+          content="※ 결제 금액 중 일부는 결제 수수료 및 세금으로 사용되며, 실제 정산 금액은 약 3.3% 차감된 후 지급됩니다."
+        >
+          <InfoCircleFilled style={{ fontSize: "16px", color: "#c9c9c9" }} />
+        </Popover>
+      </div>
       <Table
         columns={columns}
         dataSource={data}

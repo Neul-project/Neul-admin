@@ -5,6 +5,14 @@ export const Payliststyled = styled.div`
   flex-direction: column;
   gap: 15px;
 
+  .paylist_box {
+    display: flex;
+    align-items: center;
+    .paylist_popover {
+      margin-left: 5px;
+    }
+  }
+
   .ant-table-wrapper .ant-table-pagination-right {
     justify-content: center;
   }
