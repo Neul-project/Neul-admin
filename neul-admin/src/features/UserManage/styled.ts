@@ -2,8 +2,6 @@ import styled from "styled-components";
 
 export const UserManageStyled = styled.div`
   &.usermanage_wrap {
-    padding: 20px;
-
     .ant-table-wrapper .ant-table-pagination-right {
       justify-content: center;
     }

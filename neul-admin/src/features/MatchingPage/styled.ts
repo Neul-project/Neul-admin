@@ -2,8 +2,6 @@ import styled from "styled-components";
 
 export const MatchingPageStyled = styled.div`
   &.matching_wrap {
-    padding: 20px;
-
     .ant-table-wrapper .ant-table-pagination-right {
       justify-content: center;
     }
