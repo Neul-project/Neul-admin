@@ -6,7 +6,7 @@ import axiosInstance from "@/lib/axios";
 import dayjs from "dayjs";
 import TitleCompo from "@/components/TitleCompo";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { AntdGlobalTheme } from "@/utill/antdtheme";
+import { AntdGlobalTheme, GreenTheme } from "@/utill/antdtheme";
 import { InfoCircleFilled } from "@ant-design/icons";
 
 interface PaymentItem {
@@ -77,13 +77,14 @@ const Paylist = () => {
       dataIndex: "pay",
       render: (_: any, record: any) => {
         return (
-          <ConfigProvider theme={AntdGlobalTheme}>
+          <ConfigProvider theme={GreenTheme}>
             <Button
               onClick={() => {
                 Modal.info({
                   title: "준비중입니다",
                   content: "정산 기능은 현재 준비 중입니다.",
                   centered: true,
+                  okText: "확인",
                 });
               }}
             >

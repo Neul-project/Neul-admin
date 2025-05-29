@@ -45,7 +45,6 @@ const UserManage = () => {
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [users, setUsers] = useState<UserType[]>([]);
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [userOrder, setUserOrder] = useState("DESC");
   const [selectSearch, setSelectSearch] = useState<string>("user_id");
   const [calendarValue, setCalendarValue] = useState<Dayjs | null>(null);
@@ -67,8 +66,6 @@ const UserManage = () => {
             word: word.trim(), // 검색 단어
           },
         });
-
-        console.log("담당 회원: ", res.data);
 
         const mapped = res.data.map((x: any, i: number) => ({
           key: i,
@@ -203,17 +200,6 @@ const UserManage = () => {
     saveAs(file, "담당회원목록.xlsx");
   };
 
-  // 선택된 키가 변경될 때마다 새로운 함수가 생성안되도록
-  const onRowSelectionChange = useCallback((keys: React.Key[]) => {
-    setSelectedRowKeys(keys);
-  }, []);
-
-  // 테이블 rowSelection 설정
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: onRowSelectionChange,
-  };
-
   const columns = useMemo(
     () => [
       {
@@ -315,7 +301,6 @@ const UserManage = () => {
         </div>
       </div>
       <Table
-        rowSelection={rowSelection}
         columns={columns}
         dataSource={sortedUsers}
         pagination={{
