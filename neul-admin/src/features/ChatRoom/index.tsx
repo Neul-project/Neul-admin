@@ -515,7 +515,7 @@ const ChatRoom = () => {
                     return (
                       <ChatMessage
                         key={i}
-                        name={i === 0 || shouldShowTime ? chat.user.name : ""}
+                        name={chat.user.name}
                         message={chat.message}
                         time={shouldShowTime ? chat.time : ""}
                         sender={chat.sender}
