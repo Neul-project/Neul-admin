@@ -64,6 +64,8 @@ const UserManage = () => {
           },
         });
 
+        console.log("담당 회원: ", res.data);
+
         const mapped = res.data.map((x: any, i: number) => ({
           key: i,
           id: x.user.id,

@@ -29,7 +29,6 @@ const Paylist = () => {
         "/program/payment-list",
         { params: { type: "user", adminId } }
       );
-      console.log("Da", res.data);
       setData(res.data);
     } catch (error) {
       console.error("결제 리스트 불러오기 실패:", error);

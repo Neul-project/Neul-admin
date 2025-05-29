@@ -2,8 +2,6 @@ import styled from "styled-components";
 
 export const SchedulePageStyled = styled.div`
   &.schedule_wrap {
-    padding: 20px;
-
     .ant-picker-panel .ant-picker-cell {
       height: 90px !important;
     }

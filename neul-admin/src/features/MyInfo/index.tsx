@@ -55,13 +55,11 @@ const MyInfo = () => {
   //로그인한 도우미 정보 가져오기
   const getMyInfo = async () => {
     if (!adminId) return;
-    //console.log(adminId);
     try {
       const res = await axiosInstance.get("/helper/userlist", {
         params: { id: adminId },
       });
 
-      //console.log("res", res.data);
       setInfo(res.data);
     } catch (e) {
       console.error("해당 도우미 정보 불러오기 실패: ", e);

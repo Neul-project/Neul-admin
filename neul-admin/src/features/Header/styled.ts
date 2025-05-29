@@ -30,6 +30,10 @@ export const HeaderStyled = styled.div`
   }
 
   .header_userinfo {
+    margin-left: 12px;
+  }
+
+  .header_logout {
     cursor: pointer;
     margin-left: 12px;
   }

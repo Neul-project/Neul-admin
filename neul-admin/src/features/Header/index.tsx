@@ -23,7 +23,6 @@ const Header = ({ className }: HeaderProps) => {
   const pathname = router?.pathname;
 
   const { user } = useAuthStore();
-  //console.log("user", user);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -71,7 +70,7 @@ const Header = ({ className }: HeaderProps) => {
             </span>
           </Tooltip>
           <span className="header_userinfo">{user?.name}님</span>
-          <span className="header_userinfo" onClick={showModal}>
+          <span className="header_logout" onClick={showModal}>
             로그아웃
           </span>
         </div>
