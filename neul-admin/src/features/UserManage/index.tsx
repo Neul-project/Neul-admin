@@ -49,6 +49,10 @@ const UserManage = () => {
   const [userOrder, setUserOrder] = useState("DESC");
   const [selectSearch, setSelectSearch] = useState<string>("user_id");
   const [calendarValue, setCalendarValue] = useState<Dayjs | null>(null);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+  });
 
   const adminId = useAuthStore((state) => state.user?.id);
 
@@ -215,8 +219,10 @@ const UserManage = () => {
       {
         key: "number",
         title: "번호",
-        dataIndex: "number",
-        // render: (_: any, __: any, index: number) => index + 1,
+        render: (_: any, __: any, index: number) => {
+          // 페이지네이션 기준 계산
+          return (pagination.current - 1) * pagination.pageSize + index + 1;
+        },
       },
       {
         key: "email",
@@ -255,7 +261,7 @@ const UserManage = () => {
         dataIndex: "patient_birth",
       },
     ],
-    []
+    [pagination]
   );
 
   const sortOption = [
@@ -312,6 +318,12 @@ const UserManage = () => {
         rowSelection={rowSelection}
         columns={columns}
         dataSource={sortedUsers}
+        pagination={{
+          ...pagination,
+          onChange: (page, pageSize) => {
+            setPagination({ current: page, pageSize });
+          },
+        }}
         rowKey="key"
         onRow={(record) => ({
           onClick: () => {
