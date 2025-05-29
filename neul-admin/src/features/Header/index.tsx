@@ -5,8 +5,7 @@ import { useRouter } from "next/router";
 import { HeaderStyled } from "./styled";
 import clsx from "clsx";
 import { useAuthStore } from "@/stores/useAuthStore";
-import type { MenuProps } from "antd";
-import { Button, ConfigProvider, Dropdown, Modal } from "antd";
+import { Button, Modal, Tooltip } from "antd";
 import Cookies from "js-cookie";
 import { HomeFilled } from "@ant-design/icons";
 
@@ -61,14 +60,16 @@ const Header = ({ className }: HeaderProps) => {
           <Link href="/">도우미 페이지</Link>
         </div>
         <div className="right">
-          <span
-            onClick={() => {
-              window.location.href =
-                process.env.NEXT_PUBLIC_BASE_URL + "/login";
-            }}
-          >
-            <HomeFilled />
-          </span>
+          <Tooltip title="메인페이지 이동">
+            <span
+              className="header_home"
+              onClick={() => {
+                window.location.href = process.env.NEXT_PUBLIC_BASE_URL + "/";
+              }}
+            >
+              <HomeFilled />
+            </span>
+          </Tooltip>
           <span className="header_userinfo">{user?.name}님</span>
           <span className="header_userinfo" onClick={showModal}>
             로그아웃

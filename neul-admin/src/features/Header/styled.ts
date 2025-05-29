@@ -21,6 +21,9 @@ export const HeaderStyled = styled.div`
       grid-gap: 0.75rem;
       display: flex;
     }
+    .header_home {
+      cursor: pointer;
+    }
   }
   :hover {
     color: white;
