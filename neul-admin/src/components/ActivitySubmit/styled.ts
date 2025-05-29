@@ -11,7 +11,11 @@ export const ActivityStyled = styled.div`
   .activitySubmit_content {
     margin-bottom: 20px;
   }
-
+  .activitySubmit_imgmax {
+    font-size: 12px;
+    margin-top: 5px;
+    color: rgb(93, 164, 135);
+  }
   .activitySubmit_form {
     display: flex;
     flex-direction: column;

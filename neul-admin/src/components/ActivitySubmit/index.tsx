@@ -129,6 +129,16 @@ const ActivitySubmit = ({
     },
 
     onChange({ fileList }) {
+      console.log("fileList", fileList);
+      if (fileList.length > 5) {
+        console.log("SDfsf");
+        notification.warning({
+          message: "최대 업로드 개수 초과",
+          description: "이미지는 최대 5개까지만 선택할 수 있습니다.",
+        });
+        return; // 상태 업데이트하지 않음
+      }
+
       setImgarr(fileList); // 파일 리스트 상태 업데이트
       activityformik.setFieldValue("imgarr", fileList);
     },
@@ -313,7 +323,9 @@ const ActivitySubmit = ({
                 <Button icon={<UploadOutlined />} />
               </Upload>
             </ConfigProvider>
-
+            <p className="activitySubmit_imgmax">
+              이미지는 최대 5개까지 선택 가능합니다.
+            </p>
             <div className="activitySubmit_swiper_div">
               {imgarr && imgarr.length > 0 ? (
                 <Swiper
