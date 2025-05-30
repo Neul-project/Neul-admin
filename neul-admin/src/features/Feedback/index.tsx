@@ -76,7 +76,7 @@ const Feedback = () => {
     //return;
     axiosInstance
       .get("/activity/feedback/view", {
-        params: { patientId: Number(admin), search: search },
+        params: { adminId: Number(admin), search: search },
       })
       .then((res) => {
         //console.log("da", res.data);
@@ -100,7 +100,7 @@ const Feedback = () => {
 
     const adminId = user?.id;
     axiosInstance
-      .get("/status/patient", { params: { adminId } })
+      .get("/user/adminlist", { params: { adminId } })
       .then((res) => {
         //console.log("re", res.data);
         const data = res.data.map((item: any) => ({
@@ -134,7 +134,7 @@ const Feedback = () => {
     <FeedbackStyled>
       <div className="Feedback_admin_choice">
         <div className="Feedback_admin_select">
-          <div>피보호자(ID)</div>
+          <div>관리자</div>
           <ConfigProvider theme={AntdGlobalTheme}>
             <Select
               defaultValue={{ value: 0, label: "전체" }}
