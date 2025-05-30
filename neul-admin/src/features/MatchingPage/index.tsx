@@ -254,6 +254,7 @@ const MatchingPage = () => {
                       "해당 유저가 결제를 완료하면 담당 도우미가 됩니다.",
                     cancelText: "아니요",
                     okText: "예",
+                    centered: true,
                     okButtonProps: {
                       style: { backgroundColor: "#5DA487" },
                     },
@@ -382,6 +383,7 @@ const MatchingPage = () => {
       {/* 거절 모달 */}
       <Modal
         open={isModalVisible}
+        centered
         title="해당 신청을 거절하시겠습니까?"
         onCancel={() => {
           setIsModalVisible(false);
