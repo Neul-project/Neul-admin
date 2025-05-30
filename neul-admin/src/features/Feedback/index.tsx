@@ -73,7 +73,7 @@ const Feedback = () => {
     //만약 admin이 0인 경우 전체 내용 반환 //search : 검색 내용
     //변수 변경 adminId -> patientId
     if (!user?.id) return;
-    console.log("a", user?.id);
+    //console.log("a", user?.id);
     //return;
     axiosInstance
       .get("/activity/feedback/view", {
@@ -93,7 +93,7 @@ const Feedback = () => {
             date: formatDate(item.recorded_at),
             origin: item,
           }));
-        console.log("mappedList", mappedList);
+        //console.log("mappedList", mappedList);
         setList(mappedList);
       });
   };
