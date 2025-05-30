@@ -6,6 +6,7 @@ import { formatDate } from "@/utill/activityoptionlist";
 import FeedbackModal from "../FeedbackModal";
 import { Table, TableProps, Select, Button, ConfigProvider, Input } from "antd";
 import { SearchProps } from "antd/es/input";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 const { Search } = Input;
 
@@ -31,6 +32,7 @@ const Feedback = () => {
   const [selectedRecord, setSelectedRecord] = useState<DataType | null>(null); //모달로 넘길 내용
   const [searchValue, setSearchValue] = useState(""); //검색 내용
   const [selectedAdmin, setSelectedAdmin] = useState<number>(0); //select로 선택된 어드민 id
+  const { user } = useAuthStore();
 
   //테이블 열
   const columns: TableProps<DataType>["columns"] = [
@@ -68,9 +70,13 @@ const Feedback = () => {
   const feedbackview = (admin?: any, search?: string) => {
     //console.log("ad", admin, search);
     //만약 admin이 0인 경우 전체 내용 반환 //search : 검색 내용
+    //변수 변경 adminId -> patientId
+
+    //console.log("a", admin);
+    //return;
     axiosInstance
       .get("/activity/feedback/view", {
-        params: { adminId: Number(admin), search: search },
+        params: { patientId: Number(admin), search: search },
       })
       .then((res) => {
         //console.log("da", res.data);
@@ -90,10 +96,19 @@ const Feedback = () => {
 
   //화면 초기 렌더링 시 자료 불러오기
   useEffect(() => {
-    axiosInstance.get(`/user/adminlist`).then((res) => {
-      const data: AdminType[] = res.data;
-      setAdminlist([{ value: 0, label: "전체" }, ...data]);
-    });
+    if (!user?.id) return;
+
+    const adminId = user?.id;
+    axiosInstance
+      .get("/status/patient", { params: { adminId } })
+      .then((res) => {
+        //console.log("re", res.data);
+        const data = res.data.map((item: any) => ({
+          value: item.id,
+          label: `${item.name}(${item.id})`,
+        }));
+        setAdminlist([{ value: 0, label: "전체" }, ...data]);
+      });
     feedbackview(0, "");
   }, []);
 
@@ -119,7 +134,7 @@ const Feedback = () => {
     <FeedbackStyled>
       <div className="Feedback_admin_choice">
         <div className="Feedback_admin_select">
-          <div>관리자</div>
+          <div>피보호자(ID)</div>
           <ConfigProvider theme={AntdGlobalTheme}>
             <Select
               defaultValue={{ value: 0, label: "전체" }}
