@@ -173,10 +173,6 @@ const ChatRoom = () => {
         params: { adminId, page: pageToFetch, limit: chatRoomLimit },
       });
 
-      console.log(res.data, "채팅방 목록 입니다.....");
-      res.data.map((room: ChatRoomPreview) => room.lastTime),
-        "lastTime only.....";
-
       setChatRoomList((prev) => {
         const filteredRooms = res.data.filter(
           (room: ChatRoomPreview) => !room.roomDel
