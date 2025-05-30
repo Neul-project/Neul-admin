@@ -60,7 +60,11 @@ export const ActivityListStyled = styled.div`
 
 export const StyledModal = styled(Modal)`
   .ant-modal-content {
-    padding: 10px 10px 20px 20px;
+    padding: 0px 10px 20px 20px;
+
+    .ant-modal-title {
+      padding-top: 10px;
+    }
 
     .ActivityList_Modal {
       max-height: 70vh;
