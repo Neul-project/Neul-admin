@@ -63,7 +63,8 @@ const Feedback = () => {
     //console.log("value", value, _e, info);
     // console.log("sele", selectedAdmin);
     //피드백 : 활동기록 제목(title) 검색에 따른 행(피드백) 반환 요청
-    feedbackview(selectedAdmin, value);
+    if (!user?.id) return;
+    feedbackview(user?.id, value);
   };
 
   //admin id에 해당하는 피드백 내용 가져오기
@@ -72,14 +73,14 @@ const Feedback = () => {
     //만약 admin이 0인 경우 전체 내용 반환 //search : 검색 내용
     //변수 변경 adminId -> patientId
     if (!user?.id) return;
-    //console.log("a", admin);
+    console.log("a", user?.id);
     //return;
     axiosInstance
       .get("/activity/feedback/view", {
         params: { adminId: Number(user?.id), search: search },
       })
       .then((res) => {
-        console.log("da", res.data);
+        //console.log("da", res.data);
         const data = res.data;
 
         const mappedList: DataType[] = data
@@ -92,7 +93,7 @@ const Feedback = () => {
             date: formatDate(item.recorded_at),
             origin: item,
           }));
-
+        console.log("mappedList", mappedList);
         setList(mappedList);
       });
   };
@@ -103,7 +104,8 @@ const Feedback = () => {
       const data: AdminType[] = res.data;
       setAdminlist([{ value: 0, label: "전체" }, ...data]);
     });
-    feedbackview(0, "");
+    if (!user?.id) return;
+    feedbackview(user?.id, "");
   }, []);
 
   //select 선택
