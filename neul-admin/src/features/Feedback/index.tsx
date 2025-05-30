@@ -96,19 +96,10 @@ const Feedback = () => {
 
   //화면 초기 렌더링 시 자료 불러오기
   useEffect(() => {
-    if (!user?.id) return;
-
-    const adminId = user?.id;
-    axiosInstance
-      .get("/user/adminlist", { params: { adminId } })
-      .then((res) => {
-        //console.log("re", res.data);
-        const data = res.data.map((item: any) => ({
-          value: item.id,
-          label: `${item.name}(${item.id})`,
-        }));
-        setAdminlist([{ value: 0, label: "전체" }, ...data]);
-      });
+    axiosInstance.get(`/user/adminlist`).then((res) => {
+      const data: AdminType[] = res.data;
+      setAdminlist([{ value: 0, label: "전체" }, ...data]);
+    });
     feedbackview(0, "");
   }, []);
 
