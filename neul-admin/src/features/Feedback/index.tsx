@@ -71,24 +71,27 @@ const Feedback = () => {
     //console.log("ad", admin, search);
     //만약 admin이 0인 경우 전체 내용 반환 //search : 검색 내용
     //변수 변경 adminId -> patientId
-
+    if (!user?.id) return;
     //console.log("a", admin);
     //return;
     axiosInstance
       .get("/activity/feedback/view", {
-        params: { adminId: Number(admin), search: search },
+        params: { adminId: Number(user?.id), search: search },
       })
       .then((res) => {
-        //console.log("da", res.data);
+        console.log("da", res.data);
         const data = res.data;
-        const mappedList: DataType[] = data.map((item: any, index: number) => ({
-          key: item.id,
-          number: index + 1,
-          activity: item.activity.title,
-          content: item.message,
-          date: formatDate(item.recorded_at),
-          origin: item,
-        }));
+
+        const mappedList: DataType[] = data
+          .filter((element: any) => element.admin.id === user?.id)
+          .map((item: any, index: number) => ({
+            key: item.id,
+            number: index + 1,
+            activity: item.activity.title,
+            content: item.message,
+            date: formatDate(item.recorded_at),
+            origin: item,
+          }));
 
         setList(mappedList);
       });
@@ -96,7 +99,7 @@ const Feedback = () => {
 
   //화면 초기 렌더링 시 자료 불러오기
   useEffect(() => {
-    axiosInstance.get(`/user/adminlist`).then((res) => {
+    axiosInstance.get(`/status/patient`).then((res) => {
       const data: AdminType[] = res.data;
       setAdminlist([{ value: 0, label: "전체" }, ...data]);
     });
@@ -124,7 +127,7 @@ const Feedback = () => {
   return (
     <FeedbackStyled>
       <div className="Feedback_admin_choice">
-        <div className="Feedback_admin_select">
+        {/* <div className="Feedback_admin_select">
           <div>관리자</div>
           <ConfigProvider theme={AntdGlobalTheme}>
             <Select
@@ -135,7 +138,7 @@ const Feedback = () => {
               labelInValue
             />
           </ConfigProvider>
-        </div>
+        </div> */}
         <div className="Feedback_admin_select">
           <div>활동기록명</div>
           <ConfigProvider theme={GreenTheme}>
