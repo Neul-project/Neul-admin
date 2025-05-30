@@ -76,7 +76,7 @@ const Feedback = () => {
     //return;
     axiosInstance
       .get("/activity/feedback/view", {
-        params: { patientId: Number(admin), search: search },
+        params: { adminId: Number(admin), search: search },
       })
       .then((res) => {
         //console.log("da", res.data);
@@ -96,19 +96,10 @@ const Feedback = () => {
 
   //화면 초기 렌더링 시 자료 불러오기
   useEffect(() => {
-    if (!user?.id) return;
-
-    const adminId = user?.id;
-    axiosInstance
-      .get("/status/patient", { params: { adminId } })
-      .then((res) => {
-        //console.log("re", res.data);
-        const data = res.data.map((item: any) => ({
-          value: item.id,
-          label: `${item.name}(${item.id})`,
-        }));
-        setAdminlist([{ value: 0, label: "전체" }, ...data]);
-      });
+    axiosInstance.get(`/user/adminlist`).then((res) => {
+      const data: AdminType[] = res.data;
+      setAdminlist([{ value: 0, label: "전체" }, ...data]);
+    });
     feedbackview(0, "");
   }, []);
 
@@ -134,11 +125,11 @@ const Feedback = () => {
     <FeedbackStyled>
       <div className="Feedback_admin_choice">
         <div className="Feedback_admin_select">
-          <div>피보호자(ID)</div>
+          <div>관리자</div>
           <ConfigProvider theme={AntdGlobalTheme}>
             <Select
               defaultValue={{ value: 0, label: "전체" }}
-              style={{ width: 120 }}
+              style={{ width: 160 }}
               onChange={handleChange}
               options={adminlist}
               labelInValue
