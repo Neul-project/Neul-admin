@@ -30,7 +30,6 @@ const Paylist = () => {
         "/program/payment-list",
         { params: { type: "user", adminId } }
       );
-      console.log(res.data, "!!!!!!!!!!!!!");
 
       const resdata = res.data;
       const filterdata = resdata.filter(
