@@ -138,7 +138,7 @@ const Feedback = () => {
           <ConfigProvider theme={AntdGlobalTheme}>
             <Select
               defaultValue={{ value: 0, label: "전체" }}
-              style={{ width: 120 }}
+              style={{ width: 160 }}
               onChange={handleChange}
               options={adminlist}
               labelInValue
